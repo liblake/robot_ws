@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mujoco model="robot_scene">
+    <compiler angle="radian" autolimits="true" />
+
+    <option timestep="0.002" gravity="0 0 -9.81" />
+
+    <visual>
+        <global realtime="1" />
+        <headlight diffuse="1 1 1" specular="0.5 0.5 0.5" active="1" />
+    </visual>
+
+    <asset>
+        <texture name="plane_tex" type="2d" builtin="checker" rgb1=".1 .1 .1" rgb2=".9 .9 .9"
+            width="512" height="512" />
+        <material name="plane" reflectance="0.3" texture="plane_tex" texrepeat="1 1" texuniform="true" />
+    </asset>
+
+    <!-- 引入机器人（由 robot.urdf 转成的 MJCF） -->
+    <include file="assets/robot_urdf/robot.xml" />
+
+    <worldbody>
+        <!-- 地面（机器人 z 范围约 -0.33 ~ 0.16，故地面放到机器人底部下方） -->
+        <geom name="floor" pos="0 0 -0.33" size="10 10 .1" type="plane" material="plane"
+            condim="3" />
+
+        <!-- 光源 -->
+        <light directional="true" ambient=".3 .3 .3" pos="30 30 30" dir="0 -2 -1"
+            diffuse=".5 .5 .5" specular=".5 .5 .5" />
+    </worldbody>
+</mujoco>
