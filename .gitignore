@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+
+# 调试产物 / 日志
+robot.txt
+*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
