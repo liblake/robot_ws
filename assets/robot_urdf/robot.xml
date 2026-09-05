@@ -1,626 +1,939 @@
-<?xml version='1.0' encoding='utf-8'?>
 <mujoco model="generated_robot">
-  <compiler angle="radian" inertiafromgeom="true" />
+  <compiler angle="radian" meshdir="meshes/"/>
+  <option timestep="0.001" iterations="100" solver="Newton" tolerance="1e-10">
+    <flag filterparent="disable"/>
+  </option>
+  <size njmax="500" nconmax="100" />
   <asset>
-    <texture name="plane" type="2d" builtin="checker" rgb1=".1 .1 .1" rgb2=".9 .9 .9"
-            width="512" height="512" mark="cross" markrgb=".8 .8 .8" />
-    <material name="plane" reflectance="0.3" texture="plane" texrepeat="1 1" texuniform="true" />
 
-    <mesh name="part_001_solid_001" content_type="model/stl" file="meshes/part_001_solid_001.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_002_solid_002" content_type="model/stl" file="meshes/part_002_solid_002.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_003_solid_003" content_type="model/stl" file="meshes/part_003_solid_003.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_004_solid_004" content_type="model/stl" file="meshes/part_004_solid_004.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_005_solid_005" content_type="model/stl" file="meshes/part_005_solid_005.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_006_solid_006" content_type="model/stl" file="meshes/part_006_solid_006.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_007_solid_007" content_type="model/stl" file="meshes/part_007_solid_007.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_008_solid_008" content_type="model/stl" file="meshes/part_008_solid_008.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_009_solid_009" content_type="model/stl" file="meshes/part_009_solid_009.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_010_solid_010" content_type="model/stl" file="meshes/part_010_solid_010.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_011_solid_011" content_type="model/stl" file="meshes/part_011_solid_011.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_012_solid_012" content_type="model/stl" file="meshes/part_012_solid_012.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_013_solid_013" content_type="model/stl" file="meshes/part_013_solid_013.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_014_solid_014" content_type="model/stl" file="meshes/part_014_solid_014.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_015_solid_015" content_type="model/stl" file="meshes/part_015_solid_015.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_016_solid_016" content_type="model/stl" file="meshes/part_016_solid_016.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_017_solid_017" content_type="model/stl" file="meshes/part_017_solid_017.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_018_solid_018" content_type="model/stl" file="meshes/part_018_solid_018.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_019_solid_019" content_type="model/stl" file="meshes/part_019_solid_019.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_020_solid_020" content_type="model/stl" file="meshes/part_020_solid_020.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_021_solid_021" content_type="model/stl" file="meshes/part_021_solid_021.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_022_solid_022" content_type="model/stl" file="meshes/part_022_solid_022.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_023_solid_023" content_type="model/stl" file="meshes/part_023_solid_023.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_024_solid_024" content_type="model/stl" file="meshes/part_024_solid_024.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_025_solid_025" content_type="model/stl" file="meshes/part_025_solid_025.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_026_solid_026" content_type="model/stl" file="meshes/part_026_solid_026.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_027_solid_027" content_type="model/stl" file="meshes/part_027_solid_027.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_028_solid_028" content_type="model/stl" file="meshes/part_028_solid_028.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_029_solid_029" content_type="model/stl" file="meshes/part_029_solid_029.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_030_solid_030" content_type="model/stl" file="meshes/part_030_solid_030.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_031_solid_031" content_type="model/stl" file="meshes/part_031_solid_031.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_032_solid_032" content_type="model/stl" file="meshes/part_032_solid_032.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_033_solid_033" content_type="model/stl" file="meshes/part_033_solid_033.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_034_solid_034" content_type="model/stl" file="meshes/part_034_solid_034.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_035_solid_035" content_type="model/stl" file="meshes/part_035_solid_035.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_036_solid_036" content_type="model/stl" file="meshes/part_036_solid_036.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_037_solid_037" content_type="model/stl" file="meshes/part_037_solid_037.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_038_solid_038" content_type="model/stl" file="meshes/part_038_solid_038.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_039_solid_039" content_type="model/stl" file="meshes/part_039_solid_039.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_040_solid_040" content_type="model/stl" file="meshes/part_040_solid_040.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_041_solid_041" content_type="model/stl" file="meshes/part_041_solid_041.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_042_solid_042" content_type="model/stl" file="meshes/part_042_solid_042.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_043_solid_043" content_type="model/stl" file="meshes/part_043_solid_043.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_044_solid_044" content_type="model/stl" file="meshes/part_044_solid_044.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_045_solid_045" content_type="model/stl" file="meshes/part_045_solid_045.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_046_solid_046" content_type="model/stl" file="meshes/part_046_solid_046.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_047_solid_047" content_type="model/stl" file="meshes/part_047_solid_047.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_048_solid_048" content_type="model/stl" file="meshes/part_048_solid_048.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_049_solid_049" content_type="model/stl" file="meshes/part_049_solid_049.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_050_solid_050" content_type="model/stl" file="meshes/part_050_solid_050.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_051_solid_051" content_type="model/stl" file="meshes/part_051_solid_051.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_052_solid_052" content_type="model/stl" file="meshes/part_052_solid_052.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_053_solid_053" content_type="model/stl" file="meshes/part_053_solid_053.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_054_solid_054" content_type="model/stl" file="meshes/part_054_solid_054.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_055_solid_055" content_type="model/stl" file="meshes/part_055_solid_055.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_056_solid_056" content_type="model/stl" file="meshes/part_056_solid_056.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_057_solid_057" content_type="model/stl" file="meshes/part_057_solid_057.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_058_solid_058" content_type="model/stl" file="meshes/part_058_solid_058.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_059_solid_059" content_type="model/stl" file="meshes/part_059_solid_059.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_060_solid_060" content_type="model/stl" file="meshes/part_060_solid_060.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_061_solid_061" content_type="model/stl" file="meshes/part_061_solid_061.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_062_solid_062" content_type="model/stl" file="meshes/part_062_solid_062.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_063_solid_063" content_type="model/stl" file="meshes/part_063_solid_063.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_064_solid_064" content_type="model/stl" file="meshes/part_064_solid_064.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_065_solid_065" content_type="model/stl" file="meshes/part_065_solid_065.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_066_solid_066" content_type="model/stl" file="meshes/part_066_solid_066.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_074_solid_074" content_type="model/stl" file="meshes/part_074_solid_074.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_075_solid_075" content_type="model/stl" file="meshes/part_075_solid_075.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_076_solid_076" content_type="model/stl" file="meshes/part_076_solid_076.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_077_solid_077" content_type="model/stl" file="meshes/part_077_solid_077.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_078_solid_078" content_type="model/stl" file="meshes/part_078_solid_078.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_079_solid_079" content_type="model/stl" file="meshes/part_079_solid_079.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_080_solid_080" content_type="model/stl" file="meshes/part_080_solid_080.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_081_solid_081" content_type="model/stl" file="meshes/part_081_solid_081.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_082_solid_082" content_type="model/stl" file="meshes/part_082_solid_082.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_083_solid_083" content_type="model/stl" file="meshes/part_083_solid_083.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_084_solid_084" content_type="model/stl" file="meshes/part_084_solid_084.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_085_solid_085" content_type="model/stl" file="meshes/part_085_solid_085.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_086_solid_086" content_type="model/stl" file="meshes/part_086_solid_086.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_087_solid_087" content_type="model/stl" file="meshes/part_087_solid_087.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_088_solid_088" content_type="model/stl" file="meshes/part_088_solid_088.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_089_solid_089" content_type="model/stl" file="meshes/part_089_solid_089.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_090_solid_090" content_type="model/stl" file="meshes/part_090_solid_090.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_091_solid_091" content_type="model/stl" file="meshes/part_091_solid_091.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_092_solid_092" content_type="model/stl" file="meshes/part_092_solid_092.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_093_solid_093" content_type="model/stl" file="meshes/part_093_solid_093.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_094_solid_094" content_type="model/stl" file="meshes/part_094_solid_094.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_095_solid_095" content_type="model/stl" file="meshes/part_095_solid_095.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_096_solid_096" content_type="model/stl" file="meshes/part_096_solid_096.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_097_solid_097" content_type="model/stl" file="meshes/part_097_solid_097.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_098_solid_098" content_type="model/stl" file="meshes/part_098_solid_098.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_099_solid_099" content_type="model/stl" file="meshes/part_099_solid_099.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_100_solid_100" content_type="model/stl" file="meshes/part_100_solid_100.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_101_solid_101" content_type="model/stl" file="meshes/part_101_solid_101.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_102_solid_102" content_type="model/stl" file="meshes/part_102_solid_102.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_103_solid_103" content_type="model/stl" file="meshes/part_103_solid_103.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_104_solid_104" content_type="model/stl" file="meshes/part_104_solid_104.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_105_solid_105" content_type="model/stl" file="meshes/part_105_solid_105.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_106_solid_106" content_type="model/stl" file="meshes/part_106_solid_106.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_107_solid_107" content_type="model/stl" file="meshes/part_107_solid_107.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_108_solid_108" content_type="model/stl" file="meshes/part_108_solid_108.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_109_solid_109" content_type="model/stl" file="meshes/part_109_solid_109.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_110_solid_110" content_type="model/stl" file="meshes/part_110_solid_110.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_111_solid_111" content_type="model/stl" file="meshes/part_111_solid_111.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_112_solid_112" content_type="model/stl" file="meshes/part_112_solid_112.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_113_solid_113" content_type="model/stl" file="meshes/part_113_solid_113.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_114_solid_114" content_type="model/stl" file="meshes/part_114_solid_114.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_115_solid_115" content_type="model/stl" file="meshes/part_115_solid_115.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_116_solid_116" content_type="model/stl" file="meshes/part_116_solid_116.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_117_solid_117" content_type="model/stl" file="meshes/part_117_solid_117.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_118_solid_118" content_type="model/stl" file="meshes/part_118_solid_118.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_119_solid_119" content_type="model/stl" file="meshes/part_119_solid_119.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_120_solid_120" content_type="model/stl" file="meshes/part_120_solid_120.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_121_solid_121" content_type="model/stl" file="meshes/part_121_solid_121.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_122_solid_122" content_type="model/stl" file="meshes/part_122_solid_122.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_123_solid_123" content_type="model/stl" file="meshes/part_123_solid_123.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_124_solid_124" content_type="model/stl" file="meshes/part_124_solid_124.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_125_solid_125" content_type="model/stl" file="meshes/part_125_solid_125.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_126_solid_126" content_type="model/stl" file="meshes/part_126_solid_126.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_127_solid_127" content_type="model/stl" file="meshes/part_127_solid_127.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_128_solid_128" content_type="model/stl" file="meshes/part_128_solid_128.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_129_solid_129" content_type="model/stl" file="meshes/part_129_solid_129.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_130_solid_130" content_type="model/stl" file="meshes/part_130_solid_130.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_131_solid_131" content_type="model/stl" file="meshes/part_131_solid_131.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_132_solid_132" content_type="model/stl" file="meshes/part_132_solid_132.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_133_solid_133" content_type="model/stl" file="meshes/part_133_solid_133.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_134_solid_134" content_type="model/stl" file="meshes/part_134_solid_134.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_135_solid_135" content_type="model/stl" file="meshes/part_135_solid_135.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_136_solid_136" content_type="model/stl" file="meshes/part_136_solid_136.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_137_solid_137" content_type="model/stl" file="meshes/part_137_solid_137.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_138_solid_138" content_type="model/stl" file="meshes/part_138_solid_138.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_139_solid_139" content_type="model/stl" file="meshes/part_139_solid_139.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_140_solid_140" content_type="model/stl" file="meshes/part_140_solid_140.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_141_solid_141" content_type="model/stl" file="meshes/part_141_solid_141.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_142_solid_142" content_type="model/stl" file="meshes/part_142_solid_142.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_143_solid_143" content_type="model/stl" file="meshes/part_143_solid_143.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_144_solid_144" content_type="model/stl" file="meshes/part_144_solid_144.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_145_solid_145" content_type="model/stl" file="meshes/part_145_solid_145.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_146_solid_146" content_type="model/stl" file="meshes/part_146_solid_146.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_147_solid_147" content_type="model/stl" file="meshes/part_147_solid_147.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_148_solid_148" content_type="model/stl" file="meshes/part_148_solid_148.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_149_solid_149" content_type="model/stl" file="meshes/part_149_solid_149.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_160_solid_160" content_type="model/stl" file="meshes/part_160_solid_160.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_161_solid_161" content_type="model/stl" file="meshes/part_161_solid_161.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_162_solid_162" content_type="model/stl" file="meshes/part_162_solid_162.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_163_solid_163" content_type="model/stl" file="meshes/part_163_solid_163.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_164_solid_164" content_type="model/stl" file="meshes/part_164_solid_164.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_165_solid_165" content_type="model/stl" file="meshes/part_165_solid_165.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_166_solid_166" content_type="model/stl" file="meshes/part_166_solid_166.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_167_solid_167" content_type="model/stl" file="meshes/part_167_solid_167.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_168_solid_168" content_type="model/stl" file="meshes/part_168_solid_168.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_169_solid_169" content_type="model/stl" file="meshes/part_169_solid_169.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_170_solid_170" content_type="model/stl" file="meshes/part_170_solid_170.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_171_solid_171" content_type="model/stl" file="meshes/part_171_solid_171.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_172_solid_172" content_type="model/stl" file="meshes/part_172_solid_172.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_173_solid_173" content_type="model/stl" file="meshes/part_173_solid_173.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_174_solid_174" content_type="model/stl" file="meshes/part_174_solid_174.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_175_solid_175" content_type="model/stl" file="meshes/part_175_solid_175.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_176_solid_176" content_type="model/stl" file="meshes/part_176_solid_176.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_177_solid_177" content_type="model/stl" file="meshes/part_177_solid_177.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_178_solid_178" content_type="model/stl" file="meshes/part_178_solid_178.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_185_solid_185" content_type="model/stl" file="meshes/part_185_solid_185.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_186_solid_186" content_type="model/stl" file="meshes/part_186_solid_186.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_187_solid_187" content_type="model/stl" file="meshes/part_187_solid_187.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_188_solid_188" content_type="model/stl" file="meshes/part_188_solid_188.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_189_solid_189" content_type="model/stl" file="meshes/part_189_solid_189.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_190_solid_190" content_type="model/stl" file="meshes/part_190_solid_190.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_191_solid_191" content_type="model/stl" file="meshes/part_191_solid_191.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_192_solid_192" content_type="model/stl" file="meshes/part_192_solid_192.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_193_solid_193" content_type="model/stl" file="meshes/part_193_solid_193.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_194_solid_194" content_type="model/stl" file="meshes/part_194_solid_194.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_195_solid_195" content_type="model/stl" file="meshes/part_195_solid_195.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_196_solid_196" content_type="model/stl" file="meshes/part_196_solid_196.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_197_solid_197" content_type="model/stl" file="meshes/part_197_solid_197.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_198_solid_198" content_type="model/stl" file="meshes/part_198_solid_198.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_199_solid_199" content_type="model/stl" file="meshes/part_199_solid_199.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_200_solid_200" content_type="model/stl" file="meshes/part_200_solid_200.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_201_solid_201" content_type="model/stl" file="meshes/part_201_solid_201.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_202_solid_202" content_type="model/stl" file="meshes/part_202_solid_202.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_203_solid_203" content_type="model/stl" file="meshes/part_203_solid_203.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_204_solid_204" content_type="model/stl" file="meshes/part_204_solid_204.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_205_solid_205" content_type="model/stl" file="meshes/part_205_solid_205.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_206_solid_206" content_type="model/stl" file="meshes/part_206_solid_206.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_207_solid_207" content_type="model/stl" file="meshes/part_207_solid_207.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_208_solid_208" content_type="model/stl" file="meshes/part_208_solid_208.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_209_solid_209" content_type="model/stl" file="meshes/part_209_solid_209.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_210_solid_210" content_type="model/stl" file="meshes/part_210_solid_210.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_211_solid_211" content_type="model/stl" file="meshes/part_211_solid_211.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_212_solid_212" content_type="model/stl" file="meshes/part_212_solid_212.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_213_solid_213" content_type="model/stl" file="meshes/part_213_solid_213.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_214_solid_214" content_type="model/stl" file="meshes/part_214_solid_214.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_215_solid_215" content_type="model/stl" file="meshes/part_215_solid_215.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_216_solid_216" content_type="model/stl" file="meshes/part_216_solid_216.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_217_solid_217" content_type="model/stl" file="meshes/part_217_solid_217.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_218_solid_218" content_type="model/stl" file="meshes/part_218_solid_218.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_219_solid_219" content_type="model/stl" file="meshes/part_219_solid_219.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_220_solid_220" content_type="model/stl" file="meshes/part_220_solid_220.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_221_solid_221" content_type="model/stl" file="meshes/part_221_solid_221.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_222_solid_222" content_type="model/stl" file="meshes/part_222_solid_222.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_223_solid_223" content_type="model/stl" file="meshes/part_223_solid_223.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_224_solid_224" content_type="model/stl" file="meshes/part_224_solid_224.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_225_solid_225" content_type="model/stl" file="meshes/part_225_solid_225.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_226_solid_226" content_type="model/stl" file="meshes/part_226_solid_226.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_227_solid_227" content_type="model/stl" file="meshes/part_227_solid_227.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_228_solid_228" content_type="model/stl" file="meshes/part_228_solid_228.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_229_solid_229" content_type="model/stl" file="meshes/part_229_solid_229.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_230_solid_230" content_type="model/stl" file="meshes/part_230_solid_230.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_231_solid_231" content_type="model/stl" file="meshes/part_231_solid_231.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_232_solid_232" content_type="model/stl" file="meshes/part_232_solid_232.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_233_solid_233" content_type="model/stl" file="meshes/part_233_solid_233.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_234_solid_234" content_type="model/stl" file="meshes/part_234_solid_234.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_235_solid_235" content_type="model/stl" file="meshes/part_235_solid_235.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_236_solid_236" content_type="model/stl" file="meshes/part_236_solid_236.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_237_solid_237" content_type="model/stl" file="meshes/part_237_solid_237.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_238_solid_238" content_type="model/stl" file="meshes/part_238_solid_238.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_239_solid_239" content_type="model/stl" file="meshes/part_239_solid_239.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_240_solid_240" content_type="model/stl" file="meshes/part_240_solid_240.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_241_solid_241" content_type="model/stl" file="meshes/part_241_solid_241.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_242_solid_242" content_type="model/stl" file="meshes/part_242_solid_242.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_243_solid_243" content_type="model/stl" file="meshes/part_243_solid_243.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_244_solid_244" content_type="model/stl" file="meshes/part_244_solid_244.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_245_solid_245" content_type="model/stl" file="meshes/part_245_solid_245.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_246_solid_246" content_type="model/stl" file="meshes/part_246_solid_246.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_247_solid_247" content_type="model/stl" file="meshes/part_247_solid_247.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_248_solid_248" content_type="model/stl" file="meshes/part_248_solid_248.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_249_solid_249" content_type="model/stl" file="meshes/part_249_solid_249.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_250_solid_250" content_type="model/stl" file="meshes/part_250_solid_250.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_251_solid_251" content_type="model/stl" file="meshes/part_251_solid_251.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_252_solid_252" content_type="model/stl" file="meshes/part_252_solid_252.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_253_solid_253" content_type="model/stl" file="meshes/part_253_solid_253.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_254_solid_254" content_type="model/stl" file="meshes/part_254_solid_254.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_255_solid_255" content_type="model/stl" file="meshes/part_255_solid_255.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_256_solid_256" content_type="model/stl" file="meshes/part_256_solid_256.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_257_solid_257" content_type="model/stl" file="meshes/part_257_solid_257.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_258_solid_258" content_type="model/stl" file="meshes/part_258_solid_258.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_259_solid_259" content_type="model/stl" file="meshes/part_259_solid_259.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_260_solid_260" content_type="model/stl" file="meshes/part_260_solid_260.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_261_solid_261" content_type="model/stl" file="meshes/part_261_solid_261.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_262_solid_262" content_type="model/stl" file="meshes/part_262_solid_262.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_263_solid_263" content_type="model/stl" file="meshes/part_263_solid_263.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_264_solid_264" content_type="model/stl" file="meshes/part_264_solid_264.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_265_solid_265" content_type="model/stl" file="meshes/part_265_solid_265.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_266_solid_266" content_type="model/stl" file="meshes/part_266_solid_266.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_267_solid_267" content_type="model/stl" file="meshes/part_267_solid_267.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_268_solid_268" content_type="model/stl" file="meshes/part_268_solid_268.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_269_solid_269" content_type="model/stl" file="meshes/part_269_solid_269.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_270_solid_270" content_type="model/stl" file="meshes/part_270_solid_270.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_271_solid_271" content_type="model/stl" file="meshes/part_271_solid_271.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_272_solid_272" content_type="model/stl" file="meshes/part_272_solid_272.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_273_solid_273" content_type="model/stl" file="meshes/part_273_solid_273.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_274_solid_274" content_type="model/stl" file="meshes/part_274_solid_274.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_275_solid_275" content_type="model/stl" file="meshes/part_275_solid_275.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_276_solid_276" content_type="model/stl" file="meshes/part_276_solid_276.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_277_solid_277" content_type="model/stl" file="meshes/part_277_solid_277.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_278_solid_278" content_type="model/stl" file="meshes/part_278_solid_278.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_279_solid_279" content_type="model/stl" file="meshes/part_279_solid_279.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_280_solid_280" content_type="model/stl" file="meshes/part_280_solid_280.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_281_solid_281" content_type="model/stl" file="meshes/part_281_solid_281.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_282_solid_282" content_type="model/stl" file="meshes/part_282_solid_282.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_283_solid_283" content_type="model/stl" file="meshes/part_283_solid_283.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_284_solid_284" content_type="model/stl" file="meshes/part_284_solid_284.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_285_solid_285" content_type="model/stl" file="meshes/part_285_solid_285.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_286_solid_286" content_type="model/stl" file="meshes/part_286_solid_286.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_287_solid_287" content_type="model/stl" file="meshes/part_287_solid_287.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_288_solid_288" content_type="model/stl" file="meshes/part_288_solid_288.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_289_solid_289" content_type="model/stl" file="meshes/part_289_solid_289.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_290_solid_290" content_type="model/stl" file="meshes/part_290_solid_290.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_291_solid_291" content_type="model/stl" file="meshes/part_291_solid_291.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_292_solid_292" content_type="model/stl" file="meshes/part_292_solid_292.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_073_solid_073" content_type="model/stl" file="meshes/part_073_solid_073.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_070_solid_070" content_type="model/stl" file="meshes/part_070_solid_070.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_159_solid_159" content_type="model/stl" file="meshes/part_159_solid_159.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_157_solid_157" content_type="model/stl" file="meshes/part_157_solid_157.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_067_solid_067" content_type="model/stl" file="meshes/part_067_solid_067.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_180_solid_180" content_type="model/stl" file="meshes/part_180_solid_180.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_155_solid_155" content_type="model/stl" file="meshes/part_155_solid_155.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_152_solid_152" content_type="model/stl" file="meshes/part_152_solid_152.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_151_solid_151" content_type="model/stl" file="meshes/part_151_solid_151.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_181_solid_181" content_type="model/stl" file="meshes/part_181_solid_181.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_184_solid_184" content_type="model/stl" file="meshes/part_184_solid_184.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_072_solid_072" content_type="model/stl" file="meshes/part_072_solid_072.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_071_solid_071" content_type="model/stl" file="meshes/part_071_solid_071.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_156_solid_156" content_type="model/stl" file="meshes/part_156_solid_156.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_158_solid_158" content_type="model/stl" file="meshes/part_158_solid_158.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_069_solid_069" content_type="model/stl" file="meshes/part_069_solid_069.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_154_solid_154" content_type="model/stl" file="meshes/part_154_solid_154.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_182_solid_182" content_type="model/stl" file="meshes/part_182_solid_182.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_153_solid_153" content_type="model/stl" file="meshes/part_153_solid_153.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_150_solid_150" content_type="model/stl" file="meshes/part_150_solid_150.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_179_solid_179" content_type="model/stl" file="meshes/part_179_solid_179.stl" scale="0.001 0.001 0.001" />
-    <mesh name="part_183_solid_183" content_type="model/stl" file="meshes/part_183_solid_183.stl" scale="0.001 0.001 0.001" />
+    <texture name="plane_tex" type="2d" builtin="checker" rgb1=".1 .1 .1" rgb2=".9 .9 .9"
+            width="512" height="512" />
+    <material name="plane" reflectance="0.3" texture="plane_tex" texrepeat="1 1" texuniform="true" />
+    <mesh name="part_001_solid_001" content_type="model/stl" file="part_001_solid_001.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_002_solid_002" content_type="model/stl" file="part_002_solid_002.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_003_solid_003" content_type="model/stl" file="part_003_solid_003.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_004_solid_004" content_type="model/stl" file="part_004_solid_004.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_005_solid_005" content_type="model/stl" file="part_005_solid_005.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_006_solid_006" content_type="model/stl" file="part_006_solid_006.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_007_solid_007" content_type="model/stl" file="part_007_solid_007.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_008_solid_008" content_type="model/stl" file="part_008_solid_008.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_009_solid_009" content_type="model/stl" file="part_009_solid_009.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_010_solid_010" content_type="model/stl" file="part_010_solid_010.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_011_solid_011" content_type="model/stl" file="part_011_solid_011.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_012_solid_012" content_type="model/stl" file="part_012_solid_012.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_013_solid_013" content_type="model/stl" file="part_013_solid_013.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_014_solid_014" content_type="model/stl" file="part_014_solid_014.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_015_solid_015" content_type="model/stl" file="part_015_solid_015.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_016_solid_016" content_type="model/stl" file="part_016_solid_016.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_017_solid_017" content_type="model/stl" file="part_017_solid_017.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_018_solid_018" content_type="model/stl" file="part_018_solid_018.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_019_solid_019" content_type="model/stl" file="part_019_solid_019.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_020_solid_020" content_type="model/stl" file="part_020_solid_020.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_021_solid_021" content_type="model/stl" file="part_021_solid_021.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_022_solid_022" content_type="model/stl" file="part_022_solid_022.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_023_solid_023" content_type="model/stl" file="part_023_solid_023.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_024_solid_024" content_type="model/stl" file="part_024_solid_024.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_025_solid_025" content_type="model/stl" file="part_025_solid_025.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_026_solid_026" content_type="model/stl" file="part_026_solid_026.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_027_solid_027" content_type="model/stl" file="part_027_solid_027.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_028_solid_028" content_type="model/stl" file="part_028_solid_028.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_029_solid_029" content_type="model/stl" file="part_029_solid_029.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_030_solid_030" content_type="model/stl" file="part_030_solid_030.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_031_solid_031" content_type="model/stl" file="part_031_solid_031.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_032_solid_032" content_type="model/stl" file="part_032_solid_032.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_033_solid_033" content_type="model/stl" file="part_033_solid_033.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_034_solid_034" content_type="model/stl" file="part_034_solid_034.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_035_solid_035" content_type="model/stl" file="part_035_solid_035.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_036_solid_036" content_type="model/stl" file="part_036_solid_036.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_037_solid_037" content_type="model/stl" file="part_037_solid_037.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_038_solid_038" content_type="model/stl" file="part_038_solid_038.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_039_solid_039" content_type="model/stl" file="part_039_solid_039.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_040_solid_040" content_type="model/stl" file="part_040_solid_040.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_041_solid_041" content_type="model/stl" file="part_041_solid_041.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_042_solid_042" content_type="model/stl" file="part_042_solid_042.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_043_solid_043" content_type="model/stl" file="part_043_solid_043.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_044_solid_044" content_type="model/stl" file="part_044_solid_044.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_045_solid_045" content_type="model/stl" file="part_045_solid_045.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_046_solid_046" content_type="model/stl" file="part_046_solid_046.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_047_solid_047" content_type="model/stl" file="part_047_solid_047.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_048_solid_048" content_type="model/stl" file="part_048_solid_048.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_049_solid_049" content_type="model/stl" file="part_049_solid_049.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_050_solid_050" content_type="model/stl" file="part_050_solid_050.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_051_solid_051" content_type="model/stl" file="part_051_solid_051.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_052_solid_052" content_type="model/stl" file="part_052_solid_052.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_053_solid_053" content_type="model/stl" file="part_053_solid_053.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_054_solid_054" content_type="model/stl" file="part_054_solid_054.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_055_solid_055" content_type="model/stl" file="part_055_solid_055.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_056_solid_056" content_type="model/stl" file="part_056_solid_056.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_057_solid_057" content_type="model/stl" file="part_057_solid_057.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_058_solid_058" content_type="model/stl" file="part_058_solid_058.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_059_solid_059" content_type="model/stl" file="part_059_solid_059.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_060_solid_060" content_type="model/stl" file="part_060_solid_060.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_061_solid_061" content_type="model/stl" file="part_061_solid_061.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_062_solid_062" content_type="model/stl" file="part_062_solid_062.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_063_solid_063" content_type="model/stl" file="part_063_solid_063.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_064_solid_064" content_type="model/stl" file="part_064_solid_064.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_065_solid_065" content_type="model/stl" file="part_065_solid_065.stl" scale="0.001 0.001 0.001"/>
+    ？<mesh name="part_066_solid_066" content_type="model/stl" file="part_066_solid_066.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_074_solid_074" content_type="model/stl" file="part_074_solid_074.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_075_solid_075" content_type="model/stl" file="part_075_solid_075.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_076_solid_076" content_type="model/stl" file="part_076_solid_076.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_077_solid_077" content_type="model/stl" file="part_077_solid_077.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_078_solid_078" content_type="model/stl" file="part_078_solid_078.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_079_solid_079" content_type="model/stl" file="part_079_solid_079.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_080_solid_080" content_type="model/stl" file="part_080_solid_080.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_081_solid_081" content_type="model/stl" file="part_081_solid_081.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_082_solid_082" content_type="model/stl" file="part_082_solid_082.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_083_solid_083" content_type="model/stl" file="part_083_solid_083.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_084_solid_084" content_type="model/stl" file="part_084_solid_084.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_085_solid_085" content_type="model/stl" file="part_085_solid_085.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_086_solid_086" content_type="model/stl" file="part_086_solid_086.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_087_solid_087" content_type="model/stl" file="part_087_solid_087.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_088_solid_088" content_type="model/stl" file="part_088_solid_088.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_089_solid_089" content_type="model/stl" file="part_089_solid_089.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_090_solid_090" content_type="model/stl" file="part_090_solid_090.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_091_solid_091" content_type="model/stl" file="part_091_solid_091.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_092_solid_092" content_type="model/stl" file="part_092_solid_092.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_093_solid_093" content_type="model/stl" file="part_093_solid_093.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_094_solid_094" content_type="model/stl" file="part_094_solid_094.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_095_solid_095" content_type="model/stl" file="part_095_solid_095.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_096_solid_096" content_type="model/stl" file="part_096_solid_096.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_097_solid_097" content_type="model/stl" file="part_097_solid_097.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_098_solid_098" content_type="model/stl" file="part_098_solid_098.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_099_solid_099" content_type="model/stl" file="part_099_solid_099.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_100_solid_100" content_type="model/stl" file="part_100_solid_100.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_101_solid_101" content_type="model/stl" file="part_101_solid_101.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_102_solid_102" content_type="model/stl" file="part_102_solid_102.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_103_solid_103" content_type="model/stl" file="part_103_solid_103.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_104_solid_104" content_type="model/stl" file="part_104_solid_104.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_105_solid_105" content_type="model/stl" file="part_105_solid_105.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_106_solid_106" content_type="model/stl" file="part_106_solid_106.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_107_solid_107" content_type="model/stl" file="part_107_solid_107.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_108_solid_108" content_type="model/stl" file="part_108_solid_108.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_109_solid_109" content_type="model/stl" file="part_109_solid_109.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_110_solid_110" content_type="model/stl" file="part_110_solid_110.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_111_solid_111" content_type="model/stl" file="part_111_solid_111.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_112_solid_112" content_type="model/stl" file="part_112_solid_112.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_113_solid_113" content_type="model/stl" file="part_113_solid_113.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_114_solid_114" content_type="model/stl" file="part_114_solid_114.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_115_solid_115" content_type="model/stl" file="part_115_solid_115.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_116_solid_116" content_type="model/stl" file="part_116_solid_116.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_117_solid_117" content_type="model/stl" file="part_117_solid_117.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_118_solid_118" content_type="model/stl" file="part_118_solid_118.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_119_solid_119" content_type="model/stl" file="part_119_solid_119.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_120_solid_120" content_type="model/stl" file="part_120_solid_120.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_121_solid_121" content_type="model/stl" file="part_121_solid_121.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_122_solid_122" content_type="model/stl" file="part_122_solid_122.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_123_solid_123" content_type="model/stl" file="part_123_solid_123.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_124_solid_124" content_type="model/stl" file="part_124_solid_124.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_125_solid_125" content_type="model/stl" file="part_125_solid_125.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_126_solid_126" content_type="model/stl" file="part_126_solid_126.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_127_solid_127" content_type="model/stl" file="part_127_solid_127.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_128_solid_128" content_type="model/stl" file="part_128_solid_128.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_129_solid_129" content_type="model/stl" file="part_129_solid_129.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_130_solid_130" content_type="model/stl" file="part_130_solid_130.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_131_solid_131" content_type="model/stl" file="part_131_solid_131.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_132_solid_132" content_type="model/stl" file="part_132_solid_132.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_133_solid_133" content_type="model/stl" file="part_133_solid_133.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_134_solid_134" content_type="model/stl" file="part_134_solid_134.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_135_solid_135" content_type="model/stl" file="part_135_solid_135.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_136_solid_136" content_type="model/stl" file="part_136_solid_136.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_137_solid_137" content_type="model/stl" file="part_137_solid_137.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_138_solid_138" content_type="model/stl" file="part_138_solid_138.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_139_solid_139" content_type="model/stl" file="part_139_solid_139.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_140_solid_140" content_type="model/stl" file="part_140_solid_140.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_141_solid_141" content_type="model/stl" file="part_141_solid_141.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_142_solid_142" content_type="model/stl" file="part_142_solid_142.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_143_solid_143" content_type="model/stl" file="part_143_solid_143.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_144_solid_144" content_type="model/stl" file="part_144_solid_144.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_145_solid_145" content_type="model/stl" file="part_145_solid_145.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_146_solid_146" content_type="model/stl" file="part_146_solid_146.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_147_solid_147" content_type="model/stl" file="part_147_solid_147.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_148_solid_148" content_type="model/stl" file="part_148_solid_148.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_149_solid_149" content_type="model/stl" file="part_149_solid_149.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_160_solid_160" content_type="model/stl" file="part_160_solid_160.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_161_solid_161" content_type="model/stl" file="part_161_solid_161.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_162_solid_162" content_type="model/stl" file="part_162_solid_162.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_163_solid_163" content_type="model/stl" file="part_163_solid_163.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_164_solid_164" content_type="model/stl" file="part_164_solid_164.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_165_solid_165" content_type="model/stl" file="part_165_solid_165.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_166_solid_166" content_type="model/stl" file="part_166_solid_166.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_167_solid_167" content_type="model/stl" file="part_167_solid_167.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_168_solid_168" content_type="model/stl" file="part_168_solid_168.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_169_solid_169" content_type="model/stl" file="part_169_solid_169.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_170_solid_170" content_type="model/stl" file="part_170_solid_170.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_171_solid_171" content_type="model/stl" file="part_171_solid_171.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_172_solid_172" content_type="model/stl" file="part_172_solid_172.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_173_solid_173" content_type="model/stl" file="part_173_solid_173.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_174_solid_174" content_type="model/stl" file="part_174_solid_174.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_175_solid_175" content_type="model/stl" file="part_175_solid_175.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_176_solid_176" content_type="model/stl" file="part_176_solid_176.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_177_solid_177" content_type="model/stl" file="part_177_solid_177.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_178_solid_178" content_type="model/stl" file="part_178_solid_178.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_185_solid_185" content_type="model/stl" file="part_185_solid_185.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_186_solid_186" content_type="model/stl" file="part_186_solid_186.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_187_solid_187" content_type="model/stl" file="part_187_solid_187.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_188_solid_188" content_type="model/stl" file="part_188_solid_188.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_189_solid_189" content_type="model/stl" file="part_189_solid_189.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_190_solid_190" content_type="model/stl" file="part_190_solid_190.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_191_solid_191" content_type="model/stl" file="part_191_solid_191.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_192_solid_192" content_type="model/stl" file="part_192_solid_192.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_193_solid_193" content_type="model/stl" file="part_193_solid_193.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_194_solid_194" content_type="model/stl" file="part_194_solid_194.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_195_solid_195" content_type="model/stl" file="part_195_solid_195.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_196_solid_196" content_type="model/stl" file="part_196_solid_196.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_197_solid_197" content_type="model/stl" file="part_197_solid_197.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_198_solid_198" content_type="model/stl" file="part_198_solid_198.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_199_solid_199" content_type="model/stl" file="part_199_solid_199.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_200_solid_200" content_type="model/stl" file="part_200_solid_200.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_201_solid_201" content_type="model/stl" file="part_201_solid_201.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_202_solid_202" content_type="model/stl" file="part_202_solid_202.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_203_solid_203" content_type="model/stl" file="part_203_solid_203.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_204_solid_204" content_type="model/stl" file="part_204_solid_204.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_205_solid_205" content_type="model/stl" file="part_205_solid_205.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_206_solid_206" content_type="model/stl" file="part_206_solid_206.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_207_solid_207" content_type="model/stl" file="part_207_solid_207.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_208_solid_208" content_type="model/stl" file="part_208_solid_208.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_209_solid_209" content_type="model/stl" file="part_209_solid_209.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_210_solid_210" content_type="model/stl" file="part_210_solid_210.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_211_solid_211" content_type="model/stl" file="part_211_solid_211.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_212_solid_212" content_type="model/stl" file="part_212_solid_212.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_213_solid_213" content_type="model/stl" file="part_213_solid_213.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_214_solid_214" content_type="model/stl" file="part_214_solid_214.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_215_solid_215" content_type="model/stl" file="part_215_solid_215.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_216_solid_216" content_type="model/stl" file="part_216_solid_216.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_217_solid_217" content_type="model/stl" file="part_217_solid_217.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_218_solid_218" content_type="model/stl" file="part_218_solid_218.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_219_solid_219" content_type="model/stl" file="part_219_solid_219.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_220_solid_220" content_type="model/stl" file="part_220_solid_220.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_221_solid_221" content_type="model/stl" file="part_221_solid_221.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_222_solid_222" content_type="model/stl" file="part_222_solid_222.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_223_solid_223" content_type="model/stl" file="part_223_solid_223.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_224_solid_224" content_type="model/stl" file="part_224_solid_224.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_225_solid_225" content_type="model/stl" file="part_225_solid_225.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_226_solid_226" content_type="model/stl" file="part_226_solid_226.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_227_solid_227" content_type="model/stl" file="part_227_solid_227.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_228_solid_228" content_type="model/stl" file="part_228_solid_228.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_229_solid_229" content_type="model/stl" file="part_229_solid_229.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_230_solid_230" content_type="model/stl" file="part_230_solid_230.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_231_solid_231" content_type="model/stl" file="part_231_solid_231.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_232_solid_232" content_type="model/stl" file="part_232_solid_232.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_233_solid_233" content_type="model/stl" file="part_233_solid_233.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_234_solid_234" content_type="model/stl" file="part_234_solid_234.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_235_solid_235" content_type="model/stl" file="part_235_solid_235.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_236_solid_236" content_type="model/stl" file="part_236_solid_236.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_237_solid_237" content_type="model/stl" file="part_237_solid_237.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_238_solid_238" content_type="model/stl" file="part_238_solid_238.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_239_solid_239" content_type="model/stl" file="part_239_solid_239.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_240_solid_240" content_type="model/stl" file="part_240_solid_240.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_241_solid_241" content_type="model/stl" file="part_241_solid_241.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_242_solid_242" content_type="model/stl" file="part_242_solid_242.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_243_solid_243" content_type="model/stl" file="part_243_solid_243.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_244_solid_244" content_type="model/stl" file="part_244_solid_244.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_245_solid_245" content_type="model/stl" file="part_245_solid_245.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_246_solid_246" content_type="model/stl" file="part_246_solid_246.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_247_solid_247" content_type="model/stl" file="part_247_solid_247.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_248_solid_248" content_type="model/stl" file="part_248_solid_248.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_249_solid_249" content_type="model/stl" file="part_249_solid_249.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_250_solid_250" content_type="model/stl" file="part_250_solid_250.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_251_solid_251" content_type="model/stl" file="part_251_solid_251.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_252_solid_252" content_type="model/stl" file="part_252_solid_252.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_253_solid_253" content_type="model/stl" file="part_253_solid_253.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_254_solid_254" content_type="model/stl" file="part_254_solid_254.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_255_solid_255" content_type="model/stl" file="part_255_solid_255.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_256_solid_256" content_type="model/stl" file="part_256_solid_256.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_257_solid_257" content_type="model/stl" file="part_257_solid_257.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_258_solid_258" content_type="model/stl" file="part_258_solid_258.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_259_solid_259" content_type="model/stl" file="part_259_solid_259.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_260_solid_260" content_type="model/stl" file="part_260_solid_260.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_261_solid_261" content_type="model/stl" file="part_261_solid_261.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_262_solid_262" content_type="model/stl" file="part_262_solid_262.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_263_solid_263" content_type="model/stl" file="part_263_solid_263.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_264_solid_264" content_type="model/stl" file="part_264_solid_264.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_265_solid_265" content_type="model/stl" file="part_265_solid_265.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_266_solid_266" content_type="model/stl" file="part_266_solid_266.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_267_solid_267" content_type="model/stl" file="part_267_solid_267.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_268_solid_268" content_type="model/stl" file="part_268_solid_268.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_269_solid_269" content_type="model/stl" file="part_269_solid_269.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_270_solid_270" content_type="model/stl" file="part_270_solid_270.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_271_solid_271" content_type="model/stl" file="part_271_solid_271.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_272_solid_272" content_type="model/stl" file="part_272_solid_272.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_273_solid_273" content_type="model/stl" file="part_273_solid_273.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_274_solid_274" content_type="model/stl" file="part_274_solid_274.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_275_solid_275" content_type="model/stl" file="part_275_solid_275.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_276_solid_276" content_type="model/stl" file="part_276_solid_276.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_277_solid_277" content_type="model/stl" file="part_277_solid_277.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_278_solid_278" content_type="model/stl" file="part_278_solid_278.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_279_solid_279" content_type="model/stl" file="part_279_solid_279.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_280_solid_280" content_type="model/stl" file="part_280_solid_280.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_281_solid_281" content_type="model/stl" file="part_281_solid_281.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_282_solid_282" content_type="model/stl" file="part_282_solid_282.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_283_solid_283" content_type="model/stl" file="part_283_solid_283.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_284_solid_284" content_type="model/stl" file="part_284_solid_284.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_285_solid_285" content_type="model/stl" file="part_285_solid_285.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_286_solid_286" content_type="model/stl" file="part_286_solid_286.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_287_solid_287" content_type="model/stl" file="part_287_solid_287.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_288_solid_288" content_type="model/stl" file="part_288_solid_288.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_289_solid_289" content_type="model/stl" file="part_289_solid_289.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_290_solid_290" content_type="model/stl" file="part_290_solid_290.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_291_solid_291" content_type="model/stl" file="part_291_solid_291.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_292_solid_292" content_type="model/stl" file="part_292_solid_292.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_073_solid_073" content_type="model/stl" file="part_073_solid_073.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_070_solid_070" content_type="model/stl" file="part_070_solid_070.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_159_solid_159" content_type="model/stl" file="part_159_solid_159.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_157_solid_157" content_type="model/stl" file="part_157_solid_157.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_067_solid_067" content_type="model/stl" file="part_067_solid_067.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_180_solid_180" content_type="model/stl" file="part_180_solid_180.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_155_solid_155" content_type="model/stl" file="part_155_solid_155.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_152_solid_152" content_type="model/stl" file="part_152_solid_152.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_151_solid_151" content_type="model/stl" file="part_151_solid_151.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_181_solid_181" content_type="model/stl" file="part_181_solid_181.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_184_solid_184" content_type="model/stl" file="part_184_solid_184.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_072_solid_072" content_type="model/stl" file="part_072_solid_072.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_071_solid_071" content_type="model/stl" file="part_071_solid_071.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_156_solid_156" content_type="model/stl" file="part_156_solid_156.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_158_solid_158" content_type="model/stl" file="part_158_solid_158.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_069_solid_069" content_type="model/stl" file="part_069_solid_069.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_154_solid_154" content_type="model/stl" file="part_154_solid_154.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_182_solid_182" content_type="model/stl" file="part_182_solid_182.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_153_solid_153" content_type="model/stl" file="part_153_solid_153.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_150_solid_150" content_type="model/stl" file="part_150_solid_150.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_179_solid_179" content_type="model/stl" file="part_179_solid_179.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="part_183_solid_183" content_type="model/stl" file="part_183_solid_183.stl" scale="0.001 0.001 0.001"/>
   </asset>
+
   <worldbody>
-    <geom name="floor" pos="0 0 0" size="10 10 .1" type="plane" material="plane"
-            condim="3" />
+  <!-- 地面：根据当前轮子几何，放在轮底附近，保证轮子能接触地面产生反作用力 -->
+    <geom name="floor" pos="0 0 -0.4" size="10 10 .1" type="plane" material="plane"
+            condim="3" friction="1 10 0.01" />
+
+        <!-- 光源 -->
     <light directional="true" ambient=".3 .3 .3" pos="30 30 30" dir="0 -2 -1"
             diffuse=".5 .5 .5" specular=".5 .5 .5" />
-
-    <body name="base_link" pos="0 0 0">
-      <freejoint />
-      <geom name="part_001_collision_1" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_001_solid_001" />
-      <geom name="part_002_collision_2" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_002_solid_002" />
-      <geom name="part_003_collision_3" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_003_solid_003" />
-      <geom name="part_004_collision_4" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_004_solid_004" />
-      <geom name="part_005_collision_5" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_005_solid_005" />
-      <geom name="part_006_collision_6" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_006_solid_006" />
-      <geom name="part_007_collision_7" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_007_solid_007" />
-      <geom name="part_008_collision_8" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_008_solid_008" />
-      <geom name="part_009_collision_9" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_009_solid_009" />
-      <geom name="part_010_collision_10" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_010_solid_010" />
-      <geom name="part_011_collision_11" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_011_solid_011" />
-      <geom name="part_012_collision_12" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_012_solid_012" />
-      <geom name="part_013_collision_13" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_013_solid_013" />
-      <geom name="part_014_collision_14" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_014_solid_014" />
-      <geom name="part_015_collision_15" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_015_solid_015" />
-      <geom name="part_016_collision_16" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_016_solid_016" />
-      <geom name="part_017_collision_17" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_017_solid_017" />
-      <geom name="part_018_collision_18" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_018_solid_018" />
-      <geom name="part_019_collision_19" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_019_solid_019" />
-      <geom name="part_020_collision_20" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_020_solid_020" />
-      <geom name="part_021_collision_21" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_021_solid_021" />
-      <geom name="part_022_collision_22" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_022_solid_022" />
-      <geom name="part_023_collision_23" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_023_solid_023" />
-      <geom name="part_024_collision_24" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_024_solid_024" />
-      <geom name="part_025_collision_25" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_025_solid_025" />
-      <geom name="part_026_collision_26" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_026_solid_026" />
-      <geom name="part_027_collision_27" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_027_solid_027" />
-      <geom name="part_028_collision_28" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_028_solid_028" />
-      <geom name="part_029_collision_29" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_029_solid_029" />
-      <geom name="part_030_collision_30" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_030_solid_030" />
-      <geom name="part_031_collision_31" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_031_solid_031" />
-      <geom name="part_032_collision_32" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_032_solid_032" />
-      <geom name="part_033_collision_33" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_033_solid_033" />
-      <geom name="part_034_collision_34" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_034_solid_034" />
-      <geom name="part_035_collision_35" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_035_solid_035" />
-      <geom name="part_036_collision_36" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_036_solid_036" />
-      <geom name="part_037_collision_37" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_037_solid_037" />
-      <geom name="part_038_collision_38" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_038_solid_038" />
-      <geom name="part_039_collision_39" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_039_solid_039" />
-      <geom name="part_040_collision_40" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_040_solid_040" />
-      <geom name="part_041_collision_41" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_041_solid_041" />
-      <geom name="part_042_collision_42" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_042_solid_042" />
-      <geom name="part_043_collision_43" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_043_solid_043" />
-      <geom name="part_044_collision_44" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_044_solid_044" />
-      <geom name="part_045_collision_45" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_045_solid_045" />
-      <geom name="part_046_collision_46" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_046_solid_046" />
-      <geom name="part_047_collision_47" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_047_solid_047" />
-      <geom name="part_048_collision_48" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_048_solid_048" />
-      <geom name="part_049_collision_49" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_049_solid_049" />
-      <geom name="part_050_collision_50" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_050_solid_050" />
-      <geom name="part_051_collision_51" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_051_solid_051" />
-      <geom name="part_052_collision_52" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_052_solid_052" />
-      <geom name="part_053_collision_53" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_053_solid_053" />
-      <geom name="part_054_collision_54" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_054_solid_054" />
-      <geom name="part_055_collision_55" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_055_solid_055" />
-      <geom name="part_056_collision_56" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_056_solid_056" />
-      <geom name="part_057_collision_57" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_057_solid_057" />
-      <geom name="part_058_collision_58" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_058_solid_058" />
-      <geom name="part_059_collision_59" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_059_solid_059" />
-      <geom name="part_060_collision_60" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_060_solid_060" />
-      <geom name="part_061_collision_61" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_061_solid_061" />
-      <geom name="part_062_collision_62" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_062_solid_062" />
-      <geom name="part_063_collision_63" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_063_solid_063" />
-      <geom name="part_064_collision_64" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_064_solid_064" />
-      <geom name="part_065_collision_65" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_065_solid_065" />
-      <geom name="part_066_collision_66" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_066_solid_066" />
-      <geom name="part_074_collision_67" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_074_solid_074" />
-      <geom name="part_075_collision_68" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_075_solid_075" />
-      <geom name="part_076_collision_69" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_076_solid_076" />
-      <geom name="part_077_collision_70" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_077_solid_077" />
-      <geom name="part_078_collision_71" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_078_solid_078" />
-      <geom name="part_079_collision_72" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_079_solid_079" />
-      <geom name="part_080_collision_73" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_080_solid_080" />
-      <geom name="part_081_collision_74" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_081_solid_081" />
-      <geom name="part_082_collision_75" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_082_solid_082" />
-      <geom name="part_083_collision_76" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_083_solid_083" />
-      <geom name="part_084_collision_77" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_084_solid_084" />
-      <geom name="part_085_collision_78" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_085_solid_085" />
-      <geom name="part_086_collision_79" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_086_solid_086" />
-      <geom name="part_087_collision_80" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_087_solid_087" />
-      <geom name="part_088_collision_81" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_088_solid_088" />
-      <geom name="part_089_collision_82" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_089_solid_089" />
-      <geom name="part_090_collision_83" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_090_solid_090" />
-      <geom name="part_091_collision_84" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_091_solid_091" />
-      <geom name="part_092_collision_85" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_092_solid_092" />
-      <geom name="part_093_collision_86" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_093_solid_093" />
-      <geom name="part_094_collision_87" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_094_solid_094" />
-      <geom name="part_095_collision_88" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_095_solid_095" />
-      <geom name="part_096_collision_89" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_096_solid_096" />
-      <geom name="part_097_collision_90" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_097_solid_097" />
-      <geom name="part_098_collision_91" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_098_solid_098" />
-      <geom name="part_099_collision_92" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_099_solid_099" />
-      <geom name="part_100_collision_93" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_100_solid_100" />
-      <geom name="part_101_collision_94" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_101_solid_101" />
-      <geom name="part_102_collision_95" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_102_solid_102" />
-      <geom name="part_103_collision_96" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_103_solid_103" />
-      <geom name="part_104_collision_97" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_104_solid_104" />
-      <geom name="part_105_collision_98" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_105_solid_105" />
-      <geom name="part_106_collision_99" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_106_solid_106" />
-      <geom name="part_107_collision_100" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_107_solid_107" />
-      <geom name="part_108_collision_101" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_108_solid_108" />
-      <geom name="part_109_collision_102" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_109_solid_109" />
-      <geom name="part_110_collision_103" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_110_solid_110" />
-      <geom name="part_111_collision_104" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_111_solid_111" />
-      <geom name="part_112_collision_105" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_112_solid_112" />
-      <geom name="part_113_collision_106" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_113_solid_113" />
-      <geom name="part_114_collision_107" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_114_solid_114" />
-      <geom name="part_115_collision_108" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_115_solid_115" />
-      <geom name="part_116_collision_109" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_116_solid_116" />
-      <geom name="part_117_collision_110" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_117_solid_117" />
-      <geom name="part_118_collision_111" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_118_solid_118" />
-      <geom name="part_119_collision_112" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_119_solid_119" />
-      <geom name="part_120_collision_113" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_120_solid_120" />
-      <geom name="part_121_collision_114" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_121_solid_121" />
-      <geom name="part_122_collision_115" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_122_solid_122" />
-      <geom name="part_123_collision_116" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_123_solid_123" />
-      <geom name="part_124_collision_117" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_124_solid_124" />
-      <geom name="part_125_collision_118" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_125_solid_125" />
-      <geom name="part_126_collision_119" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_126_solid_126" />
-      <geom name="part_127_collision_120" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_127_solid_127" />
-      <geom name="part_128_collision_121" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_128_solid_128" />
-      <geom name="part_129_collision_122" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_129_solid_129" />
-      <geom name="part_130_collision_123" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_130_solid_130" />
-      <geom name="part_131_collision_124" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_131_solid_131" />
-      <geom name="part_132_collision_125" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_132_solid_132" />
-      <geom name="part_133_collision_126" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_133_solid_133" />
-      <geom name="part_134_collision_127" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_134_solid_134" />
-      <geom name="part_135_collision_128" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_135_solid_135" />
-      <geom name="part_136_collision_129" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_136_solid_136" />
-      <geom name="part_137_collision_130" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_137_solid_137" />
-      <geom name="part_138_collision_131" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_138_solid_138" />
-      <geom name="part_139_collision_132" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_139_solid_139" />
-      <geom name="part_140_collision_133" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_140_solid_140" />
-      <geom name="part_141_collision_134" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_141_solid_141" />
-      <geom name="part_142_collision_135" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_142_solid_142" />
-      <geom name="part_143_collision_136" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_143_solid_143" />
-      <geom name="part_144_collision_137" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_144_solid_144" />
-      <geom name="part_145_collision_138" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_145_solid_145" />
-      <geom name="part_146_collision_139" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_146_solid_146" />
-      <geom name="part_147_collision_140" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_147_solid_147" />
-      <geom name="part_148_collision_141" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_148_solid_148" />
-      <geom name="part_149_collision_142" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_149_solid_149" />
-      <geom name="part_160_collision_143" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_160_solid_160" />
-      <geom name="part_161_collision_144" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_161_solid_161" />
-      <geom name="part_162_collision_145" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_162_solid_162" />
-      <geom name="part_163_collision_146" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_163_solid_163" />
-      <geom name="part_164_collision_147" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_164_solid_164" />
-      <geom name="part_165_collision_148" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_165_solid_165" />
-      <geom name="part_166_collision_149" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_166_solid_166" />
-      <geom name="part_167_collision_150" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_167_solid_167" />
-      <geom name="part_168_collision_151" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_168_solid_168" />
-      <geom name="part_169_collision_152" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_169_solid_169" />
-      <geom name="part_170_collision_153" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_170_solid_170" />
-      <geom name="part_171_collision_154" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_171_solid_171" />
-      <geom name="part_172_collision_155" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_172_solid_172" />
-      <geom name="part_173_collision_156" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_173_solid_173" />
-      <geom name="part_174_collision_157" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_174_solid_174" />
-      <geom name="part_175_collision_158" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_175_solid_175" />
-      <geom name="part_176_collision_159" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_176_solid_176" />
-      <geom name="part_177_collision_160" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_177_solid_177" />
-      <geom name="part_178_collision_161" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_178_solid_178" />
-      <geom name="part_185_collision_162" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_185_solid_185" />
-      <geom name="part_186_collision_163" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_186_solid_186" />
-      <geom name="part_187_collision_164" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_187_solid_187" />
-      <geom name="part_188_collision_165" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_188_solid_188" />
-      <geom name="part_189_collision_166" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_189_solid_189" />
-      <geom name="part_190_collision_167" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_190_solid_190" />
-      <geom name="part_191_collision_168" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_191_solid_191" />
-      <geom name="part_192_collision_169" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_192_solid_192" />
-      <geom name="part_193_collision_170" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_193_solid_193" />
-      <geom name="part_194_collision_171" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_194_solid_194" />
-      <geom name="part_195_collision_172" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_195_solid_195" />
-      <geom name="part_196_collision_173" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_196_solid_196" />
-      <geom name="part_197_collision_174" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_197_solid_197" />
-      <geom name="part_198_collision_175" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_198_solid_198" />
-      <geom name="part_199_collision_176" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_199_solid_199" />
-      <geom name="part_200_collision_177" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_200_solid_200" />
-      <geom name="part_201_collision_178" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_201_solid_201" />
-      <geom name="part_202_collision_179" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_202_solid_202" />
-      <geom name="part_203_collision_180" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_203_solid_203" />
-      <geom name="part_204_collision_181" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_204_solid_204" />
-      <geom name="part_205_collision_182" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_205_solid_205" />
-      <geom name="part_206_collision_183" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_206_solid_206" />
-      <geom name="part_207_collision_184" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_207_solid_207" />
-      <geom name="part_208_collision_185" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_208_solid_208" />
-      <geom name="part_209_collision_186" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_209_solid_209" />
-      <geom name="part_210_collision_187" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_210_solid_210" />
-      <geom name="part_211_collision_188" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_211_solid_211" />
-      <geom name="part_212_collision_189" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_212_solid_212" />
-      <geom name="part_213_collision_190" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_213_solid_213" />
-      <geom name="part_214_collision_191" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_214_solid_214" />
-      <geom name="part_215_collision_192" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_215_solid_215" />
-      <geom name="part_216_collision_193" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_216_solid_216" />
-      <geom name="part_217_collision_194" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_217_solid_217" />
-      <geom name="part_218_collision_195" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_218_solid_218" />
-      <geom name="part_219_collision_196" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_219_solid_219" />
-      <geom name="part_220_collision_197" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_220_solid_220" />
-      <geom name="part_221_collision_198" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_221_solid_221" />
-      <geom name="part_222_collision_199" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_222_solid_222" />
-      <geom name="part_223_collision_200" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_223_solid_223" />
-      <geom name="part_224_collision_201" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_224_solid_224" />
-      <geom name="part_225_collision_202" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_225_solid_225" />
-      <geom name="part_226_collision_203" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_226_solid_226" />
-      <geom name="part_227_collision_204" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_227_solid_227" />
-      <geom name="part_228_collision_205" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_228_solid_228" />
-      <geom name="part_229_collision_206" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_229_solid_229" />
-      <geom name="part_230_collision_207" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_230_solid_230" />
-      <geom name="part_231_collision_208" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_231_solid_231" />
-      <geom name="part_232_collision_209" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_232_solid_232" />
-      <geom name="part_233_collision_210" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_233_solid_233" />
-      <geom name="part_234_collision_211" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_234_solid_234" />
-      <geom name="part_235_collision_212" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_235_solid_235" />
-      <geom name="part_236_collision_213" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_236_solid_236" />
-      <geom name="part_237_collision_214" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_237_solid_237" />
-      <geom name="part_238_collision_215" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_238_solid_238" />
-      <geom name="part_239_collision_216" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_239_solid_239" />
-      <geom name="part_240_collision_217" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_240_solid_240" />
-      <geom name="part_241_collision_218" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_241_solid_241" />
-      <geom name="part_242_collision_219" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_242_solid_242" />
-      <geom name="part_243_collision_220" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_243_solid_243" />
-      <geom name="part_244_collision_221" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_244_solid_244" />
-      <geom name="part_245_collision_222" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_245_solid_245" />
-      <geom name="part_246_collision_223" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_246_solid_246" />
-      <geom name="part_247_collision_224" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_247_solid_247" />
-      <geom name="part_248_collision_225" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_248_solid_248" />
-      <geom name="part_249_collision_226" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_249_solid_249" />
-      <geom name="part_250_collision_227" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_250_solid_250" />
-      <geom name="part_251_collision_228" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_251_solid_251" />
-      <geom name="part_252_collision_229" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_252_solid_252" />
-      <geom name="part_253_collision_230" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_253_solid_253" />
-      <geom name="part_254_collision_231" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_254_solid_254" />
-      <geom name="part_255_collision_232" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_255_solid_255" />
-      <geom name="part_256_collision_233" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_256_solid_256" />
-      <geom name="part_257_collision_234" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_257_solid_257" />
-      <geom name="part_258_collision_235" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_258_solid_258" />
-      <geom name="part_259_collision_236" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_259_solid_259" />
-      <geom name="part_260_collision_237" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_260_solid_260" />
-      <geom name="part_261_collision_238" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_261_solid_261" />
-      <geom name="part_262_collision_239" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_262_solid_262" />
-      <geom name="part_263_collision_240" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_263_solid_263" />
-      <geom name="part_264_collision_241" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_264_solid_264" />
-      <geom name="part_265_collision_242" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_265_solid_265" />
-      <geom name="part_266_collision_243" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_266_solid_266" />
-      <geom name="part_267_collision_244" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_267_solid_267" />
-      <geom name="part_268_collision_245" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_268_solid_268" />
-      <geom name="part_269_collision_246" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_269_solid_269" />
-      <geom name="part_270_collision_247" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_270_solid_270" />
-      <geom name="part_271_collision_248" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_271_solid_271" />
-      <geom name="part_272_collision_249" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_272_solid_272" />
-      <geom name="part_273_collision_250" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_273_solid_273" />
-      <geom name="part_274_collision_251" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_274_solid_274" />
-      <geom name="part_275_collision_252" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_275_solid_275" />
-      <geom name="part_276_collision_253" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_276_solid_276" />
-      <geom name="part_277_collision_254" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_277_solid_277" />
-      <geom name="part_278_collision_255" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_278_solid_278" />
-      <geom name="part_279_collision_256" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_279_solid_279" />
-      <geom name="part_280_collision_257" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_280_solid_280" />
-      <geom name="part_281_collision_258" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_281_solid_281" />
-      <geom name="part_282_collision_259" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_282_solid_282" />
-      <geom name="part_283_collision_260" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_283_solid_283" />
-      <geom name="part_284_collision_261" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_284_solid_284" />
-      <geom name="part_285_collision_262" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_285_solid_285" />
-      <geom name="part_286_collision_263" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_286_solid_286" />
-      <geom name="part_287_collision_264" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_287_solid_287" />
-      <geom name="part_288_collision_265" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_288_solid_288" />
-      <geom name="part_289_collision_266" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_289_solid_289" />
-      <geom name="part_290_collision_267" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_290_solid_290" />
-      <geom name="part_291_collision_268" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_291_solid_291" />
-      <geom name="part_292_collision_269" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_292_solid_292" />
+    <body name="base_link">
+      <inertial pos="0.200 0.13 0.011" quat="0.556794 0.43615 0.557235 0.435019" mass="10.00000" diaginertia="0.1902076 0.1622414 0.1113654"/>
+      <joint name="base_joint" type="free" damping="1.0" armature="0.02" frictionloss="0.1"/>
+      <site name="imu_site" pos="0.200 0.13 0.011"/>
+      <geom name="part_001_visual_1" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_001_solid_001"/>
+      <geom name="part_001_collision_1" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_001_solid_001"/>
+      <geom name="part_002_visual_2" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_002_solid_002"/>
+      <geom name="part_002_collision_2" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_002_solid_002"/>
+      <geom name="part_003_visual_3" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_003_solid_003"/>
+      <geom name="part_003_collision_3" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_003_solid_003"/>
+      <geom name="part_004_visual_4" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_004_solid_004"/>
+      <geom name="part_004_collision_4" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_004_solid_004"/>
+      <geom name="part_005_visual_5" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_005_solid_005"/>
+      <geom name="part_005_collision_5" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_005_solid_005"/>
+      <geom name="part_006_visual_6" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_006_solid_006"/>
+      <geom name="part_006_collision_6" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_006_solid_006"/>
+      <geom name="part_007_visual_7" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_007_solid_007"/>
+      <geom name="part_007_collision_7" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_007_solid_007"/>
+      <geom name="part_008_visual_8" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_008_solid_008"/>
+      <geom name="part_008_collision_8" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_008_solid_008"/>
+      <geom name="part_009_visual_9" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_009_solid_009"/>
+      <geom name="part_009_collision_9" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_009_solid_009"/>
+      <geom name="part_010_visual_10" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_010_solid_010"/>
+      <geom name="part_010_collision_10" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_010_solid_010"/>
+      <geom name="part_011_visual_11" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_011_solid_011"/>
+      <geom name="part_011_collision_11" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_011_solid_011"/>
+      <geom name="part_012_visual_12" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_012_solid_012"/>
+      <geom name="part_012_collision_12" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_012_solid_012"/>
+      <geom name="part_013_visual_13" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_013_solid_013"/>
+      <geom name="part_013_collision_13" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_013_solid_013"/>
+      <geom name="part_014_visual_14" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_014_solid_014"/>
+      <geom name="part_014_collision_14" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_014_solid_014"/>
+      <geom name="part_015_visual_15" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_015_solid_015"/>
+      <geom name="part_015_collision_15" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_015_solid_015"/>
+      <geom name="part_016_visual_16" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_016_solid_016"/>
+      <geom name="part_016_collision_16" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_016_solid_016"/>
+      <geom name="part_017_visual_17" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_017_solid_017"/>
+      <geom name="part_017_collision_17" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_017_solid_017"/>
+      <geom name="part_018_visual_18" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_018_solid_018"/>
+      <geom name="part_018_collision_18" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_018_solid_018"/>
+      <geom name="part_019_visual_19" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_019_solid_019"/>
+      <geom name="part_019_collision_19" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_019_solid_019"/>
+      <geom name="part_020_visual_20" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_020_solid_020"/>
+      <geom name="part_020_collision_20" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_020_solid_020"/>
+      <geom name="part_021_visual_21" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_021_solid_021"/>
+      <geom name="part_021_collision_21" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_021_solid_021"/>
+      <geom name="part_022_visual_22" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_022_solid_022"/>
+      <geom name="part_022_collision_22" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_022_solid_022"/>
+      <geom name="part_023_visual_23" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_023_solid_023"/>
+      <geom name="part_023_collision_23" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_023_solid_023"/>
+      <geom name="part_024_visual_24" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_024_solid_024"/>
+      <geom name="part_024_collision_24" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_024_solid_024"/>
+      <geom name="part_025_visual_25" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_025_solid_025"/>
+      <geom name="part_025_collision_25" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_025_solid_025"/>
+      <geom name="part_026_visual_26" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_026_solid_026"/>
+      <geom name="part_026_collision_26" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_026_solid_026"/>
+      <geom name="part_027_visual_27" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_027_solid_027"/>
+      <geom name="part_027_collision_27" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_027_solid_027"/>
+      <geom name="part_028_visual_28" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_028_solid_028"/>
+      <geom name="part_028_collision_28" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_028_solid_028"/>
+      <geom name="part_029_visual_29" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_029_solid_029"/>
+      <geom name="part_029_collision_29" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_029_solid_029"/>
+      <geom name="part_030_visual_30" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_030_solid_030"/>
+      <geom name="part_030_collision_30" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_030_solid_030"/>
+      <geom name="part_031_visual_31" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_031_solid_031"/>
+      <geom name="part_031_collision_31" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_031_solid_031"/>
+      <geom name="part_032_visual_32" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_032_solid_032"/>
+      <geom name="part_032_collision_32" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_032_solid_032"/>
+      <geom name="part_033_visual_33" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_033_solid_033"/>
+      <geom name="part_033_collision_33" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_033_solid_033"/>
+      <geom name="part_034_visual_34" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_034_solid_034"/>
+      <geom name="part_034_collision_34" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_034_solid_034"/>
+      <geom name="part_035_visual_35" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_035_solid_035"/>
+      <geom name="part_035_collision_35" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_035_solid_035"/>
+      <geom name="part_036_visual_36" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_036_solid_036"/>
+      <geom name="part_036_collision_36" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_036_solid_036"/>
+      <geom name="part_037_visual_37" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_037_solid_037"/>
+      <geom name="part_037_collision_37" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_037_solid_037"/>
+      <geom name="part_038_visual_38" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_038_solid_038"/>
+      <geom name="part_038_collision_38" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_038_solid_038"/>
+      <geom name="part_039_visual_39" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_039_solid_039"/>
+      <geom name="part_039_collision_39" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_039_solid_039"/>
+      <geom name="part_040_visual_40" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_040_solid_040"/>
+      <geom name="part_040_collision_40" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_040_solid_040"/>
+      <geom name="part_041_visual_41" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_041_solid_041"/>
+      <geom name="part_041_collision_41" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_041_solid_041"/>
+      <geom name="part_042_visual_42" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_042_solid_042"/>
+      <geom name="part_042_collision_42" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_042_solid_042"/>
+      <geom name="part_043_visual_43" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_043_solid_043"/>
+      <geom name="part_043_collision_43" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_043_solid_043"/>
+      <geom name="part_044_visual_44" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_044_solid_044"/>
+      <geom name="part_044_collision_44" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_044_solid_044"/>
+      <geom name="part_045_visual_45" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_045_solid_045"/>
+      <geom name="part_045_collision_45" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_045_solid_045"/>
+      <geom name="part_046_visual_46" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_046_solid_046"/>
+      <geom name="part_046_collision_46" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_046_solid_046"/>
+      <geom name="part_047_visual_47" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_047_solid_047"/>
+      <geom name="part_047_collision_47" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_047_solid_047"/>
+      <geom name="part_048_visual_48" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_048_solid_048"/>
+      <geom name="part_048_collision_48" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_048_solid_048"/>
+      <geom name="part_049_visual_49" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_049_solid_049"/>
+      <geom name="part_049_collision_49" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_049_solid_049"/>
+      <geom name="part_050_visual_50" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_050_solid_050"/>
+      <geom name="part_050_collision_50" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_050_solid_050"/>
+      <geom name="part_051_visual_51" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_051_solid_051"/>
+      <geom name="part_051_collision_51" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_051_solid_051"/>
+      <geom name="part_052_visual_52" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_052_solid_052"/>
+      <geom name="part_052_collision_52" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_052_solid_052"/>
+      <geom name="part_053_visual_53" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_053_solid_053"/>
+      <geom name="part_053_collision_53" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_053_solid_053"/>
+      <geom name="part_054_visual_54" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_054_solid_054"/>
+      <geom name="part_054_collision_54" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_054_solid_054"/>
+      <geom name="part_055_visual_55" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_055_solid_055"/>
+      <geom name="part_055_collision_55" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_055_solid_055"/>
+      <geom name="part_056_visual_56" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_056_solid_056"/>
+      <geom name="part_056_collision_56" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_056_solid_056"/>
+      <geom name="part_057_visual_57" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_057_solid_057"/>
+      <geom name="part_057_collision_57" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_057_solid_057"/>
+      <geom name="part_058_visual_58" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_058_solid_058"/>
+      <geom name="part_058_collision_58" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_058_solid_058"/>
+      <geom name="part_059_visual_59" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_059_solid_059"/>
+      <geom name="part_059_collision_59" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_059_solid_059"/>
+      <geom name="part_060_visual_60" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_060_solid_060"/>
+      <geom name="part_060_collision_60" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_060_solid_060"/>
+      <geom name="part_061_visual_61" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_061_solid_061"/>
+      <geom name="part_061_collision_61" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_061_solid_061"/>
+      <geom name="part_062_visual_62" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_062_solid_062"/>
+      <geom name="part_062_collision_62" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_062_solid_062"/>
+      <geom name="part_063_visual_63" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_063_solid_063"/>
+      <geom name="part_063_collision_63" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_063_solid_063"/>
+      <geom name="part_064_visual_64" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_064_solid_064"/>
+      <geom name="part_064_collision_64" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_064_solid_064"/>
+      <geom name="part_065_visual_65" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_065_solid_065"/>
+      <geom name="part_065_collision_65" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_065_solid_065"/>
+      <!-- <geom name="part_066_visual_66" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_066_solid_066"/> -->
+      <!-- <geom name="part_066_collision_66" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_066_solid_066"/> -->
+      <geom name="part_074_visual_67" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_074_solid_074"/>
+      <geom name="part_074_collision_67" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_074_solid_074"/>
+      <!-- <geom name="part_075_visual_68" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_075_solid_075"/> -->
+      <!-- <geom name="part_075_collision_68" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_075_solid_075"/> -->
+      <geom name="part_076_visual_69" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_076_solid_076"/>
+      <geom name="part_076_collision_69" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_076_solid_076"/>
+      <geom name="part_077_visual_70" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_077_solid_077"/>
+      <geom name="part_077_collision_70" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_077_solid_077"/>
+      <geom name="part_078_visual_71" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_078_solid_078"/>
+      <geom name="part_078_collision_71" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_078_solid_078"/>
+      <geom name="part_079_visual_72" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_079_solid_079"/>
+      <geom name="part_079_collision_72" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_079_solid_079"/>
+      <geom name="part_080_visual_73" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_080_solid_080"/>
+      <geom name="part_080_collision_73" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_080_solid_080"/>
+      <geom name="part_081_visual_74" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_081_solid_081"/>
+      <geom name="part_081_collision_74" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_081_solid_081"/>
+      <geom name="part_082_visual_75" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_082_solid_082"/>
+      <geom name="part_082_collision_75" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_082_solid_082"/>
+      <geom name="part_083_visual_76" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_083_solid_083"/>
+      <geom name="part_083_collision_76" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_083_solid_083"/>
+      <geom name="part_084_visual_77" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_084_solid_084"/>
+      <geom name="part_084_collision_77" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_084_solid_084"/>
+      <geom name="part_085_visual_78" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_085_solid_085"/>
+      <geom name="part_085_collision_78" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_085_solid_085"/>
+      <geom name="part_086_visual_79" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_086_solid_086"/>
+      <geom name="part_086_collision_79" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_086_solid_086"/>
+      <geom name="part_087_visual_80" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_087_solid_087"/>
+      <geom name="part_087_collision_80" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_087_solid_087"/>
+      <geom name="part_088_visual_81" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_088_solid_088"/>
+      <geom name="part_088_collision_81" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_088_solid_088"/>
+      <geom name="part_089_visual_82" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_089_solid_089"/>
+      <geom name="part_089_collision_82" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_089_solid_089"/>
+      <geom name="part_090_visual_83" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_090_solid_090"/>
+      <geom name="part_090_collision_83" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_090_solid_090"/>
+      <geom name="part_091_visual_84" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_091_solid_091"/>
+      <geom name="part_091_collision_84" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_091_solid_091"/>
+      <geom name="part_092_visual_85" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_092_solid_092"/>
+      <geom name="part_092_collision_85" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_092_solid_092"/>
+      <geom name="part_093_visual_86" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_093_solid_093"/>
+      <geom name="part_093_collision_86" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_093_solid_093"/>
+      <geom name="part_094_visual_87" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_094_solid_094"/>
+      <geom name="part_094_collision_87" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_094_solid_094"/>
+      <geom name="part_095_visual_88" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_095_solid_095"/>
+      <geom name="part_095_collision_88" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_095_solid_095"/>
+      <geom name="part_096_visual_89" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_096_solid_096"/>
+      <geom name="part_096_collision_89" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_096_solid_096"/>
+      <geom name="part_097_visual_90" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_097_solid_097"/>
+      <geom name="part_097_collision_90" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_097_solid_097"/>
+      <geom name="part_098_visual_91" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_098_solid_098"/>
+      <geom name="part_098_collision_91" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_098_solid_098"/>
+      <geom name="part_099_visual_92" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_099_solid_099"/>
+      <geom name="part_099_collision_92" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_099_solid_099"/>
+      <geom name="part_100_visual_93" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_100_solid_100"/>
+      <geom name="part_100_collision_93" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_100_solid_100"/>
+      <geom name="part_101_visual_94" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_101_solid_101"/>
+      <geom name="part_101_collision_94" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_101_solid_101"/>
+      <geom name="part_102_visual_95" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_102_solid_102"/>
+      <geom name="part_102_collision_95" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_102_solid_102"/>
+      <geom name="part_103_visual_96" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_103_solid_103"/>
+      <geom name="part_103_collision_96" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_103_solid_103"/>
+      <geom name="part_104_visual_97" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_104_solid_104"/>
+      <geom name="part_104_collision_97" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_104_solid_104"/>
+      <geom name="part_105_visual_98" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_105_solid_105"/>
+      <geom name="part_105_collision_98" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_105_solid_105"/>
+      <geom name="part_106_visual_99" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_106_solid_106"/>
+      <geom name="part_106_collision_99" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_106_solid_106"/>
+      <geom name="part_107_visual_100" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_107_solid_107"/>
+      <geom name="part_107_collision_100" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_107_solid_107"/>
+      <geom name="part_108_visual_101" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_108_solid_108"/>
+      <geom name="part_108_collision_101" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_108_solid_108"/>
+      <geom name="part_109_visual_102" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_109_solid_109"/>
+      <geom name="part_109_collision_102" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_109_solid_109"/>
+      <geom name="part_110_visual_103" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_110_solid_110"/>
+      <geom name="part_110_collision_103" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_110_solid_110"/>
+      <geom name="part_111_visual_104" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_111_solid_111"/>
+      <geom name="part_111_collision_104" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_111_solid_111"/>
+      <geom name="part_112_visual_105" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_112_solid_112"/>
+      <geom name="part_112_collision_105" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_112_solid_112"/>
+      <geom name="part_113_visual_106" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_113_solid_113"/>
+      <geom name="part_113_collision_106" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_113_solid_113"/>
+      <geom name="part_114_visual_107" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_114_solid_114"/>
+      <geom name="part_114_collision_107" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_114_solid_114"/>
+      <geom name="part_115_visual_108" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_115_solid_115"/>
+      <geom name="part_115_collision_108" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_115_solid_115"/>
+      <geom name="part_116_visual_109" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_116_solid_116"/>
+      <geom name="part_116_collision_109" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_116_solid_116"/>
+      <geom name="part_117_visual_110" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_117_solid_117"/>
+      <geom name="part_117_collision_110" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_117_solid_117"/>
+      <geom name="part_118_visual_111" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_118_solid_118"/>
+      <geom name="part_118_collision_111" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_118_solid_118"/>
+      <geom name="part_119_visual_112" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_119_solid_119"/>
+      <geom name="part_119_collision_112" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_119_solid_119"/>
+      <geom name="part_120_visual_113" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_120_solid_120"/>
+      <geom name="part_120_collision_113" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_120_solid_120"/>
+      <geom name="part_121_visual_114" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_121_solid_121"/>
+      <geom name="part_121_collision_114" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_121_solid_121"/>
+      <geom name="part_122_visual_115" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_122_solid_122"/>
+      <geom name="part_122_collision_115" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_122_solid_122"/>
+      <geom name="part_123_visual_116" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_123_solid_123"/>
+      <geom name="part_123_collision_116" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_123_solid_123"/>
+      <geom name="part_124_visual_117" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_124_solid_124"/>
+      <geom name="part_124_collision_117" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_124_solid_124"/>
+      <geom name="part_125_visual_118" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_125_solid_125"/>
+      <geom name="part_125_collision_118" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_125_solid_125"/>
+      <geom name="part_126_visual_119" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_126_solid_126"/>
+      <geom name="part_126_collision_119" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_126_solid_126"/>
+      <geom name="part_127_visual_120" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_127_solid_127"/>
+      <geom name="part_127_collision_120" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_127_solid_127"/>
+      <geom name="part_128_visual_121" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_128_solid_128"/>
+      <geom name="part_128_collision_121" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_128_solid_128"/>
+      <geom name="part_129_visual_122" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_129_solid_129"/>
+      <geom name="part_129_collision_122" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_129_solid_129"/>
+      <geom name="part_130_visual_123" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_130_solid_130"/>
+      <geom name="part_130_collision_123" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_130_solid_130"/>
+      <geom name="part_131_visual_124" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_131_solid_131"/>
+      <geom name="part_131_collision_124" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_131_solid_131"/>
+      <geom name="part_132_visual_125" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_132_solid_132"/>
+      <geom name="part_132_collision_125" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_132_solid_132"/>
+      <geom name="part_133_visual_126" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_133_solid_133"/>
+      <geom name="part_133_collision_126" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_133_solid_133"/>
+      <geom name="part_134_visual_127" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_134_solid_134"/>
+      <geom name="part_134_collision_127" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_134_solid_134"/>
+      <geom name="part_135_visual_128" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_135_solid_135"/>
+      <geom name="part_135_collision_128" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_135_solid_135"/>
+      <geom name="part_136_visual_129" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_136_solid_136"/>
+      <geom name="part_136_collision_129" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_136_solid_136"/>
+      <geom name="part_137_visual_130" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_137_solid_137"/>
+      <geom name="part_137_collision_130" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_137_solid_137"/>
+      <geom name="part_138_visual_131" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_138_solid_138"/>
+      <geom name="part_138_collision_131" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_138_solid_138"/>
+      <geom name="part_139_visual_132" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_139_solid_139"/>
+      <geom name="part_139_collision_132" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_139_solid_139"/>
+      <geom name="part_140_visual_133" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_140_solid_140"/>
+      <geom name="part_140_collision_133" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_140_solid_140"/>
+      <geom name="part_141_visual_134" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_141_solid_141"/>
+      <geom name="part_141_collision_134" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_141_solid_141"/>
+      <geom name="part_142_visual_135" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_142_solid_142"/>
+      <geom name="part_142_collision_135" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_142_solid_142"/>
+      <geom name="part_143_visual_136" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_143_solid_143"/>
+      <geom name="part_143_collision_136" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_143_solid_143"/>
+      <geom name="part_144_visual_137" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_144_solid_144"/>
+      <geom name="part_144_collision_137" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_144_solid_144"/>
+      <geom name="part_145_visual_138" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_145_solid_145"/>
+      <geom name="part_145_collision_138" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_145_solid_145"/>
+      <geom name="part_146_visual_139" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_146_solid_146"/>
+      <geom name="part_146_collision_139" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_146_solid_146"/>
+      <geom name="part_147_visual_140" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_147_solid_147"/>
+      <geom name="part_147_collision_140" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_147_solid_147"/>
+      <geom name="part_148_visual_141" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_148_solid_148"/>
+      <geom name="part_148_collision_141" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_148_solid_148"/>
+      <geom name="part_149_visual_142" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_149_solid_149"/>
+      <geom name="part_149_collision_142" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_149_solid_149"/>
+      <geom name="part_160_visual_143" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_160_solid_160"/>
+      <geom name="part_160_collision_143" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_160_solid_160"/>
+      <geom name="part_161_visual_144" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_161_solid_161"/>
+      <geom name="part_161_collision_144" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_161_solid_161"/>
+      <geom name="part_162_visual_145" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_162_solid_162"/>
+      <geom name="part_162_collision_145" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_162_solid_162"/>
+      <geom name="part_163_visual_146" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_163_solid_163"/>
+      <geom name="part_163_collision_146" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_163_solid_163"/>
+      <geom name="part_164_visual_147" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_164_solid_164"/>
+      <geom name="part_164_collision_147" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_164_solid_164"/>
+      <geom name="part_165_visual_148" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_165_solid_165"/>
+      <geom name="part_165_collision_148" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_165_solid_165"/>
+      <geom name="part_166_visual_149" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_166_solid_166"/>
+      <geom name="part_166_collision_149" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_166_solid_166"/>
+      <geom name="part_167_visual_150" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_167_solid_167"/>
+      <geom name="part_167_collision_150" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_167_solid_167"/>
+      <geom name="part_168_visual_151" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_168_solid_168"/>
+      <geom name="part_168_collision_151" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_168_solid_168"/>
+      <geom name="part_169_visual_152" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_169_solid_169"/>
+      <geom name="part_169_collision_152" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_169_solid_169"/>
+      <geom name="part_170_visual_153" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_170_solid_170"/>
+      <geom name="part_170_collision_153" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_170_solid_170"/>
+      <geom name="part_171_visual_154" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_171_solid_171"/>
+      <geom name="part_171_collision_154" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_171_solid_171"/>
+      <geom name="part_172_visual_155" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_172_solid_172"/>
+      <geom name="part_172_collision_155" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_172_solid_172"/>
+      <geom name="part_173_visual_156" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_173_solid_173"/>
+      <geom name="part_173_collision_156" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_173_solid_173"/>
+      <geom name="part_174_visual_157" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_174_solid_174"/>
+      <geom name="part_174_collision_157" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_174_solid_174"/>
+      <geom name="part_175_visual_158" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_175_solid_175"/>
+      <geom name="part_175_collision_158" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_175_solid_175"/>
+      <geom name="part_176_visual_159" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_176_solid_176"/>
+      <geom name="part_176_collision_159" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_176_solid_176"/>
+      <geom name="part_177_visual_160" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_177_solid_177"/>
+      <geom name="part_177_collision_160" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_177_solid_177"/>
+      <geom name="part_178_visual_161" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_178_solid_178"/>
+      <geom name="part_178_collision_161" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_178_solid_178"/>
+      <geom name="part_185_visual_162" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_185_solid_185"/>
+      <geom name="part_185_collision_162" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_185_solid_185"/>
+      <geom name="part_186_visual_163" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_186_solid_186"/>
+      <geom name="part_186_collision_163" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_186_solid_186"/>
+      <geom name="part_187_visual_164" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_187_solid_187"/>
+      <geom name="part_187_collision_164" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_187_solid_187"/>
+      <geom name="part_188_visual_165" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_188_solid_188"/>
+      <geom name="part_188_collision_165" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_188_solid_188"/>
+      <geom name="part_189_visual_166" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_189_solid_189"/>
+      <geom name="part_189_collision_166" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_189_solid_189"/>
+      <geom name="part_190_visual_167" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_190_solid_190"/>
+      <geom name="part_190_collision_167" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_190_solid_190"/>
+      <geom name="part_191_visual_168" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_191_solid_191"/>
+      <geom name="part_191_collision_168" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_191_solid_191"/>
+      <geom name="part_192_visual_169" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_192_solid_192"/>
+      <geom name="part_192_collision_169" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_192_solid_192"/>
+      <geom name="part_193_visual_170" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_193_solid_193"/>
+      <geom name="part_193_collision_170" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_193_solid_193"/>
+      <geom name="part_194_visual_171" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_194_solid_194"/>
+      <geom name="part_194_collision_171" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_194_solid_194"/>
+      <geom name="part_195_visual_172" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_195_solid_195"/>
+      <geom name="part_195_collision_172" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_195_solid_195"/>
+      <geom name="part_196_visual_173" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_196_solid_196"/>
+      <geom name="part_196_collision_173" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_196_solid_196"/>
+      <geom name="part_197_visual_174" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_197_solid_197"/>
+      <geom name="part_197_collision_174" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_197_solid_197"/>
+      <geom name="part_198_visual_175" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_198_solid_198"/>
+      <geom name="part_198_collision_175" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_198_solid_198"/>
+      <geom name="part_199_visual_176" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_199_solid_199"/>
+      <geom name="part_199_collision_176" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_199_solid_199"/>
+      <geom name="part_200_visual_177" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_200_solid_200"/>
+      <geom name="part_200_collision_177" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_200_solid_200"/>
+      <geom name="part_201_visual_178" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_201_solid_201"/>
+      <geom name="part_201_collision_178" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_201_solid_201"/>
+      <geom name="part_202_visual_179" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_202_solid_202"/>
+      <geom name="part_202_collision_179" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_202_solid_202"/>
+      <geom name="part_203_visual_180" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_203_solid_203"/>
+      <geom name="part_203_collision_180" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_203_solid_203"/>
+      <geom name="part_204_visual_181" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_204_solid_204"/>
+      <geom name="part_204_collision_181" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_204_solid_204"/>
+      <geom name="part_205_visual_182" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_205_solid_205"/>
+      <geom name="part_205_collision_182" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_205_solid_205"/>
+      <geom name="part_206_visual_183" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_206_solid_206"/>
+      <geom name="part_206_collision_183" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_206_solid_206"/>
+      <geom name="part_207_visual_184" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_207_solid_207"/>
+      <geom name="part_207_collision_184" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_207_solid_207"/>
+      <geom name="part_208_visual_185" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_208_solid_208"/>
+      <geom name="part_208_collision_185" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_208_solid_208"/>
+      <geom name="part_209_visual_186" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_209_solid_209"/>
+      <geom name="part_209_collision_186" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_209_solid_209"/>
+      <geom name="part_210_visual_187" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_210_solid_210"/>
+      <geom name="part_210_collision_187" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_210_solid_210"/>
+      <geom name="part_211_visual_188" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_211_solid_211"/>
+      <geom name="part_211_collision_188" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_211_solid_211"/>
+      <geom name="part_212_visual_189" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_212_solid_212"/>
+      <geom name="part_212_collision_189" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_212_solid_212"/>
+      <geom name="part_213_visual_190" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_213_solid_213"/>
+      <geom name="part_213_collision_190" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_213_solid_213"/>
+      <geom name="part_214_visual_191" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_214_solid_214"/>
+      <geom name="part_214_collision_191" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_214_solid_214"/>
+      <geom name="part_215_visual_192" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_215_solid_215"/>
+      <geom name="part_215_collision_192" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_215_solid_215"/>
+      <geom name="part_216_visual_193" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_216_solid_216"/>
+      <geom name="part_216_collision_193" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_216_solid_216"/>
+      <geom name="part_217_visual_194" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_217_solid_217"/>
+      <geom name="part_217_collision_194" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_217_solid_217"/>
+      <geom name="part_218_visual_195" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_218_solid_218"/>
+      <geom name="part_218_collision_195" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_218_solid_218"/>
+      <geom name="part_219_visual_196" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_219_solid_219"/>
+      <geom name="part_219_collision_196" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_219_solid_219"/>
+      <geom name="part_220_visual_197" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_220_solid_220"/>
+      <geom name="part_220_collision_197" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_220_solid_220"/>
+      <geom name="part_221_visual_198" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_221_solid_221"/>
+      <geom name="part_221_collision_198" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_221_solid_221"/>
+      <geom name="part_222_visual_199" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_222_solid_222"/>
+      <geom name="part_222_collision_199" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_222_solid_222"/>
+      <geom name="part_223_visual_200" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_223_solid_223"/>
+      <geom name="part_223_collision_200" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_223_solid_223"/>
+      <geom name="part_224_visual_201" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_224_solid_224"/>
+      <geom name="part_224_collision_201" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_224_solid_224"/>
+      <geom name="part_225_visual_202" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_225_solid_225"/>
+      <geom name="part_225_collision_202" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_225_solid_225"/>
+      <geom name="part_226_visual_203" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_226_solid_226"/>
+      <geom name="part_226_collision_203" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_226_solid_226"/>
+      <geom name="part_227_visual_204" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_227_solid_227"/>
+      <geom name="part_227_collision_204" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_227_solid_227"/>
+      <geom name="part_228_visual_205" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_228_solid_228"/>
+      <geom name="part_228_collision_205" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_228_solid_228"/>
+      <geom name="part_229_visual_206" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_229_solid_229"/>
+      <geom name="part_229_collision_206" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_229_solid_229"/>
+      <geom name="part_230_visual_207" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_230_solid_230"/>
+      <geom name="part_230_collision_207" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_230_solid_230"/>
+      <geom name="part_231_visual_208" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_231_solid_231"/>
+      <geom name="part_231_collision_208" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_231_solid_231"/>
+      <geom name="part_232_visual_209" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_232_solid_232"/>
+      <geom name="part_232_collision_209" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_232_solid_232"/>
+      <geom name="part_233_visual_210" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_233_solid_233"/>
+      <geom name="part_233_collision_210" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_233_solid_233"/>
+      <geom name="part_234_visual_211" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_234_solid_234"/>
+      <geom name="part_234_collision_211" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_234_solid_234"/>
+      <geom name="part_235_visual_212" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_235_solid_235"/>
+      <geom name="part_235_collision_212" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_235_solid_235"/>
+      <geom name="part_236_visual_213" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_236_solid_236"/>
+      <geom name="part_236_collision_213" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_236_solid_236"/>
+      <geom name="part_237_visual_214" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_237_solid_237"/>
+      <geom name="part_237_collision_214" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_237_solid_237"/>
+      <geom name="part_238_visual_215" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_238_solid_238"/>
+      <geom name="part_238_collision_215" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_238_solid_238"/>
+      <geom name="part_239_visual_216" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_239_solid_239"/>
+      <geom name="part_239_collision_216" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_239_solid_239"/>
+      <geom name="part_240_visual_217" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_240_solid_240"/>
+      <geom name="part_240_collision_217" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_240_solid_240"/>
+      <geom name="part_241_visual_218" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_241_solid_241"/>
+      <geom name="part_241_collision_218" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_241_solid_241"/>
+      <geom name="part_242_visual_219" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_242_solid_242"/>
+      <geom name="part_242_collision_219" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_242_solid_242"/>
+      <geom name="part_243_visual_220" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_243_solid_243"/>
+      <geom name="part_243_collision_220" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_243_solid_243"/>
+      <geom name="part_244_visual_221" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_244_solid_244"/>
+      <geom name="part_244_collision_221" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_244_solid_244"/>
+      <geom name="part_245_visual_222" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_245_solid_245"/>
+      <geom name="part_245_collision_222" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_245_solid_245"/>
+      <geom name="part_246_visual_223" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_246_solid_246"/>
+      <geom name="part_246_collision_223" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_246_solid_246"/>
+      <geom name="part_247_visual_224" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_247_solid_247"/>
+      <geom name="part_247_collision_224" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_247_solid_247"/>
+      <geom name="part_248_visual_225" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_248_solid_248"/>
+      <geom name="part_248_collision_225" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_248_solid_248"/>
+      <geom name="part_249_visual_226" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_249_solid_249"/>
+      <geom name="part_249_collision_226" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_249_solid_249"/>
+      <geom name="part_250_visual_227" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_250_solid_250"/>
+      <geom name="part_250_collision_227" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_250_solid_250"/>
+      <geom name="part_251_visual_228" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_251_solid_251"/>
+      <geom name="part_251_collision_228" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_251_solid_251"/>
+      <geom name="part_252_visual_229" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_252_solid_252"/>
+      <geom name="part_252_collision_229" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_252_solid_252"/>
+      <geom name="part_253_visual_230" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_253_solid_253"/>
+      <geom name="part_253_collision_230" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_253_solid_253"/>
+      <geom name="part_254_visual_231" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_254_solid_254"/>
+      <geom name="part_254_collision_231" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_254_solid_254"/>
+      <geom name="part_255_visual_232" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_255_solid_255"/>
+      <geom name="part_255_collision_232" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_255_solid_255"/>
+      <geom name="part_256_visual_233" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_256_solid_256"/>
+      <geom name="part_256_collision_233" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_256_solid_256"/>
+      <geom name="part_257_visual_234" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_257_solid_257"/>
+      <geom name="part_257_collision_234" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_257_solid_257"/>
+      <geom name="part_258_visual_235" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_258_solid_258"/>
+      <geom name="part_258_collision_235" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_258_solid_258"/>
+      <geom name="part_259_visual_236" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_259_solid_259"/>
+      <geom name="part_259_collision_236" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_259_solid_259"/>
+      <geom name="part_260_visual_237" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_260_solid_260"/>
+      <geom name="part_260_collision_237" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_260_solid_260"/>
+      <geom name="part_261_visual_238" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_261_solid_261"/>
+      <geom name="part_261_collision_238" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_261_solid_261"/>
+      <geom name="part_262_visual_239" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_262_solid_262"/>
+      <geom name="part_262_collision_239" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_262_solid_262"/>
+      <geom name="part_263_visual_240" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_263_solid_263"/>
+      <geom name="part_263_collision_240" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_263_solid_263"/>
+      <geom name="part_264_visual_241" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_264_solid_264"/>
+      <geom name="part_264_collision_241" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_264_solid_264"/>
+      <geom name="part_265_visual_242" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_265_solid_265"/>
+      <geom name="part_265_collision_242" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_265_solid_265"/>
+      <geom name="part_266_visual_243" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_266_solid_266"/>
+      <geom name="part_266_collision_243" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_266_solid_266"/>
+      <geom name="part_267_visual_244" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_267_solid_267"/>
+      <geom name="part_267_collision_244" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_267_solid_267"/>
+      <geom name="part_268_visual_245" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_268_solid_268"/>
+      <geom name="part_268_collision_245" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_268_solid_268"/>
+      <geom name="part_269_visual_246" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_269_solid_269"/>
+      <geom name="part_269_collision_246" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_269_solid_269"/>
+      <geom name="part_270_visual_247" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_270_solid_270"/>
+      <geom name="part_270_collision_247" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_270_solid_270"/>
+      <geom name="part_271_visual_248" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_271_solid_271"/>
+      <geom name="part_271_collision_248" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_271_solid_271"/>
+      <geom name="part_272_visual_249" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_272_solid_272"/>
+      <geom name="part_272_collision_249" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_272_solid_272"/>
+      <geom name="part_273_visual_250" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_273_solid_273"/>
+      <geom name="part_273_collision_250" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_273_solid_273"/>
+      <geom name="part_274_visual_251" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_274_solid_274"/>
+      <geom name="part_274_collision_251" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_274_solid_274"/>
+      <geom name="part_275_visual_252" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_275_solid_275"/>
+      <geom name="part_275_collision_252" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_275_solid_275"/>
+      <geom name="part_276_visual_253" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_276_solid_276"/>
+      <geom name="part_276_collision_253" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_276_solid_276"/>
+      <geom name="part_277_visual_254" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_277_solid_277"/>
+      <geom name="part_277_collision_254" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_277_solid_277"/>
+      <geom name="part_278_visual_255" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_278_solid_278"/>
+      <geom name="part_278_collision_255" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_278_solid_278"/>
+      <geom name="part_279_visual_256" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_279_solid_279"/>
+      <geom name="part_279_collision_256" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_279_solid_279"/>
+      <geom name="part_280_visual_257" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_280_solid_280"/>
+      <geom name="part_280_collision_257" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_280_solid_280"/>
+      <geom name="part_281_visual_258" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_281_solid_281"/>
+      <geom name="part_281_collision_258" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_281_solid_281"/>
+      <geom name="part_282_visual_259" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_282_solid_282"/>
+      <geom name="part_282_collision_259" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_282_solid_282"/>
+      <geom name="part_283_visual_260" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_283_solid_283"/>
+      <geom name="part_283_collision_260" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_283_solid_283"/>
+      <geom name="part_284_visual_261" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_284_solid_284"/>
+      <geom name="part_284_collision_261" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_284_solid_284"/>
+      <geom name="part_285_visual_262" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_285_solid_285"/>
+      <geom name="part_285_collision_262" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_285_solid_285"/>
+      <geom name="part_286_visual_263" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_286_solid_286"/>
+      <geom name="part_286_collision_263" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_286_solid_286"/>
+      <geom name="part_287_visual_264" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_287_solid_287"/>
+      <geom name="part_287_collision_264" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_287_solid_287"/>
+      <geom name="part_288_visual_265" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_288_solid_288"/>
+      <geom name="part_288_collision_265" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_288_solid_288"/>
+      <geom name="part_289_visual_266" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_289_solid_289"/>
+      <geom name="part_289_collision_266" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_289_solid_289"/>
+      <geom name="part_290_visual_267" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_290_solid_290"/>
+      <geom name="part_290_collision_267" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_290_solid_290"/>
+      <geom name="part_291_visual_268" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_291_solid_291"/>
+      <geom name="part_291_collision_268" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_291_solid_291"/>
+      <geom name="part_292_visual_269" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_292_solid_292"/>
+      <geom name="part_292_collision_269" pos="0 0 0" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_292_solid_292"/>
       <body name="link_002" pos="0.3032 0.125 -0.07">
-        <inertial pos="0.0610736 -0.136907 -0.021167" quat="0.707107 0.707107 0 0" mass="0.682205" diaginertia="0.010188 0.00910504 0.00187389" />
-        <joint name="link_002_joint" pos="0 0 0" axis="1 0 0" range="-1.57 1.57" actuatorfrcrange="-10 10" />
-        <geom name="part_073_collision_1" pos="-0.3032 -0.125 0.07" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_073_solid_073" />
-        <geom name="part_070_collision_2" pos="-0.3032 -0.125 0.07" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_070_solid_070" />
+        <inertial pos="0.0610736 -0.136907 -0.021167" quat="0.707107 0.707107 0 0" mass="0.682205" diaginertia="0.010188 0.00910504 0.00187389"/>
+        <joint name="link_002_joint" range="-0.30 1.57" actuatorfrcrange="-40 40" axis="1 0 0" damping="1.0" armature="0.02" frictionloss="0"/>
+        <geom name="part_073_visual_1" pos="-0.3032 -0.125 0.07" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_073_solid_073"/>
+        <geom name="part_073_collision_1" pos="-0.3032 -0.125 0.07" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_073_solid_073"/>
+        <geom name="part_070_visual_2" pos="-0.3032 -0.125 0.07" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_070_solid_070"/>
+        <geom name="part_070_collision_2" pos="-0.3032 -0.125 0.07" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_070_solid_070"/>
         <body name="link_003" pos="0.072 -0.293481 -0.0622009">
-          <inertial pos="-0.011044 0.115382 -0.0853229" quat="0.82802 0.560699 -0.000316077 -1.14566e-06" mass="0.313074" diaginertia="0.00513824 0.00370464 0.00148976" />
-          <joint name="link_003_joint" pos="0 0 0" axis="1 0 0" range="-1.57 1.57" actuatorfrcrange="-10 10" />
-          <geom name="part_159_collision_1" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_159_solid_159" />
-          <geom name="part_157_collision_2" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_157_solid_157" />
-          <geom name="part_067_collision_3" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_067_solid_067" />
-          <geom name="part_180_collision_4" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_180_solid_180" />
-          <geom name="part_155_collision_5" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_155_solid_155" />
-          <geom name="part_152_collision_6" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_152_solid_152" />
-          <geom name="part_151_collision_7" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_151_solid_151" />
-          <geom name="part_181_collision_8" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_181_solid_181" />
+          <inertial pos="-0.011044 0.115382 -0.0853229" quat="0.82802 0.560699 -0.000316077 -1.14566e-06" mass="0.313074" diaginertia="0.00513824 0.00370464 0.00148976"/>
+          <joint name="link_003_joint" range="-1.57 0.20" actuatorfrcrange="-40 40" axis="1 0 0" damping="1.0" armature="0.02" frictionloss="0.1"/>
+          <geom name="part_159_visual_1" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_159_solid_159"/>
+          <geom name="part_159_collision_1" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_159_solid_159"/>
+          <geom name="part_157_visual_2" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_157_solid_157"/>
+          <geom name="part_157_collision_2" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_157_solid_157"/>
+          <geom name="part_067_visual_3" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_067_solid_067"/>
+          <geom name="part_067_collision_3" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_067_solid_067"/>
+          <geom name="part_180_visual_4" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_180_solid_180"/>
+          <geom name="part_180_collision_4" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_180_solid_180"/>
+          <geom name="part_155_visual_5" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_155_solid_155"/>
+          <geom name="part_155_collision_5" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_155_solid_155"/>
+          <geom name="part_152_visual_6" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_152_solid_152"/>
+          <geom name="part_152_collision_6" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_152_solid_152"/>
+          <geom name="part_151_visual_7" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_151_solid_151"/>
+          <geom name="part_151_collision_7" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_151_solid_151"/>
+          <geom name="part_181_visual_8" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_181_solid_181"/>
+          <geom name="part_181_collision_8" pos="-0.3752 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_181_solid_181"/>
           <body name="link_004" pos="-0.022 0.282109 -0.195538">
-            <inertial pos="0.03825 0 0" mass="0.809843" diaginertia="0.00262449 0.0018451 0.00183653" />
-            <joint name="link_004_joint" pos="0 0 0" axis="1 0 0" range="-1.57 1.57" actuatorfrcrange="-10 10" />
-            <geom name="part_184_collision_1" pos="-0.3532 -0.113628 0.327739" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_184_solid_184" />
+            <inertial pos="0.03825 0 0" mass="2.5" diaginertia="0.00810 0.00570 0.00567"/>
+            <joint name="link_004_joint" limited="false" actuatorfrcrange="-100 100" axis="1 0 0" damping="1.0" armature="0.02" frictionloss="1"/>
+            <geom name="part_184_visual_1" pos="-0.3532 -0.113628 0.327739" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_184_solid_184"/>
+            <geom name="part_184_collision_1" pos="-0.3532 -0.113628 0.327739" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_184_solid_184"/>
           </body>
         </body>
       </body>
       <body name="link_005" pos="0.0965 0.125 -0.07">
-        <inertial pos="-0.0607736 -0.136907 -0.021167" quat="0.707107 0.707107 0 0" mass="0.682205" diaginertia="0.010188 0.00910504 0.00187389" />
-        <joint name="link_005_joint" pos="0 0 0" axis="-1 0 0" range="-1.57 1.57" actuatorfrcrange="-10 10" />
-        <geom name="part_072_collision_1" pos="-0.0965 -0.125 0.07" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_072_solid_072" />
-        <geom name="part_071_collision_2" pos="-0.0965 -0.125 0.07" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_071_solid_071" />
+        <inertial pos="-0.0607736 -0.136907 -0.021167" quat="0.707107 0.707107 0 0" mass="0.682205" diaginertia="0.010188 0.00910504 0.00187389"/>
+        <joint name="link_005_joint" range="-1.57 0.30" actuatorfrcrange="-40 40" axis="-1 0 0" damping="1.0" armature="0.02" frictionloss="0"/>
+        <geom name="part_072_visual_1" pos="-0.0965 -0.125 0.07" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_072_solid_072"/>
+        <geom name="part_072_collision_1" pos="-0.0965 -0.125 0.07" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_072_solid_072"/>
+        <geom name="part_071_visual_2" pos="-0.0965 -0.125 0.07" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_071_solid_071"/>
+        <geom name="part_071_collision_2" pos="-0.0965 -0.125 0.07" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_071_solid_071"/>
         <body name="link_006" pos="-0.0667 -0.293481 -0.0622009">
-          <inertial pos="0.00604399 0.115382 -0.0853229" quat="0.82802 0.560699 0.000316077 1.14566e-06" mass="0.313074" diaginertia="0.00513824 0.00370464 0.00148976" />
-          <joint name="link_006_joint" pos="0 0 0" axis="-1 0 0" range="-1.57 1.57" actuatorfrcrange="-10 10" />
-          <geom name="part_156_collision_1" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_156_solid_156" />
-          <geom name="part_158_collision_2" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_158_solid_158" />
-          <geom name="part_069_collision_3" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_069_solid_069" />
-          <geom name="part_154_collision_4" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_154_solid_154" />
-          <geom name="part_182_collision_5" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_182_solid_182" />
-          <geom name="part_153_collision_6" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_153_solid_153" />
-          <geom name="part_150_collision_7" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_150_solid_150" />
-          <geom name="part_179_collision_8" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_179_solid_179" />
+          <inertial pos="0.00604399 0.115382 -0.0853229" quat="0.82802 0.560699 0.000316077 1.14566e-06" mass="0.313074" diaginertia="0.00513824 0.00370464 0.00148976"/>
+          <joint name="link_006_joint" range="-0.20 1.57" actuatorfrcrange="-40 40" axis="-1 0 0" damping="1.0" armature="0.02" frictionloss="0.1"/>
+          <geom name="part_156_visual_1" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_156_solid_156"/>
+          <geom name="part_156_collision_1" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_156_solid_156"/>
+          <geom name="part_158_visual_2" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_158_solid_158"/>
+          <geom name="part_158_collision_2" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_158_solid_158"/>
+          <geom name="part_069_visual_3" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_069_solid_069"/>
+          <geom name="part_069_collision_3" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_069_solid_069"/>
+          <geom name="part_154_visual_4" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_154_solid_154"/>
+          <geom name="part_154_collision_4" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_154_solid_154"/>
+          <geom name="part_182_visual_5" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_182_solid_182"/>
+          <geom name="part_182_collision_5" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_182_solid_182"/>
+          <geom name="part_153_visual_6" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_153_solid_153"/>
+          <geom name="part_153_collision_6" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_153_solid_153"/>
+          <geom name="part_150_visual_7" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_150_solid_150"/>
+          <geom name="part_150_collision_7" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_150_solid_150"/>
+          <geom name="part_179_visual_8" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_179_solid_179"/>
+          <geom name="part_179_collision_8" pos="-0.0298 0.168481 0.132201" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_179_solid_179"/>
           <body name="link_007" pos="-0.0405 0.282109 -0.195538">
-            <inertial pos="0.01925 0 0" mass="0.809843" diaginertia="0.00262449 0.0018451 0.00183653" />
-            <joint name="link_007_joint" pos="0 0 0" axis="-1 0 0" range="-1.57 1.57" actuatorfrcrange="-10 10" />
-            <geom name="part_183_collision_1" pos="0.0107 -0.113628 0.327739" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_183_solid_183" />
+            <inertial pos="0.01925 0 0" mass="2.5" diaginertia="0.00810 0.00570 0.00567"/>
+            <joint name="link_007_joint" limited="false" actuatorfrcrange="-100 100" axis="-1 0 0" damping="1.0" armature="0.02" frictionloss="1.0"/>
+            <geom name="part_183_visual_1" pos="0.0107 -0.113628 0.327739" quat="0.707107 0.707107 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="part_183_solid_183"/>
+            <geom name="part_183_collision_1" pos="0.0107 -0.113628 0.327739" quat="0.707107 0.707107 0 0" type="mesh" mesh="part_183_solid_183"/>
           </body>
         </body>
       </body>
     </body>
   </worldbody>
+
+  <actuator>
+    <position name="link_002_joint_motor" joint="link_002_joint" kp="50" kv="2" ctrllimited="true" ctrlrange="-1.57 1.57"/>
+    <position name="link_003_joint_motor" joint="link_003_joint" kp="50" kv="2" ctrllimited="true" ctrlrange="-1.57 1.57"/>
+    <position name="link_005_joint_motor" joint="link_005_joint" kp="50" kv="2" ctrllimited="true" ctrlrange="-1.57 1.57"/>
+    <position name="link_006_joint_motor" joint="link_006_joint" kp="50" kv="2" ctrllimited="true" ctrlrange="-1.57 1.57"/>
+    <motor name="link_004_joint_motor" joint="link_004_joint" ctrllimited="true" ctrlrange="-100 100"/>
+    <motor name="link_007_joint_motor" joint="link_007_joint" ctrllimited="true" ctrlrange="-100 100"/>
+  </actuator>
+  <sensor>
+    <framequat name="imu_quat" objtype="site" objname="imu_site"/>
+    <gyro name="imu_gyro" site="imu_site"/>
+    <accelerometer name="imu_acc" site="imu_site"/>
+  </sensor>
 </mujoco>
