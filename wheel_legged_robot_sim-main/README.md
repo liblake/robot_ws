@@ -1,0 +1,76 @@
+# wheel_legged_robot_sim
+
+轮腿机器人的 MuJoCo 仿真。机器人左右各一条四连杆并联腿，腿端各装一个驱动轮；控制上用 LQR + VMC 组合，能自平衡站立、行走，也能起跳。
+
+## 算法简介
+
+控制器按跳跃相位把平衡和腿部动作分开管，免得两个环在腿电机上抢量程（代码里叫相位独占）。
+
+平衡用 LQR。状态取切空间 5 维 `[pitch, pitch_rate, roll, roll_rate, wheel_vel]`，解出两路虚拟控制：前进轮力矩和左右腿差分。外面再套几层 PI/PD：`pitch_lean` 把速度误差转成目标俯仰，`yaw` 管转向，`heading_hold` 锁航向，零速时位置外环把车拉回原地。
+
+腿高用 VMC。每条腿是四连杆闭链，先查 LUT 把目标腿高换成电机角，再在关节空间做 PD 跟踪。LAND 阶段单独给一组增益，P 更软、D 更硬，专门吸冲击。
+
+跳跃是一台相位机：`STAND → CROUCH → EXTEND → FLIGHT → LAND`，摔倒了进 `FALLEN`。STAND 时 LQR 全开、VMC 管高度；CROUCH、EXTEND、LAND 期间 LQR 只靠轮前进和 yaw 稳住本体，腿整个交给 VMC 轨迹；FLIGHT 把腿和轮都置零，靠角动量在空中保持姿态，这样落地不会反扭。
+
+参数和调参顺序都集中在 `src/controllers/default_params.py`，注释里写了该从哪项开始、按什么顺序往下冻结。
+
+## 环境搭建
+
+依赖用 [uv](https://docs.astral.sh/uv/) 管理，需要 Python 3.13。
+
+```bash
+uv sync
+```
+
+> macOS 上 MuJoCo 的交互式查看器必须用 `mjpython` 启动（`uv sync` 会一并装好）。Linux/Windows 用普通 `python` 即可。
+
+## 快速开始
+
+一般只需要直接启动带控制器的仿真：
+
+```bash
+# macOS
+uv run mjpython -m src.launch_mujoco
+# Linux / Windows
+uv run python -m src.launch_mujoco
+```
+
+默认启动后就会加载机器人、地形和控制器。手柄接上以后可以直接控制行进和跳跃；没有手柄时也能正常打开仿真。
+
+如果只想看 URDF 模型本身，不加载控制器，可以运行：
+
+```bash
+uv run mjpython launch_viewer.py
+```
+
+## 手柄控制（可选）
+
+手柄默认启用，左摇杆控制行进/转向，LT/RT 调节腿高，A 键触发跳跃。未接手柄或后端不可用时自动跳过，不影响仿真；显式关闭用 `--no-enable-gamepad`。
+
+- macOS：接实体 Xbox 手柄需要额外依赖：
+
+  ```bash
+  uv sync --extra gamepad
+  ```
+
+- Linux：无需额外依赖。内核把兼容手柄（例如 xpad 驱动的 Xbox360 风格 2.4G 手柄）暴露为标准 Linux 摇杆 `/dev/input/js*`，程序启动时自动打开第一个可用设备；插了多个手柄或需要指定设备时用 `--gamepad-device /dev/input/js0`。
+
+需要确认轴/按键映射时，可运行 `python -m src.gamepad [设备路径]` 实时打印手柄事件与映射结果。
+
+## 项目结构
+
+```
+src/
+  controllers/     # LQR、VMC、相位机、跳跃轨迹、参数与 LUT
+  robot/           # robot.urdf + STL 网格
+  launch_mujoco.py # 带控制器的仿真入口
+  mjcf_builder.py  # URDF → MJCF 转换与预处理
+  rollout.py       # 无头 rollout
+  optimize.py      # Optuna 调参
+launch_viewer.py   # 纯 URDF 查看器
+profile_sim.py     # 性能分析
+```
+
+## 许可证
+
+[Apache-2.0](LICENSE)
