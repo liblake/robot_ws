@@ -17,6 +17,9 @@ from src.state import model_addresses
 # 直接按简化 B 解 LQR 会让增益偏大 → 自激震荡。故把 B 的 pitch 行乘以该标定系数；
 # 换质量/轮径/站姿后需重新标定。
 BALANCE_B_PITCH_SCALE = 3.6
+# wheel_vel 行单独标定：轮子转子自旋响应远大于整车平移响应，
+# 若与 pitch 行同标度会让 LQR 第 5 维反馈过强（2026-09-09 实验）。
+BALANCE_B_WHEEL_SCALE = 0.3
 
 
 # =============================================================================
@@ -238,7 +241,7 @@ def _reduced_balance_system_5d(model: Any, data: Any) -> tuple[np.ndarray, np.nd
     b[3, 1] = (track_width / 2.0) / (roll_inertia * pendulum_length) * dt  # roll 差动力矩对 roll_rate 的影响
     # 经验标定：pitch/wheel 通道按实测灵敏度放大（见 BALANCE_B_PITCH_SCALE）
     b[1, 0] *= BALANCE_B_PITCH_SCALE
-    b[4, 0] *= BALANCE_B_PITCH_SCALE
+    b[4, 0] *= BALANCE_B_WHEEL_SCALE
 
     if a.shape != (5, 5) or b.shape != (5, 2) or not np.all(np.isfinite(a)) or not np.all(np.isfinite(b)):
         raise ValueError("5D reduced balance system must be finite with shapes (5, 5) and (5, 2)")

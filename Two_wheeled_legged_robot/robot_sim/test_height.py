@@ -4,7 +4,7 @@
     .venv/bin/python test_height.py            # 无头
     .venv/bin/python test_height.py --viewer   # 可视化
 
-时间线：站 0.37m → 降到 0.33m → 升到 0.45m → 回到 0.37m，全程原地平衡。
+时间线：站 0.37m → 降到 0.33m → 升到 0.42m → 回到 0.37m，全程原地平衡。
 """
 
 import argparse
@@ -34,11 +34,11 @@ def height_cmd(t: float) -> float:
     if t < 6.0:
         return 0.33
     if t < 9.0:
-        return 0.33 + 0.04 * (t - 6.0)
+        return 0.33 + 0.03 * (t - 6.0)
     if t < 12.0:
-        return 0.45
+        return 0.42
     if t < 14.0:
-        return 0.45 - 0.04 * (t - 12.0)
+        return 0.42 - 0.025 * (t - 12.0)
     return 0.37
 
 
@@ -85,7 +85,7 @@ def main() -> int:
             )
 
     if args.viewer:
-        print("原地调高演示：0.37 → 0.33 → 0.45 → 0.37 m")
+        print("原地调高演示：0.37 → 0.33 → 0.42 → 0.37 m")
         with mujoco.viewer.launch_passive(model, data) as viewer:
             steps = 0
             while viewer.is_running() and steps < total_steps:

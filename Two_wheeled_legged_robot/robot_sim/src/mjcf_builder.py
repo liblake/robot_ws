@@ -19,13 +19,15 @@ CMD_SLIDER_NAMES = ("cmd_linear_x", "cmd_angular_z", "cmd_height", "cmd_jump")
 
 @dataclass(frozen=True)
 class SingleWheelTrapezoidTerrain:
+    # 轮车道 x 位置按 Two_wheeled_legged_robot 实测（2026-09-09）：
+    #   左轮(link_007)≈0.01、右轮(link_004)≈0.39（机身原点 x=0）
     side: str = "left"
     height: float = 0.065
     ramp_length: float = 0.20
     platform_length: float = 0.25
     width: float = 0.40
     y_start: float = 0.22
-    side_x: float = 0.125
+    side_x: float = 0.125  # 保留字段，实际车道映射见 _add_single_wheel_trapezoid
 
 
 @dataclass(frozen=True)
@@ -34,7 +36,8 @@ class WavyRoadTerrain:
 
     y_start: float = 1.05
     length: float = 1.20          # along y (forward direction)
-    width: float = 0.60           # along x (lateral)
+    width: float = 0.44           # along x (lateral)，覆盖本机轮距 0.01~0.39
+    x_center: float = 0.20        # 路面沿 x 的中心（本机轮距中心）
     amplitude: float = 0.03       # half peak-to-peak; max peak-to-peak = 60 mm before random scaling
     wavelength: float = 0.35      # along y
     base_depth: float = 0.02
@@ -297,7 +300,8 @@ def _add_single_wheel_trapezoid(root: ET.Element, config: SingleWheelTrapezoidTe
     platform_length = float(config.platform_length)
     width = float(config.width)
     y_start = float(config.y_start)
-    x_pos = float(config.side_x if config.side == "left" else -config.side_x)
+    # 本机左右轮车道（非对称）：左轮 x≈0.01、右轮 x≈0.39
+    x_pos = 0.01 if config.side == "left" else 0.39
     if min(height, ramp_length, platform_length, width) <= 0.0:
         raise ValueError("single-wheel trapezoid terrain dimensions must be positive")
 
@@ -405,7 +409,9 @@ def _add_wavy_road(root: ET.Element, config: WavyRoadTerrain, output_root: Path)
             "name": "wavy_road",
             "type": "hfield",
             "hfield": "wavy_road_hfield",
-            "pos": _format_float_triplet((0.0, config.y_start + 0.5 * config.length, 0.0)),
+            "pos": _format_float_triplet(
+                (config.x_center, config.y_start + 0.5 * config.length, 0.0)
+            ),
             "contype": "1",
             "conaffinity": "1",
             "friction": "1.0 0.02 0.001",
@@ -661,9 +667,10 @@ def _replace_actuators(root: ET.Element) -> None:
     # the side-specific closed-chain LUT. Upper bound remains 0.142 because the
     # current 2.2 kg tune oscillates above it; restoring 0.148 needs retuning.
     # cmd 范围 = 已验证的安全包线（2026-09-09）：
-    #   线速度 ±0.5 m/s；转向 ±0.3 rad/s（更大值在实机验证前不可用）；
-    #   高度 h_base [0.31, 0.50]（见 serial_leg_ik.py）
-    for name, ctrlrange in zip(CMD_SLIDER_NAMES, ("-0.5 0.5", "-0.3 0.3", "0.31 0.50", "0 1")):
+    #   线速度 ±0.5 m/s；转向 ±0.3 rad/s；
+    #   高度 h_base 可操作上限 0.42（120s 长时间站立验证：0.42 稳定、
+    #   0.45 慢发散；0.45+ 留待任务空间力控专项）
+    for name, ctrlrange in zip(CMD_SLIDER_NAMES, ("-0.5 0.5", "-0.3 0.3", "0.31 0.42", "0 1")):
         ET.SubElement(
             actuator,
             "motor",

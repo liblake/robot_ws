@@ -101,6 +101,15 @@ class CombinedParams:
     # 外环来不及平滑会造成大幅前后摆动。这里限制指令变化率。
     max_linear_accel: float = 0.4    # m/s²
     max_yaw_accel: float = 0.15      # rad/s²
+    # 高位限速联动保护（2026-09-09 手柄实测失稳后添加）：
+    # 高站姿 > high_height_threshold 时动态余量小，限制速度/转向上限，
+    # 防止"0.48m/s + 0.50m 高站"这类危险组合。
+    high_height_threshold: float = 0.45
+    high_height_velocity_limit: float = 0.3
+    high_height_yaw_limit: float = 0.2
+    # 轮速阻尼（2026-09-09 高位极限环调试）：2 状态 LQR 不含 wheel_vel 状态，
+    # 轮子会来回转造成机身晃动；这里直接对轮子前向速度加阻尼力矩。
+    wheel_vel_damping: float = 0.0
 
 
 class CombinedController:
@@ -125,6 +134,8 @@ class CombinedController:
         self._equilibrium_pitch: float = 0.0
         self._last_cmd_velocity: float | None = None
         self._last_cmd_yaw_rate: float | None = None
+        self._slope_pitch_bias: float = 0.0
+        self._slope_bias_tau = 0.30  # 爬坡参考跟随时间常数 (s)
 
     def _smooth_command_targets(self, dt: float) -> None:
         """把外部写入的 target_velocity / target_yaw_rate 做斜坡限速。
@@ -133,6 +144,14 @@ class CombinedController:
         这里按 max accel 限幅，控制器内部使用平滑后的值。
         """
         desired_v = float(self.params.target_velocity)
+        current_h = float(self.params.vmc.nominal_height)
+        if current_h >= self.params.high_height_threshold:
+            v_lim = float(self.params.high_height_velocity_limit)
+            yaw_lim = float(self.params.high_height_yaw_limit)
+            desired_v = float(np.clip(desired_v, -v_lim, v_lim))
+            self.params.target_yaw_rate = float(
+                np.clip(self.params.target_yaw_rate, -yaw_lim, yaw_lim)
+            )
         if self._last_cmd_velocity is None:
             self._last_cmd_velocity = desired_v
         else:
@@ -349,8 +368,9 @@ class CombinedController:
         """
         if self._lqr_controller is None:
             return
-        current_tangent = balance_tangent_state_5d(None, None, state)
-        current_wheel_vel = float(current_tangent[4])
+        # 速度反馈统一用"机身实际前向速度"而不是轮速（2026-09-09 斜坡根因）：
+        # 轮速在爬坡/打滑时会虚高，会让外环误判"超速"而倒拉轮子。
+        current_wheel_vel = self._project_forward_body_velocity(model, data, state)
 
         self._equilibrium_pitch = equilibrium_pitch_from_geometry(model, data)
         position_vel_correction = self._position_outer_loop(model, data, state)
@@ -372,6 +392,39 @@ class CombinedController:
         self._lqr_controller.target[2] = 0.0
         self._lqr_controller.target[3] = 0.0
         self._lqr_controller.target[4] = velocity_target
+
+    def _project_forward_body_velocity(self, model: Any, data: Any, state: SimState) -> float:
+        """机身实际前向速度（本体 +Y 在水平面的投影 × 机身水平速度）。"""
+        base_id = body_id(model, "base_link")
+        rotation = np.asarray(data.xmat[base_id]).reshape(3, 3)
+        forward_horiz = rotation[:2, 1]
+        norm = float(np.linalg.norm(forward_horiz))
+        if norm < 1e-6:
+            return 0.0
+        forward_horiz = forward_horiz / norm
+        return float(np.dot(state.base_linear_velocity[:2], forward_horiz))
+
+    def _update_slope_pitch_bias(self, model: Any, data: Any, state: SimState, dt: float) -> None:
+        """爬坡自适应倾角参考。
+
+        检测：两轮 z 差 >8mm 且机身前向速度 >0.03m/s → 判定正在上坡。
+        上坡时地面把车身姿态顶起来（pitch 偏离平地平衡角），LQR 若立刻把
+        它当成"失稳"就会倒拉轮子 → 坡沿打滑。这里让平衡参考以一个时间常数
+        缓慢跟随地形引起的姿态偏移，出坡后平滑衰减回 0。
+        """
+        z_left = float(data.xpos[body_id(model, LEG_CLOSED_LOOP["left"].wheel_body), 2])
+        z_right = float(data.xpos[body_id(model, LEG_CLOSED_LOOP["right"].wheel_body), 2])
+        fwd_v = self._project_forward_body_velocity(model, data, state)
+        climbing = abs(z_left - z_right) > 0.008 and fwd_v > 0.03
+        if climbing:
+            eq = float(self._equilibrium_pitch)
+            target_bias = float(state.pitch) - eq
+            alpha = dt / max(self._slope_bias_tau, 1e-6)
+            self._slope_pitch_bias += alpha * (target_bias - self._slope_pitch_bias)
+            self._slope_pitch_bias = float(np.clip(self._slope_pitch_bias, -0.12, 0.12))
+        else:
+            # 指数衰减回 0
+            self._slope_pitch_bias *= max(0.0, 1.0 - dt / max(self._slope_bias_tau, 1e-6))
 
     def _compute_yaw_correction(self, state: SimState, dt: float, heading_rate_ref: float = 0.0) -> float:
         """yaw 角速度阻尼内环。effective_target = target_yaw_rate + 航向保持外环参考。
@@ -456,6 +509,7 @@ class CombinedController:
         self._heading_anchor = None
         self._last_cmd_velocity = None
         self._last_cmd_yaw_rate = None
+        self._slope_pitch_bias = 0.0
 
     def _handle_stand_entry(self, model: Any, data: Any, state: SimState) -> None:
         """STAND 进入瞬间: 清积分,锁位置 anchor + 航向 anchor。"""
@@ -527,12 +581,21 @@ class CombinedController:
                 # 的 pitch_lean）。只锁平衡角会让机器人匀速/加速前冲，必须把
                 # 位置/速度外环接回来。
                 target_pitch = float(self._lqr_controller.target[0])
+                self._update_slope_pitch_bias(model, data, state, dt)
+                target_pitch += self._slope_pitch_bias
                 err = np.array(
                     [float(state.pitch) - target_pitch, float(state.pitch_rate)]
                 )
                 forward_torque = float(
                     np.clip(-(self.params.wheel_balance_gain_2d @ err), -9.0, 9.0)
                 )
+                if self.params.wheel_vel_damping > 0.0:
+                    # 物理前向轮速（与 balance_state 同约定）
+                    wf = 0.5 * (
+                        state.wheel_velocities["left"] - state.wheel_velocities["right"]
+                    ) * 0.07
+                    forward_torque -= float(self.params.wheel_vel_damping) * wf
+                    forward_torque = float(np.clip(forward_torque, -9.0, 9.0))
                 # 转向/航向保持外环（与 LQR 路径一致）：无转向指令时锁航向，
                 # 有 target_yaw_rate 时跟踪转向角速度。
                 heading_rate_ref = self._heading_outer_loop(model, data)

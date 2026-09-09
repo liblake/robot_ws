@@ -90,7 +90,9 @@ STAND_PARAMS = CombinedParams(
     # 量级小, 移除后 cmd_height 阶跃的 pitch peak 改变 <5%。仅当 cmd_height 大幅
     # 阶跃 pitch peak 不达标时再启用 (启用值参考 4.0)。
     ff_gain=0.0,
-    wheel_balance_gain_2d=np.array([-38.2, -6.3]),
+    # 高位长期站立标定（2026-09-09）：0.42m 以下 120s 稳定、扰动恢复更快、
+    # 残余晃动更小（原 [-38,-6.3] p2p=0.045 vs 现 [-45,-7] p2p=0.028/稳态≈0）。
+    wheel_balance_gain_2d=np.array([-45.0, -7.0]),
 )
 
 # 2026-05-16: same gains as STAND_PARAMS; drive validated up to 0.5 m/s in
@@ -120,7 +122,7 @@ STAND_THEN_DRIVE_PARAMS = CombinedParams(
     yaw_ki=0.0,
     heading_hold_kp=2.0,
     heading_hold_rate_limit=0.8,
-    wheel_balance_gain_2d=np.array([-38.2, -6.3]),
+    wheel_balance_gain_2d=np.array([-45.0, -7.0]),
 )
 
 # 跳跃相位机默认参数
