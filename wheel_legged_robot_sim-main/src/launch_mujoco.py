@@ -189,13 +189,6 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         default=True,
         help="Enable HID/Bluetooth gamepad input (default: enabled).",
     )
-    parser.add_argument(
-        "--gamepad-device",
-        type=str,
-        default=None,
-        help="Path to a Linux joystick device (e.g. /dev/input/js0). "
-             "By default the first available /dev/input/js* is used.",
-    )
     return parser.parse_args(argv)
 
 
@@ -704,7 +697,7 @@ def run_controlled_viewer_loop(
     gamepad: GamepadDevice | None = None,
     gamepad_mapper: GamepadCommandMapper | None = None,
 ) -> None:
-    """以实时速度运行 viewer 仿真循环。
+    """以实时速度运行 viewer 仿真循环。节拍器
 
     每帧计算需要追赶的仿真步数，使仿真时间与墙钟时间同步。
     若提供了 gamepad，则在读取 cmd_* 滑块之前先把手柄值写入对应 actuator，
@@ -892,11 +885,7 @@ def main() -> None:
     system_logger.info("Model built and controller created. Starting simulation loop.")
 
     # 尝试打开手柄。打不开也没关系，会退回用界面滑块控制。
-    gamepad = (
-        open_gamepad(device_path=args.gamepad_device)
-        if _can_enable_gamepad(system_logger, args)
-        else None
-    )
+    gamepad = open_gamepad() if _can_enable_gamepad(system_logger, args) else None
     gamepad_mapper = _build_gamepad_mapper(model) if gamepad is not None else None
     if gamepad is not None:
         system_logger.info(f"Gamepad active: {gamepad.name}")
