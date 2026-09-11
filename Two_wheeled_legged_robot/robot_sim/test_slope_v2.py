@@ -26,6 +26,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from src.controllers.combined import CombinedController
 from src.controllers.default_params import STAND_PARAMS
+from src.controllers.vmc import LEG_CLOSED_LOOP
+from src.geometry import wheel_center_z
 from src.mjcf_builder import _terrain_box, prepare_controlled_mujoco_xml
 from src.state import extract_sim_state
 
@@ -91,11 +93,14 @@ def main() -> int:
     y0 = float(data.qpos[1])
     total_steps = int(24.0 / float(model.opt.timestep))
     rows: list[dict] = []
+    sample_period = 25
+    sample_counter = 0
+    fallen_time: float | None = None
     bad = 0
     wp = 0.0
 
     def step_once() -> None:
-        nonlocal bad, wp
+        nonlocal bad, wp, sample_counter, fallen_time
         st = extract_sim_state(model, data)
         t = float(data.time)
         if t < 2.0:
@@ -113,15 +118,23 @@ def main() -> int:
         data.ctrl[: model.nu] = u
         mujoco.mj_step(model, data)
         wp = max(wp, abs(st.pitch))
+        if fallen_time is None and (abs(st.pitch) > 0.8 or float(data.qpos[2]) < 0.30):
+            fallen_time = t
         if t >= 2.5:
             left, right = wheel_contact(model, data)
             if not (left and right):
                 bad += 1
-            if len(rows) % 25 == 0:  # 每 0.05s 记录一条
+            sample_counter += 1
+            if sample_counter >= sample_period:  # 每 0.05s 记录一条
+                sample_counter = 0
                 rows.append({
                     "t": t, "y": st.base_position[1] - y0, "v": st.base_linear_velocity[1],
                     "pitch": st.pitch, "roll": st.roll,
                     "left_ground": left, "right_ground": right,
+                    "left_wheel_z": wheel_center_z(model, data, LEG_CLOSED_LOOP["left"].wheel_body),
+                    "right_wheel_z": wheel_center_z(model, data, LEG_CLOSED_LOOP["right"].wheel_body),
+                    "left_target_h": controller.vmc_controller.last_target_heights["left"],
+                    "right_target_h": controller.vmc_controller.last_target_heights["right"],
                 })
 
     if args.viewer:
@@ -147,7 +160,8 @@ def main() -> int:
         print(f"[{args.mode}] 过坡段 roll mean={np.degrees(roll.mean()):+.1f}deg "
               f"p2p={np.degrees(np.ptp(roll)):.1f}deg | pitch max={np.degrees(np.abs(pitch).max()):.1f}deg | "
               f"单轮离地样本={offground}/{len(seg)}")
-    print(f"[{args.mode}] 全程 |pitch|max={wp:.3f}，终点 y={float(data.qpos[1]) - y0:+.2f} m")
+    print(f"[{args.mode}] 全程 |pitch|max={wp:.3f}，终点 y={float(data.qpos[1]) - y0:+.2f} m，"
+          f"fallen_t={fallen_time if fallen_time is not None else 'none'}")
     if args.viewer:
         os._exit(0)
     return 0

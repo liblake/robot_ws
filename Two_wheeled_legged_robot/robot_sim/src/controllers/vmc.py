@@ -7,6 +7,7 @@ import numpy as np
 
 from src.controllers.phase import JumpPhase, JumpPhaseMachine
 from src.controllers.serial_leg_ik import SerialLegIk
+from src.geometry import wheel_center_jacobian_z, wheel_center_z
 from src.state import SimState, body_id, model_addresses
 
 BASE_BODY_NAME = "base_link"
@@ -380,8 +381,8 @@ class VmcController:
         limit = max(float(self.params.roll_level_offset_limit), 0.0)
         if limit <= 0.0:
             return {side: 0.0 for side in LEG_CLOSED_LOOP}
-        left_wheel_z = float(data.xipos[body_id(model, LEG_CLOSED_LOOP["left"].wheel_body), 2])
-        right_wheel_z = float(data.xipos[body_id(model, LEG_CLOSED_LOOP["right"].wheel_body), 2])
+        left_wheel_z = wheel_center_z(model, data, LEG_CLOSED_LOOP["left"].wheel_body)
+        right_wheel_z = wheel_center_z(model, data, LEG_CLOSED_LOOP["right"].wheel_body)
         terrain_offset = -0.5 * (left_wheel_z - right_wheel_z)
         offset = terrain_offset + (
             float(self.params.roll_level_kp_height) * float(state.roll)
@@ -435,7 +436,7 @@ def _leg_height(model: mujoco.MjModel, data: mujoco.MjData, wheel_body: str) -> 
     # 用机身 body 原点 (xpos) 而不是质心 (xipos)：IK 的 h_base 定义
     # 是"机身原点 - 轮心"。base_link 的 ipos z=+0.011，若用 xipos 会
     # 系统性偏高 11mm（早期阶段3测试误差 +12~15mm 即此原因）。
-    return float(data.xpos[base_id, 2] - data.xipos[wheel_id, 2])
+    return float(data.xpos[base_id, 2] - wheel_center_z(model, data, wheel_body))
 
 
 def _leg_height_jacobian_rows(model: mujoco.MjModel, data: mujoco.MjData) -> dict[str, np.ndarray]:
@@ -447,12 +448,11 @@ def _leg_height_jacobian_rows(model: mujoco.MjModel, data: mujoco.MjData) -> dic
 
 def _leg_height_jacobian_row(model: mujoco.MjModel, data: mujoco.MjData, wheel_body: str) -> np.ndarray:
     base_id = body_id(model, BASE_BODY_NAME)
-    wheel_id = body_id(model, wheel_body)
     base_jac = np.zeros((3, model.nv))
-    wheel_jac = np.zeros((3, model.nv))
-    mujoco.mj_jac(model, data, base_jac, None, data.xipos[base_id], base_id)
-    mujoco.mj_jac(model, data, wheel_jac, None, data.xipos[wheel_id], wheel_id)
-    jacobian = base_jac[2] - wheel_jac[2]
+    wheel_id = body_id(model, wheel_body)
+    mujoco.mj_jac(model, data, base_jac, None, data.xpos[base_id], base_id)
+    wheel_jacobian_z = wheel_center_jacobian_z(model, data, wheel_body)
+    jacobian = base_jac[2] - wheel_jacobian_z
     if not np.all(np.isfinite(jacobian)):
         raise ValueError("VMC leg height jacobian must be finite")
     return jacobian

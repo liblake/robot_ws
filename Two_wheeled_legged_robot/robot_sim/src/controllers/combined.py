@@ -10,6 +10,7 @@ from src.controllers.balance_state import balance_tangent_state_5d
 from src.controllers.lqr import LqrController
 from src.controllers.phase import JumpPhaseMachine, JumpPhase
 from src.controllers.vmc import LEG_CLOSED_LOOP, VmcController, VmcParams
+from src.geometry import wheel_center_z
 from src.model_semantics import MODEL_SEMANTICS, WHEEL_FORWARD_SIGNS
 from src.state import SimState, body_id, model_addresses
 
@@ -101,6 +102,11 @@ class CombinedParams:
     # 外环来不及平滑会造成大幅前后摆动。这里限制指令变化率。
     max_linear_accel: float = 0.4    # m/s²
     max_yaw_accel: float = 0.15      # rad/s²
+    # 停车时把位置保持和速度积分释放成连续过渡，避免外环接管造成顿挫。
+    position_hold_blend_tau: float = 0.2       # s
+    velocity_integral_release_tau: float = 0.25  # s
+    velocity_integral_release_speed: float = 0.10  # m/s
+    position_hold_velocity_gate: float = 0.03   # m/s
     # 高位限速联动保护（2026-09-09 手柄实测失稳后添加）：
     # 高站姿 > high_height_threshold 时动态余量小，限制速度/转向上限，
     # 防止"0.48m/s + 0.50m 高站"这类危险组合。
@@ -134,6 +140,10 @@ class CombinedController:
         self._equilibrium_pitch: float = 0.0
         self._last_cmd_velocity: float | None = None
         self._last_cmd_yaw_rate: float | None = None
+        # 外部速度指令回中时，禁止上一段行驶留下的速度积分继续累积，
+        # 但要按时间常数释放，避免停车瞬间改变平衡点。
+        self._zero_velocity_request = False
+        self._position_hold_blend: float = 0.0
         self._slope_pitch_bias: float = 0.0
         self._slope_bias_tau = 0.30  # 爬坡参考跟随时间常数 (s)
 
@@ -144,6 +154,7 @@ class CombinedController:
         这里按 max accel 限幅，控制器内部使用平滑后的值。
         """
         desired_v = float(self.params.target_velocity)
+        self._zero_velocity_request = abs(desired_v) <= 1e-6
         current_h = float(self.params.vmc.nominal_height)
         if current_h >= self.params.high_height_threshold:
             v_lim = float(self.params.high_height_velocity_limit)
@@ -160,6 +171,24 @@ class CombinedController:
                 np.clip(desired_v - self._last_cmd_velocity, -step, step)
             )
         self.params.target_velocity = self._last_cmd_velocity
+        # 位置保持只在停车锚点已经锁定后渐入。锚点由
+        # _handle_stand_entry 在实际速度接近零时锁定，避免停车过程中的
+        # 位置误差被误认为需要反向修正。
+        blend_tau = max(float(self.params.position_hold_blend_tau), 1e-6)
+        blend_alpha = 1.0 - float(np.exp(-dt / blend_tau))
+        # 内部速度目标尚在斜坡减速时，速度环仍在主动制动；位置环此时
+        # 不应提前叠加一个第二套制动指令。等内部目标真正到零后再渐入。
+        blend_target = 1.0 if (
+            self._zero_velocity_request
+            and abs(self.params.target_velocity) <= 1e-6
+            and self._position_anchor is not None
+        ) else 0.0
+        if self._position_anchor is None:
+            # 锚点尚未建立时，位置环完全不参与，不能提前积累渐入权重。
+            self._position_hold_blend = 0.0
+        else:
+            self._position_hold_blend += blend_alpha * (blend_target - self._position_hold_blend)
+        self._position_hold_blend = float(np.clip(self._position_hold_blend, 0.0, 1.0))
 
         desired_yaw = float(self.params.target_yaw_rate)
         if self._last_cmd_yaw_rate is None:
@@ -292,9 +321,11 @@ class CombinedController:
     # ---------- Height feedforward ----------
 
     def _average_leg_height_and_wheel_mid_z(self, model: Any, data: Any) -> tuple[float, float]:
-        wheel_ids = [body_id(model, geometry.wheel_body) for geometry in LEG_CLOSED_LOOP.values()]
         base_id = body_id(model, "base_link")
-        wheel_mid_z = float(np.mean([data.xipos[wheel_id, 2] for wheel_id in wheel_ids]))
+        wheel_mid_z = float(np.mean([
+            wheel_center_z(model, data, geometry.wheel_body)
+            for geometry in LEG_CLOSED_LOOP.values()
+        ]))
         # 与 vmc._leg_height 保持一致：腿高用机身原点 xpos（xipos 会含 ipos z 偏移）
         return float(data.xpos[base_id, 2] - wheel_mid_z), wheel_mid_z
 
@@ -308,10 +339,10 @@ class CombinedController:
     # ---------- Position / velocity outer loops ----------
 
     def _position_outer_loop(self, model: Any, data: Any, state: SimState) -> float:
-        """位置 PD 外环。target_velocity=0 且有 anchor 时启用。仅在 STAND 调用。"""
+        """位置 PD 外环。速度指令回零后按 blend 权重渐入。"""
         if self._position_anchor is None:
             return 0.0
-        if abs(self.params.target_velocity) > 1e-6:
+        if self._position_hold_blend <= 1e-9:
             return 0.0
         base_id = body_id(model, "base_link")
         rotation = np.asarray(data.xmat[base_id]).reshape(3, 3)
@@ -325,7 +356,7 @@ class CombinedController:
         forward_velocity = float(np.dot(state.base_linear_velocity[:2], forward_horiz))
         vel_correction = self.params.position_kp * forward_error - self.params.position_kd * forward_velocity
         limit = max(float(self.params.position_velocity_limit), 0.0)
-        return float(np.clip(vel_correction, -limit, limit))
+        return self._position_hold_blend * float(np.clip(vel_correction, -limit, limit))
 
     def _base_heading(self, model: Any, data: Any) -> float:
         """本体前向 (+Y) 在世界 XY 平面投影的航向角 (rad)。
@@ -378,12 +409,26 @@ class CombinedController:
         velocity_target = self.params.target_velocity + self._height_wheel_velocity_ff + position_vel_correction
         velocity_error = velocity_target - current_wheel_vel
 
-        # Anti-windup: 积分只在 pitch_lean 未饱和时累积。
+        # 停车时释放前进/后退阶段累积的速度误差，让位置外环逐步处理残余运动。
+        # 外部回零与内部 target_velocity 的斜坡是两个不同事件，不能瞬时清积分。
         max_lean = 0.2
         pitch_p = self.params.pitch_lean_gain * velocity_error
-        pitch_i = self.params.velocity_ki * self._velocity_integral
+        if self._zero_velocity_request:
+            # 行驶阶段累积的偏置需要释放，但不能在停车边沿瞬时清零，
+            # 否则 LQR 目标倾角和轮力矩会同时发生阶跃。
+            release_tau = max(float(self.params.velocity_integral_release_tau), 1e-6)
+            self._velocity_integral *= float(np.exp(-dt / release_tau))
+            # 仅按时间释放时，积分在车速已经过零后仍会短暂保留，继续
+            # 请求反向倾角。以实际速度做 C1 平滑门控，确保零速处积分
+            # 输出也连续归零，同时高速制动阶段仍保留原有积分制动力。
+            release_speed = max(float(self.params.velocity_integral_release_speed), 1e-6)
+            speed_ratio = float(np.clip(abs(current_wheel_vel) / release_speed, 0.0, 1.0))
+            integral_blend = speed_ratio * speed_ratio * (3.0 - 2.0 * speed_ratio)
+        else:
+            integral_blend = 1.0
+        pitch_i = self.params.velocity_ki * self._velocity_integral * integral_blend
         pitch_lean = pitch_p + pitch_i
-        if -max_lean < pitch_lean < max_lean:
+        if not self._zero_velocity_request and -max_lean < pitch_lean < max_lean:
             self._velocity_integral += velocity_error * dt
         pitch_lean = float(np.clip(pitch_lean, -max_lean, max_lean))
 
@@ -412,8 +457,8 @@ class CombinedController:
         它当成"失稳"就会倒拉轮子 → 坡沿打滑。这里让平衡参考以一个时间常数
         缓慢跟随地形引起的姿态偏移，出坡后平滑衰减回 0。
         """
-        z_left = float(data.xpos[body_id(model, LEG_CLOSED_LOOP["left"].wheel_body), 2])
-        z_right = float(data.xpos[body_id(model, LEG_CLOSED_LOOP["right"].wheel_body), 2])
+        z_left = wheel_center_z(model, data, LEG_CLOSED_LOOP["left"].wheel_body)
+        z_right = wheel_center_z(model, data, LEG_CLOSED_LOOP["right"].wheel_body)
         fwd_v = self._project_forward_body_velocity(model, data, state)
         climbing = abs(z_left - z_right) > 0.008 and fwd_v > 0.03
         if climbing:
@@ -509,6 +554,8 @@ class CombinedController:
         self._heading_anchor = None
         self._last_cmd_velocity = None
         self._last_cmd_yaw_rate = None
+        self._zero_velocity_request = False
+        self._position_hold_blend = 0.0
         self._slope_pitch_bias = 0.0
 
     def _handle_stand_entry(self, model: Any, data: Any, state: SimState) -> None:
@@ -517,10 +564,18 @@ class CombinedController:
             self._velocity_integral = 0.0
             self._position_anchor = np.array(state.base_position[:2], dtype=float)
             self._heading_anchor = self._base_heading(model, data)
-        if abs(self.params.target_velocity) > 1e-6:
+        zero_target = self._zero_velocity_request and abs(self.params.target_velocity) <= 1e-6
+        if zero_target:
+            velocity_gate = max(float(self.params.position_hold_velocity_gate), 0.0)
+            actual_velocity = abs(self._project_forward_body_velocity(model, data, state))
+            if self._position_anchor is None and actual_velocity <= velocity_gate:
+                # 先完成减速，再把当前位置作为停车点；这样位置环从零位置误差接管。
+                self._position_anchor = np.array(state.base_position[:2], dtype=float)
+                # 该状态可能已经在等待低速期间积累了 blend，锁定新锚点时
+                # 必须从零开始渐入，否则会在同一周期突然启用位置环。
+                self._position_hold_blend = 0.0
+        else:
             self._position_anchor = None
-        elif self._position_anchor is None:
-            self._position_anchor = np.array(state.base_position[:2], dtype=float)
         # 航向 anchor 与位置 anchor 独立: 发转向指令时丢弃, 松开 (≈0) 时重新锁定当前航向。
         # 注意只看 target_yaw_rate, 与 target_velocity 无关 — 直线行驶 (有速度无转向)
         # 时仍保持航向, 抵抗偏航漂移。

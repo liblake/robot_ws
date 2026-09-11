@@ -7,6 +7,7 @@ import numpy as np
 
 from src.controllers.lqr import solve_discrete_lqr
 from src.model_semantics import MODEL_SEMANTICS, WHEEL_FORWARD_SIGNS, WHEEL_RADIUS
+from src.geometry import wheel_center_world
 from src.state import model_addresses
 
 
@@ -262,7 +263,10 @@ def _com_height_above_wheels(model: Any, data: Any) -> float:
     ]  # 查找左右轮刚体 ID
     if any(body_id == -1 for body_id in wheel_ids):
         raise ValueError("missing wheel bodies for LQR pendulum geometry")  # 缺少轮体时无法计算摆长
-    wheel_z = float(np.mean([data.xipos[body_id, 2] for body_id in wheel_ids]))  # 取左右轮 Z 坐标平均值
+    wheel_z = float(np.mean([
+        wheel_center_world(model, data, body_name)[2]
+        for body_name in _wheel_body_names()
+    ]))  # 取左右轮轴中心 Z 坐标平均值
     height = com_z - wheel_z  # 质心高度减去轮轴高度
     if not np.isfinite(height) or abs(height) < 1e-6:
         raise ValueError("invalid CoM height above wheels for LQR")  # 高度非法或过小则报错
@@ -290,7 +294,10 @@ def equilibrium_pitch_from_geometry(model: Any, data: Any) -> float:
     ]  # 查找左右轮刚体 ID
     if any(b == -1 for b in wheel_ids):
         raise ValueError("missing wheel bodies for equilibrium pitch")  # 缺少轮体时无法求轮轴中点
-    wheel_mid = np.mean([data.xipos[b] for b in wheel_ids], axis=0)  # 计算左右轮中点坐标
+    wheel_mid = np.mean([
+        wheel_center_world(model, data, body_name)
+        for body_name in _wheel_body_names()
+    ], axis=0)  # 计算左右轮轴中心中点坐标
     base_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "base_link")  # 获取 base_link 刚体 ID
     if base_id == -1:
         raise ValueError("missing base_link body")  # 缺少基座时无法求本体坐标系
@@ -316,7 +323,10 @@ def _track_width(model: Any, data: Any) -> float:
     if base_id == -1:
         raise ValueError("missing base_link body for LQR track width")  # 缺少基座时无法确定本体 X 轴
     base_x_axis = data.xmat[base_id].reshape(3, 3)[:, 0]  # 取基座姿态矩阵的第一列，即本体 X 轴
-    wheel_delta = data.xipos[wheel_ids[0]] - data.xipos[wheel_ids[1]]  # 左右轮位置差向量
+    wheel_delta = (
+        wheel_center_world(model, data, _wheel_body_names()[0])
+        - wheel_center_world(model, data, _wheel_body_names()[1])
+    )  # 左右轮轴中心位置差向量
     width = abs(float(np.dot(wheel_delta, base_x_axis)))  # 把轮差投影到本体 X 轴并取绝对值
     if not np.isfinite(width) or width < 1e-6:
         raise ValueError("invalid wheel track width for LQR")  # 轮距非法或过小则报错
@@ -337,7 +347,10 @@ def _base_roll_inertia(model: Any, data: Any) -> float:
     if any(body_id == -1 for body_id in wheel_ids):
         raise ValueError("missing wheel bodies for LQR roll inertia")  # 缺少轮体时无法确定转轴
     roll_axis = np.array([0.0, 1.0, 0.0])  # 用世界系 Y 轴作为 roll 转轴方向
-    pivot = np.mean([data.xipos[body_id] for body_id in wheel_ids], axis=0)  # 转轴经过左右轮中点
+    pivot = np.mean([
+        wheel_center_world(model, data, body_name)
+        for body_name in _wheel_body_names()
+    ], axis=0)  # 转轴经过左右轮轴中心中点
     inertia = 0.0  # 初始化总转动惯量
     for body_id, mass in enumerate(np.asarray(model.body_mass, dtype=float)):
         if mass <= 0.0:

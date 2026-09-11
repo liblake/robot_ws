@@ -27,6 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from src.controllers.serial_leg_ik import SerialLegIk
 from src.controllers.vmc import LEG_CLOSED_LOOP, VmcController, VmcParams
+from src.geometry import wheel_center_z
 from src.mjcf_builder import prepare_controlled_mujoco_xml
 from src.state import model_addresses
 
@@ -116,8 +117,8 @@ def main() -> int:
 
     def current_height() -> float:
         base_id = body["base_link"]
-        left = data.xipos[body[LEG_CLOSED_LOOP["left"].wheel_body], 2]
-        right = data.xipos[body[LEG_CLOSED_LOOP["right"].wheel_body], 2]
+        left = wheel_center_z(model, data, LEG_CLOSED_LOOP["left"].wheel_body)
+        right = wheel_center_z(model, data, LEG_CLOSED_LOOP["right"].wheel_body)
         # 机身原点 xpos（与 IK/VMC 的 h_base 定义一致）
         return float(data.xpos[base_id, 2] - 0.5 * (left + right))
 

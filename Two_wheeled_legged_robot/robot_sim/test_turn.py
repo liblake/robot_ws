@@ -75,22 +75,28 @@ def main() -> int:
         return float(np.arctan2(fh[1], fh[0]))
 
     yaw0 = heading()
+    yaw_unwrapped = yaw0
+    last_yaw = yaw0
     total_steps = int(19.0 / float(model.opt.timestep))
     last_print = -1.0
 
     def step_once() -> None:
-        nonlocal last_print
+        nonlocal last_print, yaw_unwrapped, last_yaw
         st = extract_sim_state(model, data)
         params.target_yaw_rate = yaw_profile(float(data.time))
         u = controller(model, data, st)
         data.ctrl[: model.nu] = u
         mujoco.mj_step(model, data)
+        current_yaw = heading()
+        yaw_delta = float(np.arctan2(np.sin(current_yaw - last_yaw), np.cos(current_yaw - last_yaw)))
+        yaw_unwrapped += yaw_delta
+        last_yaw = current_yaw
         t = float(data.time)
         if t - last_print >= 1.0:
             last_print = t
             print(
                 f"t={t:5.1f}s cmd={params.target_yaw_rate:+.2f} "
-                f"yaw={heading() - yaw0:+6.2f} rad "
+                f"yaw={yaw_unwrapped - yaw0:+6.2f} rad "
                 f"yaw_rate={st.base_angular_velocity[2]:+.2f} pitch={st.pitch:+.3f} "
                 f"contacts={st.contact_count}"
             )
@@ -109,7 +115,7 @@ def main() -> int:
         for _ in range(total_steps):
             step_once()
 
-    print(f"最终净转角 = {heading() - yaw0:+.2f} rad（接近 0 说明正反转向基本对称）")
+    print(f"最终净转角 = {yaw_unwrapped - yaw0:+.2f} rad（接近 0 说明正反转向基本对称）")
     if args.viewer:
         os._exit(0)
     return 0
