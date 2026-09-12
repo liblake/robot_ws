@@ -98,6 +98,7 @@ def prepare_controlled_mujoco_xml(
     cache_dir: Path | None = None,
     terrain: str | None = None,
     terrain_side: str = "left",
+    terrain_height: float = 0.02,
 ) -> Path:
     """Create a controlled MJCF model from the URDF simulation source.
 
@@ -127,7 +128,7 @@ def prepare_controlled_mujoco_xml(
     _make_mesh_paths_absolute(root, prepared_xml.parent)
     _ensure_world_environment(root)
     _apply_link_materials(root)
-    _ensure_test_terrain(root, terrain, terrain_side, output_root)
+    _ensure_test_terrain(root, terrain, terrain_side, output_root, terrain_height)
     _ensure_root_freejoint(root)
     _ensure_command_slider_joints(root)
     _configure_geom_collisions(root)
@@ -277,12 +278,18 @@ def _apply_link_materials(root: ET.Element) -> None:
                 break
 
 
-def _ensure_test_terrain(root: ET.Element, terrain: str | None, terrain_side: str, output_root: Path) -> None:
+def _ensure_test_terrain(
+    root: ET.Element,
+    terrain: str | None,
+    terrain_side: str,
+    output_root: Path,
+    terrain_height: float = 0.02,
+) -> None:
     if terrain is None:
         return
     if terrain != "single_wheel_trapezoid":
         raise ValueError(f"unsupported terrain: {terrain}")
-    _add_single_wheel_trapezoid(root, SingleWheelTrapezoidTerrain(side=terrain_side))
+    _add_single_wheel_trapezoid(root, SingleWheelTrapezoidTerrain(side=terrain_side, height=terrain_height))
     _add_wavy_road(root, WavyRoadTerrain(), output_root)
 
 
@@ -501,10 +508,22 @@ def _ensure_command_slider_joints(root: ET.Element) -> None:
             "diaginertia": "1e-9 1e-9 1e-9",
         },
     )
-    ET.SubElement(body, "joint", {"name": CMD_SLIDER_NAMES[0], "type": "hinge", "axis": "1 0 0", "damping": "0"})
-    ET.SubElement(body, "joint", {"name": CMD_SLIDER_NAMES[1], "type": "hinge", "axis": "0 1 0", "damping": "0"})
-    ET.SubElement(body, "joint", {"name": CMD_SLIDER_NAMES[2], "type": "hinge", "axis": "0 0 1", "damping": "0"})
-    ET.SubElement(body, "joint", {"name": CMD_SLIDER_NAMES[3], "type": "hinge", "axis": "1 1 0", "damping": "0"})
+    # armature 必须给一个非零值：这 4 个"滑块关节"挂在质量为 0 的 command_slider_body
+    # 上，不给 armature 时它们的质量矩阵对角只剩 MuJoCo 的下限 1e-9，整机质量矩阵
+    # 数值奇异（最小特征值 ~1e-26）。标称参数下侥幸能用，但只要改动质量/惯量
+    # （例如做 ±15% 质量扫描）roundoff 就会翻符号，mj_forward 直接返回 NaN
+    # （实测质量 ×0.85 / ×1.10 / ×1.15 / ×1.20 会崩，×0.70 / ×0.90 / ×1.30 不会）。
+    # 这些关节只承载手柄/滑块的指令值、不带约束也不出力，armature 对机器人动力学
+    # 没有任何影响，纯粹是把奇异性去掉。
+    slider_armature = "1e-4"
+    ET.SubElement(body, "joint", {"name": CMD_SLIDER_NAMES[0], "type": "hinge", "axis": "1 0 0",
+                                  "damping": "0", "armature": slider_armature})
+    ET.SubElement(body, "joint", {"name": CMD_SLIDER_NAMES[1], "type": "hinge", "axis": "0 1 0",
+                                  "damping": "0", "armature": slider_armature})
+    ET.SubElement(body, "joint", {"name": CMD_SLIDER_NAMES[2], "type": "hinge", "axis": "0 0 1",
+                                  "damping": "0", "armature": slider_armature})
+    ET.SubElement(body, "joint", {"name": CMD_SLIDER_NAMES[3], "type": "hinge", "axis": "1 1 0",
+                                  "damping": "0", "armature": slider_armature})
 
 
 def _configure_geom_collisions(root: ET.Element) -> None:
@@ -666,11 +685,16 @@ def _replace_actuators(root: ET.Element) -> None:
     # 2026-05-18: lower bound comes from the viewer-low posture used by
     # the side-specific closed-chain LUT. Upper bound remains 0.142 because the
     # current 2.2 kg tune oscillates above it; restoring 0.148 needs retuning.
-    # cmd 范围 = 已验证的安全包线（2026-09-09）：
-    #   线速度 ±0.5 m/s；转向 ±0.3 rad/s；
+    # cmd 范围 = 已验证的安全包线（2026-09-11 更新）：
+    #   线速度 ±0.8 m/s（旧 ±0.5）。pitch_lean_gain=0.35 + max_linear_accel=2.5
+    #   之后实测：0.5/0.8/1.0 m/s 三档跟踪 rms ≤0.019、无摔倒，
+    #   0.8 m/s 直行与 0.8 m/s + 0.6 rad/s 复合在 0.37/0.42 m 站高下均通过；
+    #   1.0 m/s 仍稳定但留 20% 余量，滑块上限取 0.8。
+    #   转向 ±0.6 rad/s（旧 ±0.3）。yaw_ki=6 消掉稳态速差后，0.6 rad/s 指令
+    #   实测稳态 0.598，原地与行进中都稳定。
     #   高度 h_base 可操作上限 0.42（120s 长时间站立验证：0.42 稳定、
     #   0.45 慢发散；0.45+ 留待任务空间力控专项）
-    for name, ctrlrange in zip(CMD_SLIDER_NAMES, ("-0.5 0.5", "-0.3 0.3", "0.31 0.42", "0 1")):
+    for name, ctrlrange in zip(CMD_SLIDER_NAMES, ("-0.8 0.8", "-0.6 0.6", "0.31 0.42", "0 1")):
         ET.SubElement(
             actuator,
             "motor",

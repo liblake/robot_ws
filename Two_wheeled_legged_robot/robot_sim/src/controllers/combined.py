@@ -98,10 +98,36 @@ class CombinedParams:
     # 替代尚未标定的 5D 简化 LQR wheel 通道（2026-09-09 试验台验证增益
     # K=[-38.2, -6.3]，轮力矩按实机峰值 ±9 N·m 限幅）。
     wheel_balance_gain_2d: np.ndarray | None = None
+    # 轮子前向力矩的软件上限（N·m），默认取实机峰值 ±9（见 mjcf_builder 657 行）。
+    # 2026-09-11 扫描结论（2 cm 单轮坡 × 8 档速度 0.10~0.45 m/s，通过档数）：
+    #   9 → 7/8（仅 0.27 m/s 翻车）; 8 → 6/8; 7 → 4/8; 6 → 4/8; 5 → 1/8。
+    # 即"限扭防弹射"并不成立——降限幅反而吃掉低速爬坡能力，保持 9 最优。
+    wheel_torque_limit: float = 9.0
+    # 内环轮速反馈项（对齐上游 5D LQR 的 K[0,4] 结构；默认关闭）。
+    # 上游 forward_torque = ff − K·(x − target)，轮速系数 K[0,4] 作用在
+    # (ω − target[4]) 上，本机等效 −1.203 N·m/(m/s)。
+    # 2026-09-11 实测结论（扫描 ±12，含 2/4/6cm 对称坡与单轮梯形坡）：
+    #   平地停车收敛 0.94/0.84s → -4 时 0.53/0.52s、-6 时 0.17/0.17s，确有改善；
+    #   但所有非零取值都会侵蚀坡上余量：-4 时 test_slope_v2 直接翻车（|pitch| 135°），
+    #   -0.5/-2/-3 同样翻车，-1/-1.2 虽通过但 |pitch|max 19.9°→26°/38°。
+    # 根因：本机 ω 取左右轮平均前向速度，在单轮梯形坡上两轮行程差异很大，该信号
+    # 不能代表机身速度，注入平衡环会引入偏置。故默认 0，保留字段供后续标定使用。
+    wheel_vel_balance_gain: float = 0.0
     # 指令斜坡限速（2026-09-09）：手柄松开瞬间 target 从 0.5 阶跃到 0，
     # 外环来不及平滑会造成大幅前后摆动。这里限制指令变化率。
-    max_linear_accel: float = 0.4    # m/s²
-    max_yaw_accel: float = 0.15      # rad/s²
+    # 2026-09-11 手柄实驾日志（run_20260911_182645）显示平地刹车距离 471~861mm、
+    # 平均减速度仅 0.17~0.25 m/s²，松杆后刹不住。实测 0.4→1.2 的效果：
+    #   刹车距离 794→524mm（-34%）；单轮坡余量逐位不变（|pitch|max 19.9°）；
+    #   10m 直行不变；停车瞬态与停稳时间也逐位不变（轮跳 0.051/0.041 N.m、0.94/0.84s）。
+    # 2026-09-11 第二轮（配合 pitch_lean_gain=0.35）：1.2 → 2.5。
+    # 该限速只决定"摇杆打到满量程后目标速度多久到位"；1.2 m/s² 让 0→0.8 m/s
+    # 要 0.67 s，手感偏钝。提到 2.5 后 0→0.8 m/s 只需 0.32 s，实测 0.5/0.8/1.0 m/s
+    # 三档速度跟踪 rms 均 ≤0.019、松杆刹车 0.77~1.00 s，单轮坡 |pitch|max
+    # 0.146→0.074，无回落。
+    max_linear_accel: float = 2.5    # m/s²
+    # 转向同样偏钝：0.15 rad/s² 下 0→0.5 rad/s 要 3.3 s（实测验收到 90% 用时 3.23 s）。
+    # 提到 1.0 后只需 1.2 s，且稳态速差与峰值几乎不变（峰值 0.506 vs 目标 0.5）。
+    max_yaw_accel: float = 1.0       # rad/s²
     # 停车时把位置保持和速度积分释放成连续过渡，避免外环接管造成顿挫。
     position_hold_blend_tau: float = 0.2       # s
     velocity_integral_release_tau: float = 0.25  # s
@@ -116,6 +142,20 @@ class CombinedParams:
     # 轮速阻尼（2026-09-09 高位极限环调试）：2 状态 LQR 不含 wheel_vel 状态，
     # 轮子会来回转造成机身晃动；这里直接对轮子前向速度加阻尼力矩。
     wheel_vel_damping: float = 0.0
+    # 转向通道总输出上限（N·m）。yaw_damping=8 在"机身被外力偏航"时能瞬间输出
+    # 8·Δω 的差动力矩；站立 / 单轮垫高这类场景里 Δω 可以很大，输出会顶到轮子
+    # ±9 N·m 峰值，把本该留给平衡通道的量程吃光（实测单轮垫高场景 pitch 因此
+    # 从 0.10 rad 抖到 0.37 rad、单轮离地 42% 的步数）。加这道硬上限后转向只
+    # 借用有限的轮力矩，平衡永远留有余量。0 = 关闭（恢复旧的无限幅行为）。
+    # 2.0 N·m 的依据：正常行驶转向只需 ~0.8 N·m（见 yaw_ki 注释）；0.6 rad/s
+    # 档和 0.8 m/s + 0.6 rad/s 复合在 1.0/2.0/4.0 三档限幅下曲线完全一致；
+    # 给机身一个 15 N·m·0.1 s 的偏航冲量，2.0 与无限幅的航向回正曲线也一致
+    # （25 N·m 冲量下峰值 0.19 vs 0.07 rad，仍能回正）。
+    yaw_correction_limit: float = 2.0
+    # yaw 积分上限（|积分| 的绝对值上限）。另有"积分只能占用输出上限里
+    # 比例项没用完的余量"的条件积分（见 _compute_yaw_correction），两者取小。
+    # 实测正常转向稳态积分仅 ~0.14。
+    yaw_integral_limit: float = 1.0
 
 
 class CombinedController:
@@ -143,6 +183,11 @@ class CombinedController:
         # 外部速度指令回中时，禁止上一段行驶留下的速度积分继续累积，
         # 但要按时间常数释放，避免停车瞬间改变平衡点。
         self._zero_velocity_request = False
+        # 上面那个布尔量的连续渐入版本 (0→1, 时间常数 = velocity_integral_release_tau)。
+        # 见 _update_lqr_target 里的说明: 直接用布尔量会在"外部指令刚跨过 0"那一
+        # 个周期把积分门控从 1 跳到 smoothstep(|v|/release_speed)，在目标倾角上
+        # 产生一次阶跃 (K=45 的轮 LQR 会把它放大成 45·Δθ 的轮力矩跳变)。
+        self._zero_request_blend: float = 0.0
         self._position_hold_blend: float = 0.0
         self._slope_pitch_bias: float = 0.0
         self._slope_bias_tau = 0.30  # 爬坡参考跟随时间常数 (s)
@@ -155,6 +200,14 @@ class CombinedController:
         """
         desired_v = float(self.params.target_velocity)
         self._zero_velocity_request = abs(desired_v) <= 1e-6
+        # 把"是否在停车"这个开关也按时间常数平滑成连续量。积分门控/释放全部用它，
+        # 于是外部指令跨越零点的那一步不会在控制量里留下台阶。
+        zero_blend_tau = max(float(self.params.velocity_integral_release_tau), 1e-6)
+        zero_blend_alpha = 1.0 - float(np.exp(-dt / zero_blend_tau))
+        self._zero_request_blend += zero_blend_alpha * (
+            (1.0 if self._zero_velocity_request else 0.0) - self._zero_request_blend
+        )
+        self._zero_request_blend = float(np.clip(self._zero_request_blend, 0.0, 1.0))
         current_h = float(self.params.vmc.nominal_height)
         if current_h >= self.params.high_height_threshold:
             v_lim = float(self.params.high_height_velocity_limit)
@@ -413,22 +466,23 @@ class CombinedController:
         # 外部回零与内部 target_velocity 的斜坡是两个不同事件，不能瞬时清积分。
         max_lean = 0.2
         pitch_p = self.params.pitch_lean_gain * velocity_error
-        if self._zero_velocity_request:
-            # 行驶阶段累积的偏置需要释放，但不能在停车边沿瞬时清零，
-            # 否则 LQR 目标倾角和轮力矩会同时发生阶跃。
-            release_tau = max(float(self.params.velocity_integral_release_tau), 1e-6)
-            self._velocity_integral *= float(np.exp(-dt / release_tau))
-            # 仅按时间释放时，积分在车速已经过零后仍会短暂保留，继续
-            # 请求反向倾角。以实际速度做 C1 平滑门控，确保零速处积分
-            # 输出也连续归零，同时高速制动阶段仍保留原有积分制动力。
-            release_speed = max(float(self.params.velocity_integral_release_speed), 1e-6)
-            speed_ratio = float(np.clip(abs(current_wheel_vel) / release_speed, 0.0, 1.0))
-            integral_blend = speed_ratio * speed_ratio * (3.0 - 2.0 * speed_ratio)
-        else:
-            integral_blend = 1.0
+        release_tau = max(float(self.params.velocity_integral_release_tau), 1e-6)
+        # 行驶阶段累积的偏置需要释放，但不能在停车边沿瞬时清零，否则 LQR 目标倾角
+        # 和轮力矩会同时发生阶跃。用 _zero_request_blend (0→1 连续渐入) 调制：停车
+        # 那一刻它仍为 0，控制量连续；随后按时间常数渐入，并以实际速度做 C1 平滑
+        # 门控，零速处积分输出也连续归零，高速制动阶段仍保留原有积分制动力。
+        release_speed = max(float(self.params.velocity_integral_release_speed), 1e-6)
+        speed_ratio = float(np.clip(abs(current_wheel_vel) / release_speed, 0.0, 1.0))
+        speed_gate = speed_ratio * speed_ratio * (3.0 - 2.0 * speed_ratio)
+        release = float(self._zero_request_blend)
+        integral_blend = 1.0 - release * (1.0 - speed_gate)
+        # 积分本体也按同一个连续量释放（原来是在布尔开关上直接指数衰减）。
+        if release > 1e-9:
+            self._velocity_integral *= float(np.exp(-dt / release_tau * release))
         pitch_i = self.params.velocity_ki * self._velocity_integral * integral_blend
         pitch_lean = pitch_p + pitch_i
-        if not self._zero_velocity_request and -max_lean < pitch_lean < max_lean:
+        # Anti-windup: 只在停车释放尚未接管、且 pitch_lean 未饱和时累积。
+        if release < 1.0 - 1e-9 and -max_lean < pitch_lean < max_lean:
             self._velocity_integral += velocity_error * dt
         pitch_lean = float(np.clip(pitch_lean, -max_lean, max_lean))
 
@@ -481,9 +535,36 @@ class CombinedController:
         yaw_rate = float(state.base_angular_velocity[2])
         effective_target_yaw_rate = self.params.target_yaw_rate + heading_rate_ref
         yaw_error = yaw_rate - effective_target_yaw_rate
-        self._yaw_integral += yaw_error * dt
-        self._yaw_integral = float(np.clip(self._yaw_integral, -5.0, 5.0))
-        return self.params.yaw_damping * yaw_error + self.params.yaw_ki * self._yaw_integral
+        yaw_damping = float(self.params.yaw_damping)
+        yaw_ki = float(self.params.yaw_ki)
+        limit = float(self.params.yaw_correction_limit)
+        damping_term = yaw_damping * yaw_error
+
+        # 条件积分抗饱和（两个约束取小）：
+        #   1) 绝对值上限 yaw_integral_limit；
+        #   2) 输出余量 = (总输出上限 − |比例项|) / yaw_ki。
+        # "被顶住转不动"（轮子卡住、贴墙、外力强扭机身）时积分不会风紧成一个大
+        # 偏置，既不会松开后久久吐不干净，也不会让转向通道吃掉平衡用的轮力矩。
+        absolute_limit = max(float(self.params.yaw_integral_limit), 0.0)
+        if limit > 0.0 and yaw_ki > 1e-12:
+            headroom_limit = max(limit - abs(damping_term), 0.0) / yaw_ki
+            integral_limit = min(absolute_limit, headroom_limit)
+        else:
+            integral_limit = absolute_limit
+        candidate = self._yaw_integral + yaw_error * dt
+        if integral_limit > 0.0:
+            # 只在"继续往外涨"时冻结；往范围内收的方向照常累积。
+            if abs(candidate) > integral_limit and abs(candidate) > abs(self._yaw_integral):
+                candidate = self._yaw_integral
+            candidate = float(np.clip(candidate, -integral_limit, integral_limit))
+        else:
+            candidate = 0.0
+        self._yaw_integral = candidate
+
+        correction = damping_term + yaw_ki * self._yaw_integral
+        if limit > 0.0:
+            correction = float(np.clip(correction, -limit, limit))
+        return correction
 
     # ---------- Control allocation ----------
 
@@ -555,6 +636,7 @@ class CombinedController:
         self._last_cmd_velocity = None
         self._last_cmd_yaw_rate = None
         self._zero_velocity_request = False
+        self._zero_request_blend = 0.0
         self._position_hold_blend = 0.0
         self._slope_pitch_bias = 0.0
 
@@ -638,11 +720,27 @@ class CombinedController:
                 target_pitch = float(self._lqr_controller.target[0])
                 self._update_slope_pitch_bias(model, data, state, dt)
                 target_pitch += self._slope_pitch_bias
-                err = np.array(
-                    [float(state.pitch) - target_pitch, float(state.pitch_rate)]
-                )
+                balance_err = [
+                    float(state.pitch) - target_pitch,
+                    float(state.pitch_rate),
+                ]
+                gains = np.asarray(self.params.wheel_balance_gain_2d, dtype=float)
+                if float(self.params.wheel_vel_balance_gain) != 0.0:
+                    # 对齐上游：增益向量第三项作用于轮速状态误差
+                    # (前向轮速 − target[4])，与 pitch/pitch_rate 两项同源同符号约定。
+                    wheel_vel = float(balance_tangent_state_5d(model, data, state)[4])
+                    balance_err.append(
+                        wheel_vel - float(self._lqr_controller.target[4])
+                    )
+                    gains = np.concatenate(
+                        [gains, [float(self.params.wheel_vel_balance_gain)]]
+                    )
                 forward_torque = float(
-                    np.clip(-(self.params.wheel_balance_gain_2d @ err), -9.0, 9.0)
+                    np.clip(
+                        -(gains @ np.asarray(balance_err)),
+                        -self.params.wheel_torque_limit,
+                        self.params.wheel_torque_limit,
+                    )
                 )
                 if self.params.wheel_vel_damping > 0.0:
                     # 物理前向轮速（与 balance_state 同约定）
@@ -650,7 +748,11 @@ class CombinedController:
                         state.wheel_velocities["left"] - state.wheel_velocities["right"]
                     ) * 0.07
                     forward_torque -= float(self.params.wheel_vel_damping) * wf
-                    forward_torque = float(np.clip(forward_torque, -9.0, 9.0))
+                    forward_torque = float(np.clip(
+                        forward_torque,
+                        -self.params.wheel_torque_limit,
+                        self.params.wheel_torque_limit,
+                    ))
                 # 转向/航向保持外环（与 LQR 路径一致）：无转向指令时锁航向，
                 # 有 target_yaw_rate 时跟踪转向角速度。
                 heading_rate_ref = self._heading_outer_loop(model, data)

@@ -186,6 +186,16 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="Which wheel starts on the default single-wheel trapezoid ramp.",
     )
     parser.add_argument(
+        "--terrain-height",
+        type=float,
+        default=0.02,
+        help=(
+            "Single-wheel trapezoid ramp height in metres (default 0.02, same as "
+            "test_slope_v2). This robot tumbles on the upstream 0.065 m ramp at every "
+            "speed; raise only after confirming the higher obstacle works."
+        ),
+    )
+    parser.add_argument(
         "--enable-gamepad",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -200,6 +210,7 @@ def build_controlled_model(
     *,
     terrain: str | None = "single_wheel_trapezoid",
     terrain_side: str = "left",
+    terrain_height: float = 0.02,
 ) -> tuple[Any, Any]:
     """生成带控制器的 MuJoCo 模型，并把它放到初始站立姿态。
 
@@ -216,6 +227,7 @@ def build_controlled_model(
         cache_dir=cache_dir,
         terrain=terrain,
         terrain_side=terrain_side,
+        terrain_height=terrain_height,
     )
     model = mujoco.MjModel.from_xml_path(str(prepared_xml))
     data = mujoco.MjData(model)
@@ -880,6 +892,7 @@ def main() -> None:
         cache_dir=args.cache_dir,
         terrain=terrain,
         terrain_side=args.terrain_side,
+        terrain_height=args.terrain_height,
     )
     apply_controlled_scenario_initial_state(model, data, args.scenario)
     controller = create_controlled_controller(args.controller, args.scenario)

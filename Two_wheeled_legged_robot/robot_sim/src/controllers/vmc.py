@@ -84,26 +84,57 @@ class VmcParams:
     ik: SerialLegIk = field(default_factory=SerialLegIk)
     # STAND/CROUCH/LAND 腿电机软限幅（N·m/关节）；EXTEND 允许拉到 actuator 上限。
     stand_torque_limit: float = 30.0
-    # 接触逆动力学前馈（ground FF）：用 MuJoCo mj_inverse（qacc=0、含地面接触）
-    # 求"撑住当前姿势每个关节需要的静态力矩"，直接作为前馈。
+    # 地面支撑前馈（support FF）：解析式计算"撑住整车每个关节需要的静态力矩"。
+    #
+    #   τ_j = (∂h/∂q_j)·(m_total·g)/N_legs  +  Σ_{i∈腿链} m_i·g·(∂z_i/∂q_j)
+    #         \_______整车重量经轮子传导_______/   \____腿连杆自重(关节重力矩)____/
+    #
+    # 两项都只是刚体几何量（腿高雅可比 + 各连杆质心竖直雅可比），实机上用
+    # IK/正运动学就能算，不依赖任何仿真器内部量。
+    # 2026-09-12 替换掉旧的 mj_inverse（qacc=0 接触逆动力学）方案：实测两者
+    # 在站立位形差 <0.05%（14 N·m 量级上差 0.008 N·m），差别只是旧方案还多
+    # 补了一项速度相关项（Coriolis），静止时≈0。
     # 只在轮子着地（ncon>=2）时启用；悬空测试请保持 False（会推空）。
-    # 实机移植时需替换为标定好的重力/负载模型，不能依赖 MuJoCo。
     gravity_ff_enabled: bool = False
+    # 支撑前馈里是否叠加"腿连杆自重"那一项。默认 True。
+    # 开源车（2.2 kg，四连杆空心杆）腿链只有零点几 kg，该项可忽略，所以它只
+    # 留了第一项；本机腿链 3.50 kg/腿（总质量的 21%），只算第一项会在膝上差
+    # 5.5 N·m、髋上差 3.6 N·m（实测），靠 kp=200 反推会让静立腿高偏 7.2 mm。
+    # 置 False 即退化成开源车那条"只算载荷传导"的公式。
+    support_ff_include_leg_weight: bool = True
     # 腿自身重力前馈（= MuJoCo qfrc_bias 的腿关节分量），
     # 用于"固定机身/悬空"这类只测腿的场合；站立/整车支撑时不完整，需配 gravity_ff_enabled。
     leg_gravity_ff_enabled: bool = False
+    # STAND 相位"目标角速度前馈"的比例系数（1.0 = 完整，0 = 关闭）。
+    # 上游的实现是 kd_motor·(ḣ_target/J − θ̇)：让关节阻尼项跟随目标角速度而不是
+    # 单纯刹车。本机 2026-09-11 曾把它整个置 0：当时找平/高度指令变化快时目标角
+    # 速率可达 0.5~0.94 rad/s，kd·rate 单独就把腿电机打到 ±30 软限幅，过障时腿
+    # 跟不动目标并翻车。
+    #
+    # 2026-09-12 复测后恢复为 1.0。当时的失稳真因是**支撑前馈用 mj_inverse**
+    # （动态下不可靠，见 RESULTS_ARCHIVE 第 9 节）而不是这条速度前馈；前馈换成
+    # 解析式之后，本条前馈反而成了"腿主动去追地形"的关键手段——关掉它腿只能靠
+    # 位置误差被动跟随，地形变化快时轮子就离地/车身侧倾。
+    # 实测（左轮单侧梯形坡，过坡段 roll 峰峰 / 轮子离地占比 / 腿电机饱和占比）：
+    #   65 mm @0.3 m/s：9.31° / 0.3% / 0.9%  →  0.30° / 0.0% / 0.0%
+    #   65 mm @0.45    ：10.97° / 4.6% / 4.0% →  0.27° / 0.0% / 0.4%
+    #   40 mm @0.45    ：5.73° / 0.3% / 0.0%  →  0.14° / 0.0% / 0.0%
+    #   波浪路 @0.8    ：离地 9.4% → 6.5%（1.0 m/s：20.4% → 18.9%）
+    #   平地 0.8 m/s   ：逐位不变（该前馈只在腿高目标变化时起作用）
+    # 恢复后本机 65 mm 坡 roll 峰峰 0.27° 已优于开源对照车的 3.76°。
+    stand_rate_ff_scale: float = 1.0
 
 
 class VmcController:
     JACOBIAN_REFRESH_PERIOD = 10  # recompute leg motor jacobian every N control steps
-    GROUND_FF_REFRESH_PERIOD = 10  # recompute contact inverse-dynamics FF every N steps
+    SUPPORT_FF_REFRESH_PERIOD = 10  # recompute analytic support FF every N steps
 
     def __init__(self, params: VmcParams, phase_machine: JumpPhaseMachine | None = None) -> None:
         self.params = params
         self.phase_machine = phase_machine
         self._neutral_height_offsets: dict[int, dict[str, float]] = {}
         self._height_jacobian_rows_cache: dict[str, np.ndarray] | None = None
-        self._contact_ff_cache: dict[str, float] | None = None
+        self._support_ff_cache: dict[str, float] | None = None
         self._motor_jacobian_step_count: int = 0
         self._height_filtered: float | None = None
         self._crouch_start_height: float | None = None
@@ -274,22 +305,15 @@ class VmcController:
         if self.params.leg_gravity_ff_enabled:
             # 刷新 qfrc_bias 到当前位形（mj_forward 不改变状态）
             mujoco.mj_forward(model, data)
-        use_contact_ff = bool(self.params.gravity_ff_enabled and data.ncon >= 2)
-        if use_contact_ff and self._motor_jacobian_step_count % self.GROUND_FF_REFRESH_PERIOD == 0:
-            # qacc=0 的逆动力学：得到"让当前状态保持静止"每个关节需要的力矩（含地面反力）
-            qacc_save = np.array(data.qacc, copy=True)
-            data.qacc[:] = 0.0
-            mujoco.mj_inverse(model, data)
-            self._contact_ff_cache = {
-                joint_name: float(data.qfrc_inverse[addresses.joint_qvel[joint_name]])
-                for geometry in LEG_CLOSED_LOOP.values()
-                for joint_name in (geometry.hip_joint, geometry.knee_joint)
-            }
-            data.qacc[:] = qacc_save
         if self._motor_jacobian_step_count % self.JACOBIAN_REFRESH_PERIOD == 0:
             self._height_jacobian_rows_cache = _leg_height_jacobian_rows(model, data)
         rows = self._height_jacobian_rows_cache
         assert rows is not None
+        use_support_ff = bool(self.params.gravity_ff_enabled and data.ncon >= 2)
+        if use_support_ff and self._motor_jacobian_step_count % self.SUPPORT_FF_REFRESH_PERIOD == 0:
+            self._support_ff_cache = self._analytic_support_feedforward(
+                model, data, rows, total_mass, gravity,
+            )
         self._motor_jacobian_step_count += 1
 
         neutral_offsets = self._neutral_offsets(model, data)
@@ -321,6 +345,17 @@ class VmcController:
                 geometry.knee_joint: target_knee,
             }
 
+            if phase == JumpPhase.STAND:
+                # STAND 的"目标角速度前馈"按 stand_rate_ff_scale 缩放
+                # （默认 0 = 旧行为，只保留阻尼项；见 VmcParams 注释）。
+                # 上游 STAND 时 target_h_dot=0、但目标角仍随找平偏置变化，
+                # 所以 rate = Δtarget_angle/dt 是"找平需要的关节速度"。
+                rate_scale = float(self.params.stand_rate_ff_scale)
+                target_rates = {
+                    geometry.hip_joint: target_rates[geometry.hip_joint] * rate_scale,
+                    geometry.knee_joint: target_rates[geometry.knee_joint] * rate_scale,
+                }
+
             height_row = rows[side]
             joint_specs = (
                 (geometry.hip_joint, target_hip, target_rates[geometry.hip_joint]),
@@ -338,9 +373,9 @@ class VmcController:
                 )
 
                 ff_torque = 0.0
-                if use_contact_ff and self._contact_ff_cache is not None:
-                    # 接触逆动力学静态前馈（撑住整车，轮子着地时使用）
-                    ff_torque = self._contact_ff_cache.get(joint_name, 0.0)
+                if use_support_ff and self._support_ff_cache is not None:
+                    # 解析式支撑前馈（整车重量经轮子传导 + 腿连杆自重）
+                    ff_torque = self._support_ff_cache.get(joint_name, 0.0)
                 elif phase != JumpPhase.FLIGHT and self.params.leg_gravity_ff_enabled:
                     # 腿/轮自身重力的精确关节前馈（固定机身测试）。
                     ff_torque = float(data.qfrc_bias[addresses.joint_qvel[joint_name]])
@@ -420,6 +455,67 @@ class VmcController:
             }
             self._neutral_height_offsets[id(model)] = offsets
         return offsets
+
+    def _analytic_support_feedforward(
+        self,
+        model: mujoco.MjModel,
+        data: mujoco.MjData,
+        rows: dict[str, np.ndarray],
+        total_mass: float,
+        gravity: float,
+    ) -> dict[str, float]:
+        """解析式支撑前馈：撑住整车时每个腿关节需要的静态力矩（N·m）。
+
+            τ_j = (∂h/∂q_j)·(m_total·g)/N_legs + Σ_{i∈腿链} m_i·g·(∂z_i/∂q_j)
+
+        第一项：整车重量经轮子传到地面的那条载荷路径。由虚功原理，
+        作用在轮心上的竖直支承力 F = m·g/N 对应的关节力矩就是
+        τ_j = F·(∂h/∂q_j)（h = 机身原点 − 轮心高度，腿伸长时 ∂h/∂q > 0）。
+        这一项就是开源车 `vmc.py` 里 `jacobian[side] * total_mass * gravity / N`
+        的等价形式。
+
+        第二项：腿链（大腿/小腿/轮）自身重量的关节重力矩
+        τ_g,j = Σ m_i·g·(∂z_i/∂q_j)。开源车的四连杆腿很轻可以省掉；
+        本机腿链 3.5 kg/腿，省掉会在膝上差 5.5 N·m、髋上差 3.6 N·m。
+        实机实现时这一项就是标准的"关节重力补偿 τ_g(q)"。
+
+        两项都只用刚体几何（腿高雅可比 + 各连杆质心竖直雅可比），
+        换成实机就替换成 IK/正运动学给出的解析雅可比，不含任何仿真器内部量。
+        """
+        addresses = model_addresses(model)
+        n_legs = len(LEG_CLOSED_LOOP)
+        include_leg_weight = bool(self.params.support_ff_include_leg_weight)
+        jac = np.zeros((3, model.nv))
+        feedforward: dict[str, float] = {}
+        for side, geometry in LEG_CLOSED_LOOP.items():
+            row = rows[side]
+            chain = _leg_body_chain(model, geometry.wheel_body) if include_leg_weight else ()
+            for joint_name in (geometry.hip_joint, geometry.knee_joint):
+                qvel_idx = addresses.joint_qvel[joint_name]
+                torque = float(row[qvel_idx]) * total_mass * gravity / n_legs
+                for body_id_ in chain:
+                    jac[:] = 0.0
+                    mujoco.mj_jac(model, data, jac, None, data.xipos[body_id_], body_id_)
+                    torque += float(model.body_mass[body_id_]) * gravity * float(jac[2, qvel_idx])
+                feedforward[joint_name] = torque
+        if not all(np.isfinite(value) for value in feedforward.values()):
+            raise ValueError("analytic support feedforward must be finite")
+        return feedforward
+
+
+def _leg_body_chain(model: mujoco.MjModel, wheel_body: str) -> list[int]:
+    """沿 parent 链从轮 body 回溯到 base_link 的所有腿 link body id（不含 base/world）。
+
+    对应"轮 → 小腿 → 大腿"这条串联链，用于把腿连杆自重算进支撑前馈。
+    实机实现时不需要这棵树：直接按腿的连杆参数列 τ_g(q) 即可。
+    """
+    base = body_id(model, BASE_BODY_NAME)
+    chain: list[int] = []
+    current = body_id(model, wheel_body)
+    while current not in (0, base):
+        chain.append(current)
+        current = int(model.body_parentid[current])
+    return chain
 
 
 def _average_leg_height(model: mujoco.MjModel, data: mujoco.MjData) -> float:

@@ -421,6 +421,10 @@ end_pitch = 0.227（平衡角≈0.229） end_z = 0.472 z_min = 0.465 contacts = 
 轮子 LQR（增益 K=[−38.2, −6.3]，按实机轮峰值 ±9 N·m 限幅）"，稳态 pitch 恒定、
 roll≈0、双轮全程接地。
 
+> 注（2026-09-12）：正式控制器里的支撑前馈已从 `mj_inverse` 换成解析式
+> `τ_j = (∂h/∂q_j)·m·g/N + Σ m_i·g·(∂z_i/∂q_j)`（可移植到实机），
+> 见 [RESULTS_ARCHIVE.md](RESULTS_ARCHIVE.md) 第 9 节。上面这段是阶段 4 当时的记录。
+
 已正式接进 `CombinedController`/`launch_mujoco`（STAND_PARAMS 启用
 `wheel_balance_gain_2d` 覆盖通道，stand keyframe 改为倾斜平衡位形 pitch≈0.229、
 机身 0.459 m）。CombinedController 12 秒实测：
