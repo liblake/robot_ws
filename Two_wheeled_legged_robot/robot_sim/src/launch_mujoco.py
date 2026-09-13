@@ -63,27 +63,16 @@ MANUAL_JUMP_PHASE_PARAMS = JumpPhaseParams(
 )
 MANUAL_JUMP_TRAJECTORY_PARAMS = JumpTrajectoryParams(
     crouch_duration=0.25,
-    land_duration=0.25,
-    # extend_stroke: EXTEND 固定伸腿行程 (m)。h_high = h_low + extend_stroke (撞 h_safe_high
-    # 上限则下移窗口保持行程)。固定行程让不同 cmd_height 起跳的伸腿动力学一致, 注入机身的
-    # 后仰角动量一致 — 消除"低 cmd_height 起跳前倾/漂移远大于高 cmd_height"的问题。
-    # headless 扫描 (tmp/diagnose_jump_pitch.py): 0.045 下各 cmd_height 前倾峰值 0.25-0.39rad、
-    # 漂移 0.10-0.31m, 一致且远小于旧"固定终点 0.140"方案在低高度的 0.52rad/0.89m。
-    extend_stroke=0.045,
-    # air_height_max 是 trajectory v_target 的 ballistic 等效高度 (cmd_jump=1.0 时),
-    # 不是实测跳跃高度 — 实测约 25-30% 弹道增益 (motor 推不出全部 v_target,leg 接近
-    # max extension 时弹跳损耗动能)。
-    #
-    # 跳跃高度 vs 前向漂移 (在 trapezoid 地形,LQR 用前向轮转矩稳定 pitch,长 FLIGHT
-    # 期间 pitch 漂移 ~0.4-0.6 rad,落地后 LQR 必须把车前移才能扶正):
-    #   0.30 → 57mm 跳 / 3cm 漂移   (跳不够高)
-    #   0.40 → 94mm 跳 / 3cm 漂移   ✓ 当前默认 (接近 10cm,可接受)
-    #   0.50 → 113mm 跳 / 33cm 漂移 (跳够高但漂太远)
-    #   0.70 → 121mm 跳 / 14cm 漂移
-    # 0.40 vs 0.44 有非线性 bifurcation (FLIGHT 末期 pitch_rate 方向不同),
-    # 提高 air_height_max 时 drift 不单调。要消除 drift 必须从 EXTEND 入手
-    # (避免起跳给 base 注入 pitch_rate)。
-    air_height_max=0.40,
+    land_duration=0.20,
+    # 行程 / 空中高度 / 站高区间都按本机（串联双轮腿）重标过，理由与上限推导见
+    # `jump_trajectory.JumpTrajectoryParams` 的注释。这里只保留"手动触发"覆盖：
+    # CROUCH 拉满 50 mm、EXTEND 用满 0.32→0.48 区间、空中目标 8 cm。
+    crouch_depth=0.05,
+    extend_stroke=0.16,
+    # air_height_max 是 trajectory 里的目标弹道高度（cmd_jump=1.0 时），不是实测高度；
+    # 本机实测弹道增益约 0.4（v_target 是腿高变化率，质心只跟约 2/3）。
+    # 0.15 → 实测质心弹道升高 60.9 mm、EXTEND 腿力矩峰 36 N·m、落地不摔。
+    air_height_max=0.30,
 )
 
 
@@ -667,20 +656,82 @@ def _can_enable_gamepad(system_logger: Any, args: argparse.Namespace) -> bool:
     return True
 
 
+# 跳跃触发稳定门槛（2026-09-13，遥测复盘的产物）：
+# 落地后 ~1 s 内机身俯仰还在振荡、轮子带着残余转速，此时再触发跳跃，
+# 下蹲阶段的轮子载荷波动 + 打滑会让偏航修正（限幅 2 N·m）拦不住
+# −200°/s 级的偏航螺旋（实测连跳 #2 飞出 −147°、#3/#4 彻底乱套）。
+# 因此触发必须同时满足：STAND 停留够久 + 姿态角速率/轮速静稳 + 双轮接地。
+JUMP_TRIGGER_MIN_STAND_TIME = 1.2   # s，落地回 STAND 后至少等待的时长
+JUMP_TRIGGER_MAX_PITCH = 0.20       # rad
+JUMP_TRIGGER_MAX_PITCH_RATE = 0.60  # rad/s
+JUMP_TRIGGER_MAX_ROLL_RATE = 0.60   # rad/s
+JUMP_TRIGGER_MAX_YAW_RATE = 0.50    # rad/s
+JUMP_TRIGGER_MAX_WHEEL_SLIP = 0.30  # m/s，轮面速度与机身前向速度之差（打滑量）
+
+
 def _trigger_jump_on_rising_edge(
     controller: Controller,
     jump_command: float,
     previous_jump_command: float,
+    model: Any = None,
+    data: Any = None,
 ) -> float:
     """Start one jump when cmd_jump crosses from off to on.
 
     cmd_jump 现在是连续值 [0, 1] 控制跳跃幅度。h_start 从 nominal_height 读取
     (机器人静态时腿高 = 当前 cmd_height)。
+
+    稳定门槛：条件不满足时本次按键被丢弃（不排队），需要松开重按——避免"按住
+    等自动起跳"在摔倒/卡住状态下突然起跳。
     """
+    import mujoco  # 本文件惯例：mujoco 延迟导入（缺该行会在 A 键触发时 NameError 闪退）
     phase_machine = getattr(getattr(controller, "vmc_controller", controller), "phase_machine", None)
     is_on = jump_command > 0.01
     was_on = previous_jump_command > 0.01
     if is_on and not was_on and phase_machine is not None and phase_machine.phase == JumpPhase.STAND:
+        blocked_reason: str | None = None
+        if model is not None and data is not None:
+            if float(phase_machine.time_in_phase) < JUMP_TRIGGER_MIN_STAND_TIME:
+                blocked_reason = (
+                    f"STAND 停留 {phase_machine.time_in_phase:.2f}s < {JUMP_TRIGGER_MIN_STAND_TIME}s"
+                    "（落地后机身未完全静稳）"
+                )
+            else:
+                state = extract_sim_state(model, data)
+                # 轮子门用"打滑量"而不是绝对转速：行驶中（0.4 m/s）轮子转
+                # ~5.7 rad/s 是正常滚动，必须允许行驶中跳跃；要拦的是落地后
+                # 轮子还在原地自旋/打滑的状态（轮面速度与机身速度不一致）。
+                body_id_ = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "base_link")
+                rot = data.xmat[body_id_].reshape(3, 3)
+                fwd = rot[:2, 1]
+                v_body = float(
+                    state.base_linear_velocity[0] * fwd[0]
+                    + state.base_linear_velocity[1] * fwd[1]
+                )
+                v_left = float(state.wheel_velocities["left"]) * 0.07
+                v_right = -float(state.wheel_velocities["right"]) * 0.07
+                wheel_slip = max(abs(v_left - v_body), abs(v_right - v_body))
+                checks = (
+                    (int(state.contact_count) < 2,
+                     f"接地接触点 {state.contact_count} < 2"),
+                    (abs(float(state.pitch)) > JUMP_TRIGGER_MAX_PITCH,
+                     f"|pitch| {np.degrees(state.pitch):.1f}° 超限"),
+                    (abs(float(state.pitch_rate)) > JUMP_TRIGGER_MAX_PITCH_RATE,
+                     f"|pitch_rate| {abs(state.pitch_rate):.2f} rad/s 超限"),
+                    (abs(float(state.roll_rate)) > JUMP_TRIGGER_MAX_ROLL_RATE,
+                     f"|roll_rate| {abs(state.roll_rate):.2f} rad/s 超限"),
+                    (abs(float(state.base_angular_velocity[2])) > JUMP_TRIGGER_MAX_YAW_RATE,
+                     f"|yaw_rate| {abs(float(state.base_angular_velocity[2])):.2f} rad/s 超限"),
+                    (wheel_slip > JUMP_TRIGGER_MAX_WHEEL_SLIP,
+                     f"轮子打滑 {wheel_slip:.2f} m/s 超限"),
+                )
+                for failed, reason in checks:
+                    if failed:
+                        blocked_reason = reason
+                        break
+        if blocked_reason is not None:
+            print(f"[jump-trigger] 跳过本次触发：{blocked_reason}；请等机身稳定后松开重按。", flush=True)
+            return jump_command
         # h_start 优先用 nominal_height (controller 当前 cmd_height)
         params = getattr(controller, "params", None)
         vmc_params = getattr(params, "vmc", None) if params is not None else None
@@ -760,6 +811,8 @@ def run_controlled_viewer_loop(
                     controller,
                     cmd_sliders["cmd_jump"],
                     previous_jump_command,
+                    model=model,
+                    data=data,
                 )
                 if isinstance(controller, CombinedController):
                     controller.params.target_velocity = linear_x
@@ -934,6 +987,8 @@ def main() -> None:
                                 controller,
                                 cmd_sliders["cmd_jump"],
                                 previous_jump_command,
+                                model=model,
+                                data=data,
                             )
                             controller.params.vmc.nominal_height = cmd_sliders["cmd_height"]
                             controller.params.target_velocity = _drive_velocity_profile(data.time)

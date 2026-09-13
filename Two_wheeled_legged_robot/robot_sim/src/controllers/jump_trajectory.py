@@ -195,23 +195,48 @@ class JumpTrajectoryParams:
     EXTEND duration 由 stroke (h_high - h_low) 和 v_takeoff 反推,不再独立指定。
     """
 
-    # LUT 安全区: h_min 是 LUT 数据下限, h_safe_high 避开奇异区 (theta_max=0.65 对应 h~0.154)。
-    h_min: float = 0.0785
-    # h_safe_high 现在是 EXTEND 终点的上限 (ceiling), 不再是固定终点。
-    h_safe_high: float = 0.140
+    # === 本机（串联双轮腿）参数，2026-09-12 按 leg 工作区间 [0.31, 0.50] 重标 ===
+    #
+    # 注意：这组默认值原来是开源车（四连杆、腿高 0.078~0.154 m）的 LUT 数值，
+    # 直接沿用到本机会完全失效：h_start=0.37 代进原参数得到 h_low=0.095、
+    # h_high=0.140，再被 IK clamp_height([0.31,0.50]) 夹住 → 两端都变 0.31、
+    # 行程为 0（实测触发一次跳跃机身只动 5 mm）。
+    #
+    # h_min / h_safe_high：本机 IK 可达区间 [0.31, 0.50] 的两端，各留 10~20 mm 余量。
+    h_min: float = 0.32
+    h_safe_high: float = 0.48
     # CROUCH 自适应深度: target = max(h_min, h_start - crouch_depth)。
     crouch_depth: float = 0.05
     # EXTEND 固定伸腿行程 (m): h_high = h_low + extend_stroke。固定行程让不同 cmd_height
-    # 起跳的伸腿动力学一致 (离地注入机身的后仰角动量一致), 消除低 cmd_height 起跳行程
-    # 过大导致的落地前倾/漂移。撞 h_safe_high 上限时整体下移窗口以保持行程 (见 JumpTrajectory)。
-    extend_stroke: float = 0.045
+    # 起跳的伸腿动力学一致 (离地注入机身的后仰角动量一致)。0.32 → 0.48 正好用满区间。
+    #
+    # 行程与可达推力的关系（实测 dh/dq 在工作区间内很平：髋 0.075、膝 0.196~0.225）：
+    #   每腿竖向推力 = min(τ_max/|∂h/∂q_hip|, τ_max/|∂h/∂q_knee|)
+    #   软限幅 30 N·m → 267 N 总推力（净加速度 5.9 m/s²@蹲姿 ~ 8.2@伸直）
+    #   执行器上限 40 N·m → 356 N（EXTEND 不受软限幅，所以瓶颈其实在 CROUCH/LAND）
+    # 恒定加速度轨迹要求 a = v²/(2·行程) = 2g·h_air/(2·行程)，反推 air_height_max 上限
+    # ≈ 9.6 cm（按 30 N·m 可迁移的推力算）。
+    extend_stroke: float = 0.16
     # 时间剖面 (EXTEND 由 ConstantAccelerationTrajectory 自动计算 duration)。
     crouch_duration: float = 0.25
-    land_duration: float = 0.25
-    # 默认空中高度 (m),cmd_jump=1 时跳多高。
-    air_height_max: float = 0.10
-    # 落地后回到 stand 的目标高度 (mid LUT)。
-    h_stand_after_land: float = 0.142
+    # 0.20（2026-09-13，原 0.30）：行驶中跳跃的实测权衡。LAND 期间俯仰下潜 +
+    # 偏置站姿律会水平拖拽轮子产生滑动摩擦（整车被刹，0.4 m/s 跳一次掉到
+    # 0.06 m/s 甚至短暂倒退）；拖拽时间 ∝ land_duration，0.20 使行驶跳质心
+    # 速度最低点从 −0.05 回到 +0.02 m/s，原地跳质量不降反升（落地 pitch 峰
+    # 10.5°→9.4°，上弹 0.04→0.03 m/s）。
+    land_duration: float = 0.20
+    # 默认空中高度 (m)，cmd_jump=1 时跳多高。
+    # 0.08 → v_takeoff=1.25 m/s、需求加速度 4.9 m/s²、峰值膝力矩 ≈28 N·m（在软限幅内，
+    # 即"用现有 30 N·m 软限幅就能跳"，结论可迁移到实机）。验证通路后再往上推。
+    #
+    # 2026-09-13 提到 0.30（用户要求跳更高，执行器 ctrlrange 同步 ±40→±60）：
+    # v_target = sqrt(2g·0.30) = 2.42 m/s、需求加速度 18.3 m/s²、膝力矩峰
+    # ≈53 N·m（±60 内余量 12%）。实测质心弹道 ≈ 目标 × 0.39 ≈ 12 cm。
+    # 历史标定（±40 时代，air 0.15 → 实测弹道 58~61 mm）比例关系仍成立。
+    air_height_max: float = 0.30
+    # 落地后回到 stand 的目标高度；实际由 JumpTrajectory(h_start) / setup_land(h_target)
+    # 覆盖，这里只是兜底。
+    h_stand_after_land: float = 0.37
 
     def adaptive_crouch_target(self, h_start: float) -> float:
         return max(float(self.h_min), float(h_start) - float(self.crouch_depth))

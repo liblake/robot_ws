@@ -5,7 +5,11 @@ from typing import Any
 
 import numpy as np
 
-from src.controllers.balance_lqr import LEG_ROLL_DIFF_SIGNS, equilibrium_pitch_from_geometry
+from src.controllers.balance_lqr import (
+    LEG_ROLL_DIFF_SIGNS,
+    equilibrium_pitch_from_geometry,
+    wheel_ff_gain_for_leg_common,
+)
 from src.controllers.balance_state import balance_tangent_state_5d
 from src.controllers.lqr import LqrController
 from src.controllers.phase import JumpPhaseMachine, JumpPhase
@@ -152,6 +156,24 @@ class CombinedParams:
     # 给机身一个 15 N·m·0.1 s 的偏航冲量，2.0 与无限幅的航向回正曲线也一致
     # （25 N·m 冲量下峰值 0.19 vs 0.07 rad，仍能回正）。
     yaw_correction_limit: float = 2.0
+    # 跳跃地面相位（CROUCH/EXTEND/LAND）的 yaw 修正限幅。默认与 STAND 相同（2.0）：
+    # 2026-09-13 曾试过放宽到 5.0 想压住连跳偏航螺旋，实测反而更糟——落地弹跳期
+    # yaw 速率信号是冲击噪声，±5 N·m 差动力矩把轮子甩到对转（峰值 286°/s），
+    # 制造新的打滑。偏航失控的真正根因是"未静稳连跳"（已由 launch_mujoco 的
+    # 触发稳定门槛堵住），不是权限不足。此参数保留给以后实验，勿盲目调大。
+    jump_yaw_correction_limit: float = 2.0
+    # 跳跃地面相位（主要 LAND）的"轮速保持"增益（N·m per m/s）。落地缓冲时
+    # 腿收拢 + 俯仰摆动会通过偏置站姿律水平拖拽轮子，轮面速度偏离机身速度
+    # 产生滑动摩擦，整车被刹（实测 0.4 m/s 跳一次掉到 0.06）。此项驱动轮子
+    # 始终以机身实际速度滚动（消滑移），行驶中跳不再减速。
+    # 默认 0（关闭）：实测在 LAND 打滑场景里它与 LQR 俯仰调节抢轮子，
+    # 0.4 m/s 跳的最低质心速度反而从 +0.06 恶化到 −0.05 m/s。机制保留供实验。
+    jump_wheel_speed_hold_gain: float = 0.0
+    # 跳跃 EXTEND 相位轮前馈（N·m per N·m 髋关节坐标差 τ_L−τ_R）。默认 0：
+    # 飞行镜像髋阻尼器修好后（见 vmc.py FLIGHT 分支），空中俯仰已由其吸收，
+    # 本前馈反而把倾斜转移到落地（实测 ff=-0.04：飞行 5.7→1.7° 但落地
+    # 2.4→12.5°）。机制保留供实验。
+    jump_wheel_ff_scale: float = 0.0
     # yaw 积分上限（|积分| 的绝对值上限）。另有"积分只能占用输出上限里
     # 比例项没用完的余量"的条件积分（见 _compute_yaw_correction），两者取小。
     # 实测正常转向稳态积分仅 ~0.14。
@@ -177,6 +199,13 @@ class CombinedController:
         self._last_phase = JumpPhase.STAND
         self._position_anchor: np.ndarray | None = None
         self._heading_anchor: float | None = None
+        # 起跳前的航向锚。落地回 STAND 时恢复它，让落地蹭掉的角度被拉回。
+        self._pre_jump_heading: float | None = None
+        # 起跳瞬间锁存的开环前倾角（rad）。跳跃全程保持，行驶中跳不刹车。
+        self._jump_pitch_lean: float = 0.0
+        # 起跳时锁存的平衡俯仰角（rad）。跳跃全程冻结，防空中几何摆动。
+        self._jump_eq_pitch: float = 0.0
+
         self._equilibrium_pitch: float = 0.0
         self._last_cmd_velocity: float | None = None
         self._last_cmd_yaw_rate: float | None = None
@@ -525,19 +554,31 @@ class CombinedController:
             # 指数衰减回 0
             self._slope_pitch_bias *= max(0.0, 1.0 - dt / max(self._slope_bias_tau, 1e-6))
 
-    def _compute_yaw_correction(self, state: SimState, dt: float, heading_rate_ref: float = 0.0) -> float:
+    def _compute_yaw_correction(
+        self,
+        state: SimState,
+        dt: float,
+        heading_rate_ref: float = 0.0,
+        limit_override: float | None = None,
+        accumulate: bool = True,
+    ) -> float:
         """yaw 角速度阻尼内环。effective_target = target_yaw_rate + 航向保持外环参考。
 
         航向保持把航向角误差转成 yaw-rate 参考 (heading_rate_ref) 串级进来; 不发转向
         指令时它驱动本环把实际 yaw_rate 拉向"回正所需角速度", 从而把航向拉回 anchor。
         heading_rate_ref=0 时退化为原始 yaw-rate 阻尼 (跳跃相位即走此路径)。
+
+        limit_override: 临时替换输出限幅（跳跃地面相位用更宽的权限，见
+        CombinedParams.jump_yaw_correction_limit）。
+        accumulate=False: 冻结积分（跳跃地面相位轮子弹跳/打滑时误差单边，
+        继续累积会把积分顶到上限，落地后久久吐不干净——2026-09-13 遥测实测）。
         """
         yaw_rate = float(state.base_angular_velocity[2])
         effective_target_yaw_rate = self.params.target_yaw_rate + heading_rate_ref
         yaw_error = yaw_rate - effective_target_yaw_rate
         yaw_damping = float(self.params.yaw_damping)
         yaw_ki = float(self.params.yaw_ki)
-        limit = float(self.params.yaw_correction_limit)
+        limit = float(self.params.yaw_correction_limit if limit_override is None else limit_override)
         damping_term = yaw_damping * yaw_error
 
         # 条件积分抗饱和（两个约束取小）：
@@ -551,15 +592,16 @@ class CombinedController:
             integral_limit = min(absolute_limit, headroom_limit)
         else:
             integral_limit = absolute_limit
-        candidate = self._yaw_integral + yaw_error * dt
-        if integral_limit > 0.0:
-            # 只在"继续往外涨"时冻结；往范围内收的方向照常累积。
-            if abs(candidate) > integral_limit and abs(candidate) > abs(self._yaw_integral):
-                candidate = self._yaw_integral
-            candidate = float(np.clip(candidate, -integral_limit, integral_limit))
-        else:
-            candidate = 0.0
-        self._yaw_integral = candidate
+        if accumulate:
+            candidate = self._yaw_integral + yaw_error * dt
+            if integral_limit > 0.0:
+                # 只在"继续往外涨"时冻结；往范围内收的方向照常累积。
+                if abs(candidate) > integral_limit and abs(candidate) > abs(self._yaw_integral):
+                    candidate = self._yaw_integral
+                candidate = float(np.clip(candidate, -integral_limit, integral_limit))
+            else:
+                candidate = 0.0
+            self._yaw_integral = candidate
 
         correction = damping_term + yaw_ki * self._yaw_integral
         if limit > 0.0:
@@ -613,12 +655,17 @@ class CombinedController:
                 model.actuator_ctrlrange[act_idx, 1],
             ))
         if phase in (JumpPhase.STAND, JumpPhase.CROUCH, JumpPhase.LAND):
-            limit = float(self.params.vmc.stand_torque_limit)
+            # LAND 用独立软限幅 land_torque_limit：缓冲 PD 需要的力矩远大于静态
+            # 保持（见 VmcParams.land_torque_limit）。
+            limit = float(
+                self.params.vmc.land_torque_limit if phase == JumpPhase.LAND
+                else self.params.vmc.stand_torque_limit
+            )
             for joint_name in MODEL_SEMANTICS.leg_motor_joints:
                 act_idx = addresses.actuators[joint_name]
                 clipped[act_idx] = float(np.clip(clipped[act_idx], -limit, limit))
-        # EXTEND: 允许动态 FF 拉满到 actuator 极限 (±12.5 N·m) 推起跳。
-        # FLIGHT: VMC 早返回 0,本路径在 _jump_control 下也只会得到 0 + 0 = 0。
+        # EXTEND: 允许动态 FF 拉满到 actuator 上限 (±40 N·m) 推起跳。
+        # FLIGHT: VMC 早返回（姿态阻尼 + 膝位保持），不经本路径。
 
         if not np.all(np.isfinite(clipped)):
             raise ValueError("combined control must be finite")
@@ -633,6 +680,9 @@ class CombinedController:
         self._lqr_controller = None
         self._position_anchor = None
         self._heading_anchor = None
+        self._pre_jump_heading = None
+        self._jump_pitch_lean = 0.0
+        self._jump_eq_pitch = 0.0
         self._last_cmd_velocity = None
         self._last_cmd_yaw_rate = None
         self._zero_velocity_request = False
@@ -641,11 +691,23 @@ class CombinedController:
         self._slope_pitch_bias = 0.0
 
     def _handle_stand_entry(self, model: Any, data: Any, state: SimState) -> None:
-        """STAND 进入瞬间: 清积分,锁位置 anchor + 航向 anchor。"""
+        """STAND 进入瞬间: 锁位置 anchor + 航向 anchor。
+
+        速度积分只在 FALLEN 恢复时清零（2026-09-13 前：任何 STAND 进入都清，
+        行驶中跳跃落地后推进 PI 从零重建，出现可感知的再加速段）。
+        """
         if self._last_phase != JumpPhase.STAND:
-            self._velocity_integral = 0.0
+            if self._last_phase == JumpPhase.FALLEN:
+                self._velocity_integral = 0.0
             self._position_anchor = np.array(state.base_position[:2], dtype=float)
-            self._heading_anchor = self._base_heading(model, data)
+            if self._last_phase in JUMP_PHASES and self._pre_jump_heading is not None:
+                # 跳跃落地回到 STAND：恢复起跳前的航向锚（而不是把落地时被蹭歪的
+                # 朝向锁成基准）。heading_hold 外环会以 0.8 rad/s 限幅把航向温柔
+                # 拉回去。2026-09-13 之前落地后停在新朝向、漂移逐跳累积。
+                self._heading_anchor = self._pre_jump_heading
+                self._pre_jump_heading = None
+            else:
+                self._heading_anchor = self._base_heading(model, data)
         zero_target = self._zero_velocity_request and abs(self.params.target_velocity) <= 1e-6
         if zero_target:
             velocity_gate = max(float(self.params.position_hold_velocity_gate), 0.0)
@@ -666,13 +728,31 @@ class CombinedController:
         elif self._heading_anchor is None:
             self._heading_anchor = self._base_heading(model, data)
 
-    def _handle_jump_entry(self) -> None:
-        """跳跃序列开始: 清积分,丢 anchor。LQR controller 本身保留 (gain 只依赖几何)。"""
+    def _handle_jump_entry(self, model: Any, data: Any) -> None:
+        """跳跃序列开始: 丢 anchor,锁存行驶前倾角。LQR gain 保留（只依赖几何）。
+
+        速度积分**不清零**（2026-09-13）：行驶中跳跃要落地后无缝续跑，
+        清了会让 STAND 的速度 PI 从 P 项重建推进、出现可感知的再加速。
+        积分在跳跃相位本来就不更新（_update_lqr_target 只在 STAND 调用），
+        冻结即可。
+        """
         if self._last_phase not in JUMP_PHASES:
-            self._velocity_integral = 0.0
             self._yaw_integral = 0.0
             self._position_anchor = None
-            self._heading_anchor = None
+            # 锁存起跳前的航向锚，落地后恢复（见 _handle_stand_entry）。
+            self._pre_jump_heading = self._heading_anchor
+            # 锁存起跳瞬间的开环前倾角与平衡角，跳跃全程冻结
+            # （见 _set_lqr_target_balance_only）。
+            if self._lqr_controller is not None:
+                self._jump_eq_pitch = equilibrium_pitch_from_geometry(model, data)
+                self._jump_pitch_lean = float(
+                    self._lqr_controller.target[0] - self._jump_eq_pitch
+                )
+        elif self._last_phase == JumpPhase.EXTEND and self.vmc_controller.phase_machine is not None \
+                and self.vmc_controller.phase_machine.phase == JumpPhase.FLIGHT:
+            # 离地瞬间按起跳姿态重锁平衡角：膝位保持使落地姿态=起跳姿态，
+            # 该值即落地时的正确俯仰目标（空中逐步重算会摆动）。
+            self._jump_eq_pitch = equilibrium_pitch_from_geometry(model, data)
         self._height_wheel_velocity_ff = 0.0
 
     # ---------- Phase-dispatched control ----------
@@ -762,7 +842,9 @@ class CombinedController:
             else:
                 forward_torque = float(lqr_control[0])
                 heading_rate_ref = self._heading_outer_loop(model, data)
-                yaw_correction = self._compute_yaw_correction(state, dt, heading_rate_ref)
+                # 与上方 2 状态路径一致：本机轮轴约定下必须取反才是负反馈
+                # （2026-09-13 修复，见 _balance_only_control 内注释）。
+                yaw_correction = -self._compute_yaw_correction(state, dt, heading_rate_ref)
         else:
             forward_torque = 0.0
             yaw_correction = 0.0
@@ -784,21 +866,26 @@ class CombinedController:
         return self._merge_vmc_and_clip(model, control, vmc_control, addresses, JumpPhase.STAND)
 
     def _set_lqr_target_balance_only(self, model: Any, data: Any) -> None:
-        """跳跃期间的 LQR 目标: 纯 equilibrium_pitch,wheel_vel=0,无 pitch_lean。
+        """跳跃期间的 LQR 目标: equilibrium_pitch + 起跳前的前倾角,轮子不追速度。
 
         STAND 的 _update_lqr_target 包含 pitch_lean (从 velocity_error 推出),
         用于跟踪 target_velocity > 0 时身体前倾。但跳跃期间 wheel velocity 会被
-        起跳动力学瞬时拉到几 rad/s,pitch_lean 把这个误差当成"该前倾",saturate
-        到 ±0.2 rad,反而强行让 LQR 把车体推倒。跳跃只需要保持竖直 (target=0)。
+        起跳动力学瞬时拉到几 rad/s,**闭环的 pitch_lean 不能带进来**（那会把
+        轮速误差当成"该前倾"saturate 到 ±0.2 rad 把车体推倒）——带进来的是
+        起跳瞬间锁存的**开环前倾角**（见 _handle_jump_entry）：行驶中跳跃时
+        保持推进姿态，不刹车、落地不重新加速（2026-09-13 用户实测反馈）。
+        原地跳跃时该值为 0，行为与旧的"纯平衡角"完全一致。
         """
         if self._lqr_controller is None:
             return
-        equilibrium_pitch = equilibrium_pitch_from_geometry(model, data)
-        self._lqr_controller.target[0] = equilibrium_pitch
+        # 平衡角用跳跃中冻结的值（_handle_jump_entry 锁存），不逐步重算：
+        # 空中/落地时腿部几何随膝位保持和缓冲变化，逐步重算的"平衡角"在
+        # 0~5° 间摆动，LQR 追着摆动目标打轮会把行驶中的车拽减速。
+        self._lqr_controller.target[0] = float(self._jump_eq_pitch) + float(self._jump_pitch_lean)
         self._lqr_controller.target[1] = 0.0
         self._lqr_controller.target[2] = 0.0
         self._lqr_controller.target[3] = 0.0
-        self._lqr_controller.target[4] = 0.0  # 跳跃期间不追速度,只保持原地
+        self._lqr_controller.target[4] = 0.0  # 跳跃期间不追速度（2 状态路径不使用该项）
 
     def _balance_only_control(
         self,
@@ -831,14 +918,60 @@ class CombinedController:
             self._ensure_lqr_height_bin(model, data, state)
 
         self._set_lqr_target_balance_only(model, data)
-        self._lqr_controller.feedforward = np.zeros(2)
+        # 轮前馈抵消 VMC 腿共模力矩的俯仰反作用（标定增益
+        # wheel_ff_gain_for_leg_common ≈ −0.043 N·m/N·m，与 _stand_control 的
+        # _active_wheel_ff_gain 同源，但**不经过 params.ff_gain 开关**——那会
+        # 被 _ensure_lqr_height_bin 每步重置为 ff_gain×标定 = 0）。
+        # EXTEND 期间腿共模 ~35 N·m 的俯仰反作用原本全靠 LQR 打轮子硬扛，
+        # 轮力矩被挪去抗俯仰 = 行驶中跳被刹车。带上前馈后 LQR 只处理残差。
+        # 跳跃轮前馈：抵消蹬伸/落地时**髋电机反作用**对机身的俯仰冲击。
+        # 三个实测教训（2026-09-13）：
+        #   1) 四腿力矩平均不行——EXTEND 时髋负膝正，平均恒≈0；
+        #   2) 髋"平均"也不行——左右髋关节轴镜像（左 -X / 右 +X），同一物理
+        #      扭转在关节坐标里反号（+9.3/-9.3），平均仍≈0；
+        #   3) 正确驱动量是**髋关节坐标之差** τ_L−τ_R：关节轴镜像使反作用
+        #      在世界系同向叠加，τ_L−τ_R = 世界系俯仰反作用合力（+52/-52
+        #      时差值 -104，正比于蹬伸反作用）。
+        hip_reaction = float(
+            vmc_control[addresses.actuators[LEG_CLOSED_LOOP["left"].hip_joint]]
+            - vmc_control[addresses.actuators[LEG_CLOSED_LOOP["right"].hip_joint]]
+        )
+        # 仅 EXTEND 相位施加：起跳离地的俯仰角速度在这里注入，错过就再无机会
+        # 补偿（空中轮力矩无效）。CROUCH/LAND 的髋反作用方向随吸放能翻转，
+        # 同一前馈在那些相位帮倒忙（实测全程 pitch 峰 12.8°→22.3°）。
+        if phase == JumpPhase.EXTEND:
+            wheel_ff = self.params.jump_wheel_ff_scale * hip_reaction
+        else:
+            wheel_ff = 0.0
+        self._lqr_controller.feedforward = np.array([wheel_ff, 0.0])
         lqr_control = self._lqr_controller(model, data, state)
         if state.contact_count == 0:
             forward_torque = 0.0
             yaw_correction = 0.0
         else:
             forward_torque = float(lqr_control[0])
-            yaw_correction = self._compute_yaw_correction(state, dt)
+            # 轮速保持：轮面速度追机身实际前向速度（消滑动摩擦，见
+            # jump_wheel_speed_hold_gain 注释）。原地跳跃两者本就≈0，无影响。
+            wheel_surface = 0.5 * (
+                float(state.wheel_velocities["left"])
+                - float(state.wheel_velocities["right"])
+            ) * 0.07
+            v_body = self._project_forward_body_velocity(model, data, state)
+            forward_torque += float(self.params.jump_wheel_speed_hold_gain) * (
+                v_body - wheel_surface
+            )
+            forward_torque = float(np.clip(forward_torque, -9.0, 9.0))
+            # 2026-09-13 关键修复：这里必须与 _stand_control 的 2 状态路径一样取反。
+            # 本机左右轮轴相反（左 -X / 右 +X）且左轮几乎在偏航轴上（x≈-0.01），
+            # 转向力矩几乎全部来自右轮 —— _compute_yaw_correction 的输出不取反时
+            # 与偏航速率同号 = 正反馈（实测回路增益 ~40，下蹲打滑踢扰 0.1s 内
+            # 放大成 180°/s 螺旋，交互连跳爆炸 −147°/−153° 的总根源）。
+            # 站立路径 2026-09-09 已实测取反并注释；跳跃路径漏掉了同一取反。
+            yaw_correction = -self._compute_yaw_correction(
+                state, dt,
+                limit_override=float(self.params.jump_yaw_correction_limit),
+                accumulate=False,
+            )
         # roll_diff_leg = 0: 不写腿 motor,把整个 leg actuator 量程让给 VMC。
 
         control = self._allocate_balance_control(model, forward_torque, 0.0, yaw_correction, addresses)
@@ -864,7 +997,7 @@ class CombinedController:
             # 不应用 LQR (无地面 wheel torque 没意义),但保留 VMC 的腿电机输出 —
             # VMC FLIGHT 分支用对称腿做 pitch_rate 反作用阻尼,防止空中翻车。
             # 见 vmc.py FLIGHT 分支。
-            self._handle_jump_entry()
+            self._handle_jump_entry(model, data)
             self._last_phase = phase
             return vmc_control
 
@@ -874,7 +1007,7 @@ class CombinedController:
             control = self._stand_control(model, data, state, dt, vmc_control, addresses)
         else:
             # CROUCH / EXTEND / LAND: LQR 轮平衡 + VMC 轨迹独占腿
-            self._handle_jump_entry()
+            self._handle_jump_entry(model, data)
             control = self._balance_only_control(model, data, state, dt, vmc_control, addresses, phase)
 
         self._last_phase = phase

@@ -211,8 +211,12 @@ def _ensure_world_environment(root: ET.Element) -> None:
         ET.SubElement(visual, "quality", {"shadowsize": "1024"})
 
     # Use MuJoCo default gravity (0 0 -9.81). Only insert an <option> if absent.
+    # impratio=10（2026-09-13）：摩擦约束阻抗相对法向提高 10 倍。默认 1 时摩擦
+    # compliance 阶段（触地冲击几 ms）轮子有微打滑，左右轮接触求解的细微不对
+    # 称每跳注入 ~3.4° 偏航（开源对照车 0.38°）；impratio=10 实测降到 ~1.7°，
+    # 且站立/坡道/行驶/跳跃全量回归无回归项。
     if root.find("option") is None:
-        root.insert(0, ET.Element("option", {"gravity": "0 0 -9.81"}))
+        root.insert(0, ET.Element("option", {"gravity": "0 0 -9.81", "impratio": "10"}))
 
 
 # Material appearance per part. The legs and parallel links read as dark glossy
@@ -665,11 +669,23 @@ def _replace_actuators(root: ET.Element) -> None:
         joint.attrib.pop("actuatorfrcrange", None)
 
     actuator = ET.Element("actuator")
+    # 腿电机峰值力矩（2026-09-13 用户提供实机规格）：膝 003/006 = ±60 N·m，
+    # 髋 002/005 = ±90 N·m。跳跃蹬伸的竖直推力由 τ/|∂h/∂q| 决定，膝（0.2225）
+    # 恒为瓶颈（60/0.2225=270 N/腿），髋（0.075）只需 ~20 N·m、余量巨大。
+    LEG_MOTOR_CTRLRANGE = {
+        "link_003_joint": "-60.0 60.0",  # 右膝
+        "link_006_joint": "-60.0 60.0",  # 左膝
+        "link_002_joint": "-90.0 90.0",  # 右髋
+        "link_005_joint": "-90.0 90.0",  # 左髋
+    }
     for joint_name in MODEL_SEMANTICS.wheel_joints + MODEL_SEMANTICS.leg_motor_joints:
-        # 力矩量程（实机轮毂电机：额定 3 / 峰值 9 N·m，2026-09-09 用户提供）：
-        #   轮：±9 N·m —— 峰值；阶段4前尝试 ±10~50 属仿真探索值，已按实机改回 9；
-        #   腿：±40 N·m —— 零位重力保持矩实测约 ±8 N·m，留足蹲起/跳跃余量。
-        ctrlrange = "-9.0 9.0" if joint_name in MODEL_SEMANTICS.wheel_joints else "-40.0 40.0"
+        # 力矩量程（实机规格，2026-09-09/13 用户提供）：
+        #   轮：±9 N·m —— 峰值（额定 3）；阶段4前尝试 ±10~50 属仿真探索值，已改回；
+        #   膝：±60 N·m / 髋：±90 N·m —— 峰值（零位重力保持矩 ~±8-15 N·m）。
+        ctrlrange = (
+            "-9.0 9.0" if joint_name in MODEL_SEMANTICS.wheel_joints
+            else LEG_MOTOR_CTRLRANGE[joint_name]
+        )
         ET.SubElement(
             actuator,
             "motor",

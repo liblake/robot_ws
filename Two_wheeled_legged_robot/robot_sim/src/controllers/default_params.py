@@ -41,8 +41,14 @@ STAND_PARAMS = CombinedParams(
         # 0.10~0.60 m/s 八档全部通过，且姿态大幅改善（0.27 的翻车→9°、0.30 的 31°→5°）。
         kd_motor=60.0,
         gravity_ff_enabled=True,
-        kp_land=15.0,   # 旧 land_kp_scale=0.5 × kp_motor=30 的等价绝对值
-        kd_land=3.5,    # 旧 kd_motor=1 × land_kd_scale=2.5 + landing_damping=1.0
+        # 2026-09-13 按质量重标（原 15/3.5 是 2.2 kg 开源车的标定，本机 17 kg）：
+        # 任务空间等效 k = kp/J²（J²≈0.055）、c = kd/J²，对每腿 8.5 kg 的缓冲模态
+        # ω_n≈13 rad/s、ζ≈0.65（kd=3.5 时 ζ≈0.28 欠阻尼，恢复 0.6s；kd=12 过阻尼
+        # 且触地步抖振）。落地 0.6 s 内指标（探针，air=0.15/0.18）：
+        #   恢复 0.61/0.59 s → 0.44/0.40 s；膝力矩变号 4/150 → 0/150；
+        #   pitch 峰 8.2°/12.4° → 8.1°/9.1°（0.18 的改善主要来自膝位保持）。
+        kp_land=80.0,
+        kd_land=8.0,
         max_height_rate=0.05,
         flight_pitch_kd=1.5,
         roll_level_kp_height=0.0,
@@ -131,8 +137,8 @@ STAND_THEN_DRIVE_PARAMS = CombinedParams(
         kp_motor=200.0,
         kd_motor=60.0,   # 见 STAND_PARAMS 注释：过坡口冲击时腿高环欠阻尼会弹跳
         gravity_ff_enabled=True,
-        kp_land=15.0,
-        kd_land=3.073,  # 旧 kd_motor=1 × land_kd_scale=2.5 + landing_damping=0.628
+        kp_land=80.0,   # 2026-09-13 与 STAND_PARAMS 同步重标（理由见彼处注释）
+        kd_land=8.0,
         flight_pitch_kd=1.5,
         roll_level_kp_height=0.0,
         roll_level_kd_height=0.002,
@@ -186,10 +192,16 @@ def params_to_dict(params: CombinedParams) -> dict[str, Any]:
             "roll_level_offset_limit": params.vmc.roll_level_offset_limit,
             "slope_squat_margin": params.vmc.slope_squat_margin,
             "stand_torque_limit": params.vmc.stand_torque_limit,
+            "land_torque_limit": params.vmc.land_torque_limit,
+            "flight_knee_kp": params.vmc.flight_knee_kp,
+            "flight_knee_kd": params.vmc.flight_knee_kd,
             "gravity_ff_enabled": params.vmc.gravity_ff_enabled,
             "support_ff_include_leg_weight": params.vmc.support_ff_include_leg_weight,
             "leg_gravity_ff_enabled": params.vmc.leg_gravity_ff_enabled,
             "stand_rate_ff_scale": params.vmc.stand_rate_ff_scale,
+            "jump_kp_scale": params.vmc.jump_kp_scale,
+            "jump_kd_scale": params.vmc.jump_kd_scale,
+            "jump_rate_ff_scale": params.vmc.jump_rate_ff_scale,
         },
         "q_diag": params.q_diag.tolist(),
         "r_diag": params.r_diag.tolist(),
@@ -207,6 +219,9 @@ def params_to_dict(params: CombinedParams) -> dict[str, Any]:
         "yaw_ki": params.yaw_ki,
         # 2026-09-11 平地驾驶专项新增/启用的字段，一并序列化保证 round-trip。
         "yaw_correction_limit": params.yaw_correction_limit,
+        "jump_yaw_correction_limit": params.jump_yaw_correction_limit,
+        "jump_wheel_speed_hold_gain": params.jump_wheel_speed_hold_gain,
+        "jump_wheel_ff_scale": params.jump_wheel_ff_scale,
         "yaw_integral_limit": params.yaw_integral_limit,
         "max_linear_accel": params.max_linear_accel,
         "max_yaw_accel": params.max_yaw_accel,
@@ -230,8 +245,8 @@ def params_from_dict(d: dict[str, Any]) -> CombinedParams:
             nominal_height=vmc_data["nominal_height"],
             kp_motor=vmc_data["kp_motor"],
             kd_motor=vmc_data["kd_motor"],
-            kp_land=vmc_data.get("kp_land", 15.0),
-            kd_land=vmc_data.get("kd_land", 3.5),
+            kp_land=vmc_data.get("kp_land", 80.0),
+            kd_land=vmc_data.get("kd_land", 8.0),
             max_height_rate=vmc_data.get("max_height_rate", 0.1),
             flight_pitch_kd=vmc_data.get("flight_pitch_kd", 1.5),
             roll_level_kp_height=vmc_data.get("roll_level_kp_height", 0.0),
@@ -239,10 +254,16 @@ def params_from_dict(d: dict[str, Any]) -> CombinedParams:
             roll_level_offset_limit=vmc_data.get("roll_level_offset_limit", 0.0),
             slope_squat_margin=vmc_data.get("slope_squat_margin", 0.0),
             stand_torque_limit=vmc_data.get("stand_torque_limit", 30.0),
+            land_torque_limit=vmc_data.get("land_torque_limit", 60.0),
+            flight_knee_kp=vmc_data.get("flight_knee_kp", 80.0),
+            flight_knee_kd=vmc_data.get("flight_knee_kd", 3.0),
             gravity_ff_enabled=vmc_data.get("gravity_ff_enabled", False),
             support_ff_include_leg_weight=vmc_data.get("support_ff_include_leg_weight", True),
             leg_gravity_ff_enabled=vmc_data.get("leg_gravity_ff_enabled", False),
             stand_rate_ff_scale=vmc_data.get("stand_rate_ff_scale", 1.0),
+            jump_kp_scale=vmc_data.get("jump_kp_scale", 1.5),
+            jump_kd_scale=vmc_data.get("jump_kd_scale", 0.15),
+            jump_rate_ff_scale=vmc_data.get("jump_rate_ff_scale", 1.0),
         ),
         q_diag=np.array(d["q_diag"]),
         r_diag=np.array(d["r_diag"]),
@@ -259,6 +280,9 @@ def params_from_dict(d: dict[str, Any]) -> CombinedParams:
         yaw_damping=d.get("yaw_damping", 0.5),
         yaw_ki=d.get("yaw_ki", 0.0),
         yaw_correction_limit=d.get("yaw_correction_limit", 2.0),
+        jump_yaw_correction_limit=d.get("jump_yaw_correction_limit", 2.0),
+        jump_wheel_speed_hold_gain=d.get("jump_wheel_speed_hold_gain", 0.0),
+        jump_wheel_ff_scale=d.get("jump_wheel_ff_scale", 0.0),
         yaw_integral_limit=d.get("yaw_integral_limit", 1.0),
         max_linear_accel=d.get("max_linear_accel", 2.5),
         max_yaw_accel=d.get("max_yaw_accel", 1.0),

@@ -72,6 +72,12 @@ class VmcParams:
     # FLIGHT 期间对称腿 motor 上的 pitch_rate 阻尼增益 (N·m per rad/s).
     # 见 _control() FLIGHT 分支注释 — 仅 D 项, 加 P 会与 leg-gravity 偏置形成正反馈.
     flight_pitch_kd: float = 1.5
+    # FLIGHT 膝关节位置保持 PD（N·m/rad, N·m·s/rad）。空中姿态反作用力偶由髋
+    # 独自承担（flight_pitch_kd 分支），膝用小刚度 PD 锁在入 FLIGHT 瞬间的角度
+    # （= 起跳蹬直位）：落地初始姿态可控、膝不被空中反作用力慢慢甩弯。
+    # 0 = 旧行为（膝力矩 0，腿靠惯性保持）。
+    flight_knee_kp: float = 80.0
+    flight_knee_kd: float = 3.0
     # STAND 斜坡找平: 测左右轮高差做前馈, 调左右腿高差把 base 调平 (纯前馈, kp 默认 0).
     # roll_level_offset_limit 是左右腿高差的单侧上限 (m); 0 = off.
     roll_level_kp_height: float = 0.0
@@ -82,8 +88,14 @@ class VmcParams:
     slope_squat_margin: float = 0.0
     # 串行腿解析 IK（站姿律：轮心在髋正下方；h 单位同 nominal_height）
     ik: SerialLegIk = field(default_factory=SerialLegIk)
-    # STAND/CROUCH/LAND 腿电机软限幅（N·m/关节）；EXTEND 允许拉到 actuator 上限。
+    # STAND/CROUCH 腿电机软限幅（N·m/关节）；EXTEND 允许拉到 actuator 上限。
     stand_torque_limit: float = 30.0
+    # LAND 阶段独立的腿电机软限幅（N·m/关节），2026-09-13 从"与 STAND 共用 30"
+    # 拆出来。落地缓冲需要远大于静态保持的力矩（触地 v≈1.1~1.5 m/s 时缓冲环节
+    # 峰值 ~40-50 N·m，其中大部分由动态推力前馈承担），30 的 STAND 限幅在触地步
+    # 顶死、缓冲变形。60 = 执行器 ctrlrange（2026-09-13 随跳跃增高从 40 上调），
+    # 即 LAND 不做额外软限幅、允许满量程缓冲（EXTEND 本来就不软限幅，逻辑对齐）。
+    land_torque_limit: float = 60.0
     # 地面支撑前馈（support FF）：解析式计算"撑住整车每个关节需要的静态力矩"。
     #
     #   τ_j = (∂h/∂q_j)·(m_total·g)/N_legs  +  Σ_{i∈腿链} m_i·g·(∂z_i/∂q_j)
@@ -123,6 +135,25 @@ class VmcParams:
     #   平地 0.8 m/s   ：逐位不变（该前馈只在腿高目标变化时起作用）
     # 恢复后本机 65 mm 坡 roll 峰峰 0.27° 已优于开源对照车的 3.76°。
     stand_rate_ff_scale: float = 1.0
+    # 跳跃相位（CROUCH/EXTEND）的关节 PD 乘数：kp 照上游放大 1.5×，
+    # 但 **kd 必须压小**（60 → 9）。
+    #
+    # 实测（EXTEND，膝关节角度在 0.19 s 内变化 ≈0.47 rad、比例项 kp=300）：
+    #   kd=90（60×1.5）：髋关节角速度逐拍交替 ±0.5 rad/s（98 步里 89 次变号），
+    #                    D 项把这个数值自激放大成 ±40 N·m，腿电机全程顶在执行器
+    #                    饱和上，起跳能量被抖振吃掉 → **完全跳不起来**。
+    #   kd=9（60×0.15）：变号 1/98，EXTEND 力矩峰 36 N·m（不饱和），
+    #                    弹道高度反而是最好的一组（60.9 mm vs 关掉速度前馈的 44.9）。
+    # 机理：D 项在本机被当作"速度前馈"用（kd·(θ̇_target − θ̇)），增益大时
+    # 与关节-地面接触这条刚度环形成 2 步极限环；kp 不需要动，位置跟踪靠
+    # 动态推力前馈 + 比例项就够。
+    jump_kp_scale: float = 1.5
+    jump_kd_scale: float = 0.15
+    # 跳跃相位（CROUCH/EXTEND/LAND）"目标角速度前馈"的乘数（1.0 = 完整）。
+    # 这条前馈是必要的：本机每腿 2 个自由度，"轮心保持在髋正下方"的站姿律让
+    # 髋角在伸腿过程中摆动 ≈0.47 rad，这一段姿态运动不在腿高方向、动态推力前馈
+    # 管不到，必须由关节速度前馈来驱动。实测关掉它弹道高度从 60.9 mm 掉到 44.9 mm。
+    jump_rate_ff_scale: float = 1.0
 
 
 class VmcController:
@@ -139,6 +170,7 @@ class VmcController:
         self._height_filtered: float | None = None
         self._crouch_start_height: float | None = None
         self._target_motor_angle_prev: dict[str, dict[str, float]] = {}
+        self._flight_knee_hold: dict[str, float] | None = None
         self.last_target_motor_rate: dict[str, float] = {side: 0.0 for side in LEG_CLOSED_LOOP}
         self.last_target_heights: dict[str, float] = {side: 0.0 for side in LEG_CLOSED_LOOP}
 
@@ -214,14 +246,40 @@ class VmcController:
         # FALLEN: 完全 0,不再控制。
         if phase == JumpPhase.FALLEN:
             self.last_target_motor_rate = {side: 0.0 for side in LEG_CLOSED_LOOP}
+            self._flight_knee_hold = None
             return np.zeros(model.nu)
         if phase == JumpPhase.FLIGHT:
             self.last_target_motor_rate = {side: 0.0 for side in LEG_CLOSED_LOOP}
             trajectory = self.phase_machine.trajectory if self.phase_machine is not None else None
             lock_height = float(trajectory.h_high) if trajectory is not None else float(self.params.nominal_height)
             self.last_target_heights = {side: lock_height for side in LEG_CLOSED_LOOP}
+            # 膝位置保持：入 FLIGHT 瞬间锁存膝角（起跳蹬直位），小刚度 PD 锁住。
+            # 2026-09-13 之前膝力矩恒 0，空中腿靠惯性保持——落地初始膝角不可控，
+            # 冲击吸收余量（离伸直还有多少缓冲行程）看运气。
+            if self._flight_knee_hold is None:
+                hold_addresses = model_addresses(model)
+                self._flight_knee_hold = {
+                    geometry.knee_joint: float(
+                        data.qpos[hold_addresses.joint_qpos[geometry.knee_joint]]
+                    )
+                    for geometry in LEG_CLOSED_LOOP.values()
+                }
+            addresses = model_addresses(model)
+            control = np.zeros(model.nu)
+            knee_kp = float(self.params.flight_knee_kp)
+            knee_kd = float(self.params.flight_knee_kd)
+            if knee_kp > 0.0 and self._flight_knee_hold is not None:
+                for geometry in LEG_CLOSED_LOOP.values():
+                    act_idx = addresses.actuators[geometry.knee_joint]
+                    qpos_idx = addresses.joint_qpos[geometry.knee_joint]
+                    qvel_idx = addresses.joint_qvel[geometry.knee_joint]
+                    tau = knee_kp * (
+                        self._flight_knee_hold[geometry.knee_joint] - float(data.qpos[qpos_idx])
+                    ) + knee_kd * (0.0 - float(data.qvel[qvel_idx]))
+                    lo, hi = model.actuator_ctrlrange[act_idx]
+                    control[act_idx] = float(np.clip(tau, lo, hi))
             # 空中姿态: 仅 pitch_rate 阻尼 (PD 中不加 K_p 位置项)。
-            # τ_motor = -K_d * pitch_rate, 两腿对称同号 → 通过 four-bar 给 base 反向
+            # τ_motor = -K_d * pitch_rate, 两腿对称同号 → 给 base 反向
             # pitch 力矩。flight_pitch_kd 默认 1.5, clip ±3.5 N·m 是实测稳定点。
             #
             # 为什么不加 K_p:
@@ -230,18 +288,24 @@ class VmcController:
             # 稳态平衡. 若加位置项 P, 与该偏置形成正反馈环, 实测 pitch 发散到 ±0.6 rad.
             # 因此只用 D 项, 接受残留稳态 pitch_rate (落地由 LAND 阶段吸收)。
             pitch_kd = float(self.params.flight_pitch_kd)
+            # 2026-09-13 关键修复：左右髋给**反号**关节力矩。左右髋关节轴镜像
+            # （左 -X / 右 +X），同号关节力矩在世界系里互相抵消——旧阻尼器
+            # 实际上只摆腿、不俯仰机身（调 flight_pitch_kd 无效的原因）。
+            # 反号力矩的世界系合力 = 2×τ，才真正俯仰机身（腿对为配重）。
             attitude_torque = float(np.clip(
-                -pitch_kd * float(state.pitch_rate), -3.5, 3.5,
+                -pitch_kd * float(state.pitch_rate), -6.0, 6.0,
             ))
-            addresses = model_addresses(model)
-            control = np.zeros(model.nu)
-            # 串行腿 TODO(阶段6 跳跃)：空中姿态阻尼先只驱动髋，膝保持 0。
             for geometry in LEG_CLOSED_LOOP.values():
                 act_idx = addresses.actuators[geometry.hip_joint]
                 lo, hi = model.actuator_ctrlrange[act_idx]
-                control[act_idx] = float(np.clip(attitude_torque, lo, hi))
+                # 右髋(+X 轴)取 +τ，左髋(−X 轴)取 −τ：世界系同向叠加
+                # （符号经实测确定，取反成正反馈 52.8°）
+                sign = 1.0 if geometry.side == "right" else -1.0
+                control[act_idx] = float(np.clip(sign * attitude_torque, lo, hi))
             return control
 
+        # 离开 FLIGHT（落地/回到地面相位）后清掉膝锁存，下次起跳重新锁存。
+        self._flight_knee_hold = None
         target_height = self._filtered_nominal_height(float(model.opt.timestep))
         target_h_dot = 0.0   # 期望 CoM 垂直速度,用于 motor velocity FF
         target_h_ddot = 0.0  # 期望 CoM 垂直加速度,用于动态 thrust FF
@@ -263,8 +327,8 @@ class VmcController:
             if t <= extend_duration:
                 # 跟轨迹: 1.5x kp/kd 跟踪轨迹位置。不能更高: 3x kp + 50ms 内
                 # 快速变化的 target → motor 振荡 ±20 N·m 把执行器顶到饱和。
-                kp_motor *= 1.5
-                kd_motor *= 1.5
+                kp_motor *= float(self.params.jump_kp_scale)
+                kd_motor *= float(self.params.jump_kd_scale)
             else:
                 # 轨迹跑完但相位机还在 EXTEND (弹跳确认期/能量补推): 关闭位置 kp,
                 # 只保留速度跟踪 + ff_torque (= m*(g+a)/N * dh/dθ)。
@@ -276,7 +340,7 @@ class VmcController:
                 # 掉到 0.9 (实测),起跳能量被 PID 自己浪费在 ground bounce 上。
                 # ff_torque 是恒定加速度 profile 的正确推力,留它继续推就行。
                 kp_motor = 0.0
-                kd_motor *= 1.5
+                kd_motor *= float(self.params.jump_kd_scale)
         elif phase == JumpPhase.LAND and trajectory is not None:
             # 入 LAND 瞬间生成 land 轨迹。h_target 传入当前 nominal_height
             # 而不是默认 0.142,这样落地不会强行伸腿到中位然后立刻收回。
@@ -305,7 +369,10 @@ class VmcController:
         if self.params.leg_gravity_ff_enabled:
             # 刷新 qfrc_bias 到当前位形（mj_forward 不改变状态）
             mujoco.mj_forward(model, data)
-        if self._motor_jacobian_step_count % self.JACOBIAN_REFRESH_PERIOD == 0:
+        # 跳跃相位腿动得很快（EXTEND 0.15~0.3 s 内走完整个行程），雅可比每步刷新；
+        # STAND 静态保持按固定周期刷新即可。
+        fast_leg_motion = phase != JumpPhase.STAND
+        if fast_leg_motion or self._motor_jacobian_step_count % self.JACOBIAN_REFRESH_PERIOD == 0:
             self._height_jacobian_rows_cache = _leg_height_jacobian_rows(model, data)
         rows = self._height_jacobian_rows_cache
         assert rows is not None
@@ -313,6 +380,17 @@ class VmcController:
         if use_support_ff and self._motor_jacobian_step_count % self.SUPPORT_FF_REFRESH_PERIOD == 0:
             self._support_ff_cache = self._analytic_support_feedforward(
                 model, data, rows, total_mass, gravity,
+            )
+        # 跳跃的"发动机"：把轨迹的期望竖向加速度折进支撑前馈
+        #   总推力 F = m·(g + ḧ_target)，每腿分摊 F/N，关节力矩 = (∂h/∂q_j)·F/N
+        # （腿连杆自重项同样按 g+ḧ 计）。STAND 时 ḧ=0，与静态前馈逐位相同。
+        # 这一项不按接触门控：EXTEND 蹬到最后会瞬间离地，正是最需要推力的时候。
+        dynamic_ff: dict[str, float] | None = None
+        if self.params.gravity_ff_enabled and phase in (
+            JumpPhase.CROUCH, JumpPhase.EXTEND, JumpPhase.LAND,
+        ):
+            dynamic_ff = self._analytic_support_feedforward(
+                model, data, rows, total_mass, gravity, vertical_accel=target_h_ddot,
             )
         self._motor_jacobian_step_count += 1
 
@@ -355,6 +433,13 @@ class VmcController:
                     geometry.hip_joint: target_rates[geometry.hip_joint] * rate_scale,
                     geometry.knee_joint: target_rates[geometry.knee_joint] * rate_scale,
                 }
+            else:
+                # CROUCH/EXTEND/LAND：见 VmcParams.jump_rate_ff_scale 的说明。
+                jump_scale = float(self.params.jump_rate_ff_scale)
+                target_rates = {
+                    geometry.hip_joint: target_rates[geometry.hip_joint] * jump_scale,
+                    geometry.knee_joint: target_rates[geometry.knee_joint] * jump_scale,
+                }
 
             height_row = rows[side]
             joint_specs = (
@@ -373,7 +458,10 @@ class VmcController:
                 )
 
                 ff_torque = 0.0
-                if use_support_ff and self._support_ff_cache is not None:
+                if dynamic_ff is not None:
+                    # 跳跃相位：带期望加速度的动态推力前馈（CROUCH/EXTEND/LAND）
+                    ff_torque = dynamic_ff.get(joint_name, 0.0)
+                elif use_support_ff and self._support_ff_cache is not None:
                     # 解析式支撑前馈（整车重量经轮子传导 + 腿连杆自重）
                     ff_torque = self._support_ff_cache.get(joint_name, 0.0)
                 elif phase != JumpPhase.FLIGHT and self.params.leg_gravity_ff_enabled:
@@ -383,7 +471,11 @@ class VmcController:
 
         clipped = np.clip(control, model.actuator_ctrlrange[:, 0], model.actuator_ctrlrange[:, 1])
         if phase in (JumpPhase.STAND, JumpPhase.CROUCH, JumpPhase.LAND):
-            limit = float(self.params.stand_torque_limit)
+            # LAND 用独立的软限幅：缓冲 PD 需要的力矩远大于静态保持（见 VmcParams）。
+            limit = float(
+                self.params.land_torque_limit if phase == JumpPhase.LAND
+                else self.params.stand_torque_limit
+            )
             for geometry in LEG_CLOSED_LOOP.values():
                 for joint_name in (geometry.hip_joint, geometry.knee_joint):
                     act_idx = addresses.actuators[joint_name]
@@ -463,6 +555,7 @@ class VmcController:
         rows: dict[str, np.ndarray],
         total_mass: float,
         gravity: float,
+        vertical_accel: float = 0.0,
     ) -> dict[str, float]:
         """解析式支撑前馈：撑住整车时每个腿关节需要的静态力矩（N·m）。
 
@@ -481,10 +574,16 @@ class VmcController:
 
         两项都只用刚体几何（腿高雅可比 + 各连杆质心竖直雅可比），
         换成实机就替换成 IK/正运动学给出的解析雅可比，不含任何仿真器内部量。
+
+        vertical_accel：把 g 换成 (g + vertical_accel)。跳跃时传入轨迹的期望竖向
+        加速度 ḧ_target，两项一起放大/缩小 —— 这就是把整机蹬起来的那条推力
+        路径（上游对应 `jacobian·m_total·(g+ḧ)/N`，本机多一项腿连杆自重）。
+        ḧ=0 时与纯静态支撑前馈逐位相同，所以 STAND 的行为不受影响。
         """
         addresses = model_addresses(model)
         n_legs = len(LEG_CLOSED_LOOP)
         include_leg_weight = bool(self.params.support_ff_include_leg_weight)
+        g_eff = gravity + float(vertical_accel)
         jac = np.zeros((3, model.nv))
         feedforward: dict[str, float] = {}
         for side, geometry in LEG_CLOSED_LOOP.items():
@@ -492,11 +591,11 @@ class VmcController:
             chain = _leg_body_chain(model, geometry.wheel_body) if include_leg_weight else ()
             for joint_name in (geometry.hip_joint, geometry.knee_joint):
                 qvel_idx = addresses.joint_qvel[joint_name]
-                torque = float(row[qvel_idx]) * total_mass * gravity / n_legs
+                torque = float(row[qvel_idx]) * total_mass * g_eff / n_legs
                 for body_id_ in chain:
                     jac[:] = 0.0
                     mujoco.mj_jac(model, data, jac, None, data.xipos[body_id_], body_id_)
-                    torque += float(model.body_mass[body_id_]) * gravity * float(jac[2, qvel_idx])
+                    torque += float(model.body_mass[body_id_]) * g_eff * float(jac[2, qvel_idx])
                 feedforward[joint_name] = torque
         if not all(np.isfinite(value) for value in feedforward.values()):
             raise ValueError("analytic support feedforward must be finite")
