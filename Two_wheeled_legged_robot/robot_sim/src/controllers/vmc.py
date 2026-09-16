@@ -78,6 +78,19 @@ class VmcParams:
     # 0 = 旧行为（膝力矩 0，腿靠惯性保持）。
     flight_knee_kp: float = 80.0
     flight_knee_kd: float = 3.0
+    # 蜷腿跳（tuck）：腾空时收腿抬高轮子（轮子离地 = 质心弹道 + 收腿量），
+    # 落地前重新展开。flight_tuck_height 为收腿目标腿高（h_base）。
+    # 滞空 <0.25 s 的小跳跃自动退回膝锁存（时间不够完成收放）。
+    flight_tuck_enable: bool = True
+    flight_tuck_height: float = 0.35
+    # 蜷腿跟踪 PD（D 项带目标角速度前馈：kd×(θ̇_target − θ̇)，否则阻尼项
+    # 对抗收腿运动本身，蜷缩深度损失一半）。力矩上限由 ctrlrange 兜底。
+    flight_tuck_kp: float = 200.0
+    flight_tuck_kd: float = 8.0
+    # 动态轮偏置覆盖（m）。由 CombinedController 按相位驱动：跳跃蹬伸时 →0
+    # （推力垂直化，消除水平分量导致的前向加速与落地拖拽），STAND 缓慢回到
+    # 标称值。None = 用 IK 标称偏置。
+    dynamic_wheel_y_offset: float | None = None
     # STAND 斜坡找平: 测左右轮高差做前馈, 调左右腿高差把 base 调平 (纯前馈, kp 默认 0).
     # roll_level_offset_limit 是左右腿高差的单侧上限 (m); 0 = off.
     roll_level_kp_height: float = 0.0
@@ -171,6 +184,8 @@ class VmcController:
         self._crouch_start_height: float | None = None
         self._target_motor_angle_prev: dict[str, dict[str, float]] = {}
         self._flight_knee_hold: dict[str, float] | None = None
+        # 动态轮偏置覆盖（由 CombinedController 按相位写入；None=用 IK 标称值）。
+        self.dynamic_wheel_y_offset: float | None = None
         self.last_target_motor_rate: dict[str, float] = {side: 0.0 for side in LEG_CLOSED_LOOP}
         self.last_target_heights: dict[str, float] = {side: 0.0 for side in LEG_CLOSED_LOOP}
 
@@ -224,6 +239,7 @@ class VmcController:
             raise ValueError("VMC state must be finite")
 
         phase = self.phase_machine.phase if self.phase_machine is not None else JumpPhase.STAND
+        phase_before_update = phase
         current_leg_height = _average_leg_height(model, data)
         if self.phase_machine is not None and update_phase:
             self.phase_machine.update(
@@ -252,11 +268,36 @@ class VmcController:
             self.last_target_motor_rate = {side: 0.0 for side in LEG_CLOSED_LOOP}
             trajectory = self.phase_machine.trajectory if self.phase_machine is not None else None
             lock_height = float(trajectory.h_high) if trajectory is not None else float(self.params.nominal_height)
-            self.last_target_heights = {side: lock_height for side in LEG_CLOSED_LOOP}
-            # 膝位置保持：入 FLIGHT 瞬间锁存膝角（起跳蹬直位），小刚度 PD 锁住。
-            # 2026-09-13 之前膝力矩恒 0，空中腿靠惯性保持——落地初始膝角不可控，
-            # 冲击吸收余量（离伸直还有多少缓冲行程）看运气。
-            if self._flight_knee_hold is None:
+            addresses = model_addresses(model)
+            control = np.zeros(model.nu)
+
+            # 蜷腿（tuck）策略：起跳后收腿（大腿上摆+小腿折叠），轮子相对机身
+            # 再抬高（tuck 收腿量），落地前重新展开到位吸收冲击。轮子离地高度
+            # = 质心弹道 + 收腿量 —— 12 cm 质心跳 + 0.13 m 收腿 ≈ 轮子 23 cm。
+            # 收腿/展腿由对称 IK 目标 + 关节 PD 驱动；空中俯仰反作用由镜像髋
+            # 阻尼器（下方）对抗。
+            t_flight = 0.0
+            if trajectory is not None and trajectory.v_takeoff > 1e-6:
+                # 滞空估计：质心离地速度 ≈ 0.63×腿高变化率（2026-09-12 标定）
+                t_flight = 2.0 * 0.63 * float(trajectory.v_takeoff) / 9.81
+            tuck_active = (
+                self.params.flight_tuck_enable
+                and trajectory is not None
+                and t_flight >= 0.25
+            )
+            if tuck_active:
+                t_fly = float(self.phase_machine.time_in_phase) \
+                    if self.phase_machine is not None else 0.0
+                h_target = _flight_tuck_height_profile(
+                    t_fly, t_flight, lock_height, float(self.params.flight_tuck_height),
+                )
+            else:
+                h_target = lock_height
+            self.last_target_heights = {side: h_target for side in LEG_CLOSED_LOOP}
+
+            # 非 tuck 场景（小跳跃/禁用）：保留膝位置保持——入 FLIGHT 瞬间锁存
+            # 膝角（起跳蹬直位），小刚度 PD 锁住，落地初始膝角可控。
+            if not tuck_active and self._flight_knee_hold is None:
                 hold_addresses = model_addresses(model)
                 self._flight_knee_hold = {
                     geometry.knee_joint: float(
@@ -264,11 +305,9 @@ class VmcController:
                     )
                     for geometry in LEG_CLOSED_LOOP.values()
                 }
-            addresses = model_addresses(model)
-            control = np.zeros(model.nu)
             knee_kp = float(self.params.flight_knee_kp)
             knee_kd = float(self.params.flight_knee_kd)
-            if knee_kp > 0.0 and self._flight_knee_hold is not None:
+            if not tuck_active and knee_kp > 0.0 and self._flight_knee_hold is not None:
                 for geometry in LEG_CLOSED_LOOP.values():
                     act_idx = addresses.actuators[geometry.knee_joint]
                     qpos_idx = addresses.joint_qpos[geometry.knee_joint]
@@ -278,6 +317,37 @@ class VmcController:
                     ) + knee_kd * (0.0 - float(data.qvel[qvel_idx]))
                     lo, hi = model.actuator_ctrlrange[act_idx]
                     control[act_idx] = float(np.clip(tau, lo, hi))
+            if tuck_active:
+                # 收腿/展腿跟踪 PD + 目标角速度前馈（D 项朝目标速度收敛而非
+                # 朝零速刹车——后者会对抗收腿运动本身，深度损失一半）。
+                tuck_kp = float(self.params.flight_tuck_kp)
+                tuck_kd = float(self.params.flight_tuck_kd)
+                dt = float(model.opt.timestep)
+                h_prev = self._flight_tuck_h_prev
+                for geometry in LEG_CLOSED_LOOP.values():
+                    target_hip, target_knee = self.params.ik.angles_from_base_height(
+                        h_target, geometry.side, self.dynamic_wheel_y_offset,
+                    )
+                    if h_prev is not None:
+                        prev_hip, prev_knee = self.params.ik.angles_from_base_height(
+                            h_prev, geometry.side, self.dynamic_wheel_y_offset,
+                        )
+                        hip_rate = (target_hip - prev_hip) / dt
+                        knee_rate = (target_knee - prev_knee) / dt
+                    else:
+                        hip_rate = knee_rate = 0.0
+                    for joint_name, target_angle, target_rate in (
+                        (geometry.hip_joint, target_hip, hip_rate),
+                        (geometry.knee_joint, target_knee, knee_rate),
+                    ):
+                        act_idx = addresses.actuators[joint_name]
+                        qpos_idx = addresses.joint_qpos[joint_name]
+                        qvel_idx = addresses.joint_qvel[joint_name]
+                        tau = tuck_kp * (target_angle - float(data.qpos[qpos_idx])) \
+                            + tuck_kd * (target_rate - float(data.qvel[qvel_idx]))
+                        lo, hi = model.actuator_ctrlrange[act_idx]
+                        control[act_idx] = float(np.clip(tau, lo, hi))
+                self._flight_tuck_h_prev = h_target
             # 空中姿态: 仅 pitch_rate 阻尼 (PD 中不加 K_p 位置项)。
             # τ_motor = -K_d * pitch_rate, 两腿对称同号 → 给 base 反向
             # pitch 力矩。flight_pitch_kd 默认 1.5, clip ±3.5 N·m 是实测稳定点。
@@ -304,8 +374,17 @@ class VmcController:
                 control[act_idx] = float(np.clip(sign * attitude_torque, lo, hi))
             return control
 
-        # 离开 FLIGHT（落地/回到地面相位）后清掉膝锁存，下次起跳重新锁存。
+        # 离开 FLIGHT（落地/回到地面相位）后清掉膝锁存与蜷腿差分状态。
         self._flight_knee_hold = None
+        self._flight_tuck_h_prev = None
+        # 同时清掉"上一拍目标角"：FLIGHT 分支早返回、从不更新它，落地第一拍
+        # 拿到的 previous 还是 EXTEND 末尾的目标 (h_high)。落地目标由 setup_land
+        # 从实际触地腿高接管，两者相差可达 0.1 m → 关节目标角差 ~0.35 rad，
+        # 除以 dt=2 ms 得到 ~180 rad/s 的假目标角速度，kd_land(8)·rate 直接把
+        # 触地瞬间的腿电机推到 ±60 N·m 饱和（一次 2 ms 的反作用力矩冲击）。
+        # 清空后落地第一拍的 rate FF 为 0，力矩由位置项和动态推力前馈给出。
+        if phase_before_update == JumpPhase.FLIGHT:
+            self._target_motor_angle_prev = {}
         target_height = self._filtered_nominal_height(float(model.opt.timestep))
         target_h_dot = 0.0   # 期望 CoM 垂直速度,用于 motor velocity FF
         target_h_ddot = 0.0  # 期望 CoM 垂直加速度,用于动态 thrust FF
@@ -403,7 +482,9 @@ class VmcController:
             side_target_height = self.params.ik.clamp_height(side_target_height)
             self.last_target_heights[side] = side_target_height
 
-            target_hip, target_knee = self.params.ik.angles_from_base_height(side_target_height, side)
+            target_hip, target_knee = self.params.ik.angles_from_base_height(
+                side_target_height, side, self.dynamic_wheel_y_offset,
+            )
             dt = float(model.opt.timestep)
             previous = self._target_motor_angle_prev.get(side)
             if previous is None:
@@ -615,6 +696,31 @@ def _leg_body_chain(model: mujoco.MjModel, wheel_body: str) -> list[int]:
         chain.append(current)
         current = int(model.body_parentid[current])
     return chain
+
+
+def _flight_tuck_height_profile(t: float, t_flight: float, h_high: float, h_tuck: float) -> float:
+    """腾空收腿-展腿高度计划（按滞空时间归一化）。
+
+    τ<0.15 保持蹬直（起跳 settle）；0.15~0.45 smoothstep 收到 h_tuck；
+    0.45~0.62 保持蜷缩；0.62~0.92 展回 h_high（落地吸收行程就位）；>0.92 保持。
+    """
+    if t_flight <= 0.0:
+        return h_high
+    tau = float(np.clip(t / t_flight, 0.0, 1.0))
+
+    def smooth(x: float) -> float:
+        x = float(np.clip(x, 0.0, 1.0))
+        return x * x * (3.0 - 2.0 * x)
+
+    if tau < 0.15:
+        return h_high
+    if tau < 0.45:
+        return h_high + (h_tuck - h_high) * smooth((tau - 0.15) / 0.30)
+    if tau < 0.62:
+        return h_tuck
+    if tau < 0.92:
+        return h_tuck + (h_high - h_tuck) * smooth((tau - 0.62) / 0.30)
+    return h_high
 
 
 def _average_leg_height(model: mujoco.MjModel, data: mujoco.MjData) -> float:

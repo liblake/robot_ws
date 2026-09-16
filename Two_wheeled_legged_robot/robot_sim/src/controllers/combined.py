@@ -169,10 +169,11 @@ class CombinedParams:
     # 默认 0（关闭）：实测在 LAND 打滑场景里它与 LQR 俯仰调节抢轮子，
     # 0.4 m/s 跳的最低质心速度反而从 +0.06 恶化到 −0.05 m/s。机制保留供实验。
     jump_wheel_speed_hold_gain: float = 0.0
-    # 跳跃 EXTEND 相位轮前馈（N·m per N·m 髋关节坐标差 τ_L−τ_R）。默认 0：
-    # 飞行镜像髋阻尼器修好后（见 vmc.py FLIGHT 分支），空中俯仰已由其吸收，
-    # 本前馈反而把倾斜转移到落地（实测 ff=-0.04：飞行 5.7→1.7° 但落地
-    # 2.4→12.5°）。机制保留供实验。
+    # 跳跃 EXTEND 相位轮前馈（N·m per N·m 髋关节坐标差 τ_L−τ_R）：预抵消蹬伸
+    # 髋反作用的俯仰下潜。默认 0：行驶中跳实测该前馈把"蹬伸前驱加速"换成
+    # "落地反向打滑"（最低 v −0.76、落地 pitch 22.8°），净收益为负——蹬伸加速
+    # 本身是确定性的，由台阶跳的触发距离标定吸收（见 test_step_jump.py）。
+    # 原地跳时它可把飞行 pitch 4.6→1.7°，保留机制供原地场景实验。
     jump_wheel_ff_scale: float = 0.0
     # yaw 积分上限（|积分| 的绝对值上限）。另有"积分只能占用输出上限里
     # 比例项没用完的余量"的条件积分（见 _compute_yaw_correction），两者取小。
@@ -205,6 +206,7 @@ class CombinedController:
         self._jump_pitch_lean: float = 0.0
         # 起跳时锁存的平衡俯仰角（rad）。跳跃全程冻结，防空中几何摆动。
         self._jump_eq_pitch: float = 0.0
+
 
         self._equilibrium_pitch: float = 0.0
         self._last_cmd_velocity: float | None = None
@@ -865,7 +867,9 @@ class CombinedController:
             control = self._allocate_balance_control(model, forward_torque, roll_torque, yaw_correction, addresses)
         return self._merge_vmc_and_clip(model, control, vmc_control, addresses, JumpPhase.STAND)
 
-    def _set_lqr_target_balance_only(self, model: Any, data: Any) -> None:
+    def _set_lqr_target_balance_only(
+        self, model: Any, data: Any, phase: JumpPhase | None = None,
+    ) -> None:
         """跳跃期间的 LQR 目标: equilibrium_pitch + 起跳前的前倾角,轮子不追速度。
 
         STAND 的 _update_lqr_target 包含 pitch_lean (从 velocity_error 推出),
@@ -875,13 +879,26 @@ class CombinedController:
         起跳瞬间锁存的**开环前倾角**（见 _handle_jump_entry）：行驶中跳跃时
         保持推进姿态，不刹车、落地不重新加速（2026-09-13 用户实测反馈）。
         原地跳跃时该值为 0，行为与旧的"纯平衡角"完全一致。
+
+        2026-09-15（行驶中跳跃不减速，用户第三轮）：**着地相位（CROUCH/EXTEND/
+        LAND）的平衡角改为按当前几何逐步重算**，不再用起跳瞬间的冻结值。
+        冻结值的本意是防"空中重算的平衡角 0~5° 摆动被 LQR 追着打轮"——但空中
+        本来就不走这条路径（FLIGHT 直接返回 VMC 输出），真正被误伤的是着地相位：
+        蹲下 0.05 m 和落地收腿 0.11 m 都会把"质心在轮轴正上方"对应的平衡角
+        改变 1~2°，冻结目标于是把这个纯几何量当成失稳误差，用轮子去"纠"——
+        而前平衡车纠俯仰只能靠水平加减速，等于跳一次刹一次。
+        实测（0.8 m/s，crouch 0.15 / land 0.15）：2 s 位移保持 78% → **81%**，
+        速度最低点 +0.14 → +0.18 m/s，落地 pitch 最低 -14.1° → -12.4°。
+        原地跳/坡道/站立/转向/行驶/综合全量回归与改前一致。
         """
         if self._lqr_controller is None:
             return
-        # 平衡角用跳跃中冻结的值（_handle_jump_entry 锁存），不逐步重算：
-        # 空中/落地时腿部几何随膝位保持和缓冲变化，逐步重算的"平衡角"在
-        # 0~5° 间摆动，LQR 追着摆动目标打轮会把行驶中的车拽减速。
-        self._lqr_controller.target[0] = float(self._jump_eq_pitch) + float(self._jump_pitch_lean)
+        # 着地相位跟随当前几何（与 STAND 的 _update_lqr_target 同源），
+        # FLIGHT/未知相位沿用起跳瞬间锁存值。
+        eq_pitch = float(self._jump_eq_pitch)
+        if phase in JUMP_PHASES and phase != JumpPhase.FLIGHT:
+            eq_pitch = equilibrium_pitch_from_geometry(model, data)
+        self._lqr_controller.target[0] = eq_pitch + float(self._jump_pitch_lean)
         self._lqr_controller.target[1] = 0.0
         self._lqr_controller.target[2] = 0.0
         self._lqr_controller.target[3] = 0.0
@@ -917,7 +934,7 @@ class CombinedController:
         if not self.params.fixed_height:
             self._ensure_lqr_height_bin(model, data, state)
 
-        self._set_lqr_target_balance_only(model, data)
+        self._set_lqr_target_balance_only(model, data, phase)
         # 轮前馈抵消 VMC 腿共模力矩的俯仰反作用（标定增益
         # wheel_ff_gain_for_leg_common ≈ −0.043 N·m/N·m，与 _stand_control 的
         # _active_wheel_ff_gain 同源，但**不经过 params.ff_gain 开关**——那会
@@ -936,10 +953,10 @@ class CombinedController:
             vmc_control[addresses.actuators[LEG_CLOSED_LOOP["left"].hip_joint]]
             - vmc_control[addresses.actuators[LEG_CLOSED_LOOP["right"].hip_joint]]
         )
-        # 仅 EXTEND 相位施加：起跳离地的俯仰角速度在这里注入，错过就再无机会
-        # 补偿（空中轮力矩无效）。CROUCH/LAND 的髋反作用方向随吸放能翻转，
-        # 同一前馈在那些相位帮倒忙（实测全程 pitch 峰 12.8°→22.3°）。
-        if phase == JumpPhase.EXTEND:
+        # 相位门控：EXTEND 抵消起跳下潜；LAND 的髋反作用反号（吸能），比例式
+        # 前馈随之反号、同样预抵消（否则 LQR 反向打轮，行驶中跳落地倒车）。
+        # CROUCH 不施加（力矩小且收腿过程有自身节奏）。
+        if phase in (JumpPhase.EXTEND, JumpPhase.LAND):
             wheel_ff = self.params.jump_wheel_ff_scale * hip_reaction
         else:
             wheel_ff = 0.0
@@ -980,6 +997,11 @@ class CombinedController:
     def __call__(self, model: Any, data: Any, state: SimState) -> np.ndarray:
         dt = float(model.opt.timestep)
         addresses = model_addresses(model)
+        # 注：曾尝试"跳跃时动态轮偏置→0（推力垂直化）"，实测着地状态下平移
+        # 轮偏置会经腿拖拽轮子产生巨大反冲（v→−1.7 m/s），已回退。行驶中跳的
+        # 前向加速真因是 LQR 为抗蹬伸俯仰下潜而驱动轮子（前轮平衡车：抬鼻=前
+        # 驱），由 EXTEND 轮前馈（jump_wheel_ff_scale，见 _balance_only_control）
+        # 预抵消下潜，使 LQR 无需驱动轮子。
         vmc_control = self.vmc_controller(model, data, state)
 
         phase = (

@@ -73,13 +73,20 @@ class SerialLegIk:
     def clamp_height(self, h_base: float) -> float:
         return float(np.clip(h_base, self.h_min, self.h_max))
 
-    def angles_from_base_height(self, h_base: float, side: str) -> tuple[float, float]:
-        """返回 (髋角, 膝角)，单位为 URDF 关节 qpos 的单位（rad）。"""
+    def angles_from_base_height(
+        self, h_base: float, side: str, wheel_y_offset: float | None = None,
+    ) -> tuple[float, float]:
+        """返回 (髋角, 膝角)，单位为 URDF 关节 qpos 的单位（rad）。
+
+        wheel_y_offset：可选的动态轮偏置覆盖（m，+Y=前）。跳跃蹬伸时传 0
+        （轮子移到髋正下方，推力垂直化，消除水平分量导致的前向加速）。
+        None = 使用构造时的标称偏置。
+        """
         if side not in ("left", "right"):
             raise ValueError(f"unknown leg side: {side}")
         h_base = self.clamp_height(h_base)
         h_hip = h_base - 0.07  # HIP_Z_BASE = -0.07 => hip 在 base 下方
-        off = float(self.wheel_y_offset)
+        off = float(self.wheel_y_offset if wheel_y_offset is None else wheel_y_offset)
         r = float(np.hypot(off, h_hip))
         if not (abs(L2 - L1) <= r <= L1 + L2):
             raise ValueError(

@@ -16,6 +16,17 @@ from src.mujoco_mesh_preprocess import prepare_mujoco_xml
 
 CMD_SLIDER_NAMES = ("cmd_linear_x", "cmd_angular_z", "cmd_height", "cmd_jump")
 
+# 手柄满杆 / 滑条满量程对应的目标线速度（m/s，对称 ±）。
+# 这是**唯一**的"最高速度"真值源：GamepadCommandMapper.linear_range 直接读
+# cmd_linear_x 的 ctrlrange（launch_mujoco._build_gamepad_mapper），控制器本身
+# 不做额外限速（只有高度 ≥ high_height_threshold 时的降速保护）。
+CMD_LINEAR_X_MAX = 3.0
+# 轮毂电机峰值转速（RPM，实机规格，2026-09-09 由用户提供，见 test_straight_10m）。
+# 换算：v_max = RPM/60·2π·WHEEL_RADIUS = 350/60·2π·0.070 = 2.57 m/s。
+# 调高 CMD_LINEAR_X_MAX 超过这个换算值 = 实机轮子先到转速上限（仿真里没有
+# 电机转速限制，会一路跑到指令值，两者必须分开看）。
+WHEEL_MOTOR_PEAK_RPM = 350.0
+
 
 @dataclass(frozen=True)
 class SingleWheelTrapezoidTerrain:
@@ -45,6 +56,26 @@ class WavyRoadTerrain:
     seed: int = 0                 # RNG seed for per-crest height randomisation
     nrow: int = 241               # along y: ~5 mm/cell, ~70 cells per wavelength
     ncol: int = 13                # along x: ~50 mm/cell, sufficient (profile constant in x)
+
+
+@dataclass(frozen=True)
+class JumpStepTerrain:
+    """一条沿前进方向的长条台阶（低速/跳跃上台阶用）。
+
+    默认值对应"5 cm 高、1 m 宽、20 m 长"的台阶：宽度沿 y（前进方向）取 length，
+    沿 x（左右）取 width，高度 height。机身从 (0, 0) 出发朝 +Y 行驶，
+    台阶前缘在 y_start 处，所以起步阶段仍在平地上。
+
+    x_center 的由来：本机两轮实测 x = -0.011（左, link_007）与 +0.353（右,
+    link_004），轮距中心 x≈0.171。1 m 宽的台阶居中放在 0.17 处 → x ∈ [-0.33, 0.67]，
+    两侧各留 ~32 cm 余量，机器人无论怎么偏摆都还站在台阶上。
+    """
+
+    height: float = 0.05
+    width: float = 1.00           # 沿 x（左右）
+    length: float = 20.00         # 沿 y（前进方向）
+    x_center: float = 0.17        # 沿 x 的中心（本机轮距中心）
+    y_start: float = 1.00         # 台阶前缘的 y 位置（m）
 
 
 def _urdf_to_mjcf(urdf_path: Path, output_dir: Path) -> Path:
@@ -99,6 +130,7 @@ def prepare_controlled_mujoco_xml(
     terrain: str | None = None,
     terrain_side: str = "left",
     terrain_height: float = 0.02,
+    jump_step: JumpStepTerrain | None = None,
 ) -> Path:
     """Create a controlled MJCF model from the URDF simulation source.
 
@@ -128,7 +160,9 @@ def prepare_controlled_mujoco_xml(
     _make_mesh_paths_absolute(root, prepared_xml.parent)
     _ensure_world_environment(root)
     _apply_link_materials(root)
-    _ensure_test_terrain(root, terrain, terrain_side, output_root, terrain_height)
+    _ensure_test_terrain(
+        root, terrain, terrain_side, output_root, terrain_height, jump_step,
+    )
     _ensure_root_freejoint(root)
     _ensure_command_slider_joints(root)
     _configure_geom_collisions(root)
@@ -288,13 +322,37 @@ def _ensure_test_terrain(
     terrain_side: str,
     output_root: Path,
     terrain_height: float = 0.02,
+    jump_step: JumpStepTerrain | None = None,
 ) -> None:
     if terrain is None:
+        return
+    if terrain == "jump_step":
+        _add_jump_step(root, jump_step or JumpStepTerrain())
         return
     if terrain != "single_wheel_trapezoid":
         raise ValueError(f"unsupported terrain: {terrain}")
     _add_single_wheel_trapezoid(root, SingleWheelTrapezoidTerrain(side=terrain_side, height=terrain_height))
     _add_wavy_road(root, WavyRoadTerrain(), output_root)
+
+
+def _add_jump_step(root: ET.Element, config: JumpStepTerrain) -> None:
+    """沿 +Y 铺一条长条台阶（实心 box，从地面长到 config.height）。"""
+    worldbody = root.find("worldbody")
+    if worldbody is None:
+        raise ValueError("MuJoCo XML is missing <worldbody>")
+    if worldbody.find("geom[@name='jump_step_platform']") is not None:
+        return
+    if min(config.height, config.width, config.length) <= 0.0:
+        raise ValueError("jump step dimensions must be positive")
+    _terrain_box(
+        worldbody,
+        name="jump_step_platform",
+        size=(0.5 * float(config.width), 0.5 * float(config.length),
+              0.5 * float(config.height)),
+        pos=(float(config.x_center),
+             float(config.y_start) + 0.5 * float(config.length),
+             0.5 * float(config.height)),
+    )
 
 
 def _add_single_wheel_trapezoid(root: ET.Element, config: SingleWheelTrapezoidTerrain) -> None:
@@ -701,16 +759,26 @@ def _replace_actuators(root: ET.Element) -> None:
     # 2026-05-18: lower bound comes from the viewer-low posture used by
     # the side-specific closed-chain LUT. Upper bound remains 0.142 because the
     # current 2.2 kg tune oscillates above it; restoring 0.148 needs retuning.
-    # cmd 范围 = 已验证的安全包线（2026-09-11 更新）：
-    #   线速度 ±0.8 m/s（旧 ±0.5）。pitch_lean_gain=0.35 + max_linear_accel=2.5
-    #   之后实测：0.5/0.8/1.0 m/s 三档跟踪 rms ≤0.019、无摔倒，
-    #   0.8 m/s 直行与 0.8 m/s + 0.6 rad/s 复合在 0.37/0.42 m 站高下均通过；
-    #   1.0 m/s 仍稳定但留 20% 余量，滑块上限取 0.8。
+    # cmd 范围 = 已验证的安全包线（2026-09-11 更新，2026-09-15 提高线速度上限）：
+    #   线速度 ±CMD_LINEAR_X_MAX（2026-09-11 曾是 ±0.8，用户要求提到 3.0）。
+    #   pitch_lean_gain=0.35 + max_linear_accel=2.5 的实测跟踪（无头，平地）：
+    #     cmd 0.8 → 稳态 0.80；1.5 → 1.50；2.0 → 2.00；2.5 → 2.50；3.0 → 3.00，
+    #     跟踪误差全为 0.0%（跑满 10 s）、轮力矩峰 1.4~1.5/9 N·m（远未饱和）、
+    #     |pitch|max 10~16°、无摔倒；松杆刹停 0.8 m/s→0.41 m/0.82 s，
+    #     3.0 m/s→3.50 m/2.12 s。
+    #   **实机天花板**：轮毂电机峰值 WHEEL_MOTOR_PEAK_RPM=350 rpm 对应
+    #     2.57 m/s（0.07 m 滚动半径），此时 3 m/s 需要 409 rpm，
+    #     即"仿真能跑 3 m/s ≠ 实机能跑 3 m/s"。实机上限请按上式核算。
     #   转向 ±0.6 rad/s（旧 ±0.3）。yaw_ki=6 消掉稳态速差后，0.6 rad/s 指令
     #   实测稳态 0.598，原地与行进中都稳定。
     #   高度 h_base 可操作上限 0.42（120s 长时间站立验证：0.42 稳定、
     #   0.45 慢发散；0.45+ 留待任务空间力控专项）
-    for name, ctrlrange in zip(CMD_SLIDER_NAMES, ("-0.8 0.8", "-0.6 0.6", "0.31 0.42", "0 1")):
+    #   注意：站高 ≥ CombinedParams.high_height_threshold(0.45 m) 时控制器会把
+    #   指令砍到 high_height_velocity_limit(0.3 m/s)——跑高速请保持低站高（≤0.42）。
+    for name, ctrlrange in zip(
+        CMD_SLIDER_NAMES,
+        (f"{-CMD_LINEAR_X_MAX} {CMD_LINEAR_X_MAX}", "-0.6 0.6", "0.31 0.42", "0 1"),
+    ):
         ET.SubElement(
             actuator,
             "motor",

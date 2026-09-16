@@ -37,7 +37,11 @@ from src.controllers.jump_trajectory import JumpTrajectory, JumpTrajectoryParams
 from src.controllers.vmc import LEG_CLOSED_LOOP, VmcController
 from src.gamepad import GamepadCommandMapper, GamepadDevice, XboxState, open_gamepad
 from src.model_semantics import MODEL_SEMANTICS
-from src.mjcf_builder import CMD_SLIDER_NAMES, prepare_controlled_mujoco_xml
+from src.mjcf_builder import (
+    CMD_SLIDER_NAMES,
+    JumpStepTerrain,
+    prepare_controlled_mujoco_xml,
+)
 from src.mujoco_mesh_preprocess import prepare_mujoco_xml
 from src.rollout import Controller, _clip_control, zero_controller
 from src.state import actuator_id, extract_sim_state, model_addresses
@@ -62,13 +66,37 @@ MANUAL_JUMP_PHASE_PARAMS = JumpPhaseParams(
     flight_timeout=0.60,
 )
 MANUAL_JUMP_TRAJECTORY_PARAMS = JumpTrajectoryParams(
-    crouch_duration=0.25,
-    land_duration=0.20,
+    # ===== 2026-09-15 行驶中跳跃不减速（用户第四轮：高速下落倒滑）=====
+    # 用户 2.5 m/s 手柄实测（run_20260915_202101）：落地机体后仰到 **-48°**，
+    # 平衡环倒拉轮子把车刹停并**反向运动** -0.4~-1.1 m/s，2 s 行程只剩 18~34%。
+    #
+    # 遥测 + 无头复现定位到一条单调的因果链（各量均为 2.5 m/s 行驶跳实测）：
+    #   起跳前 pitch +1.6° → 蹲末 → 蹬末 → 落地瞬时 pitch → 质心落后轮轴的距离
+    #   → 落地冲击的角冲量 → 平衡环刹车量（= 速度损失）
+    # 实测四个速度档的"落地质心-轮轴偏移"：0.8 m/s 62 mm / 1.5 100 mm /
+    # 2.0 127 mm / 2.5 **154 mm**，落地俯仰最低点同步从 -12° 恶化到 -43°。
+    # 所以**着地相位（CROUCH/EXTEND）越短、机体在着地状态下累积的后仰越少**，
+    # 是唯一能同时改善所有速度档的杠杆。
+    #
+    # 定参过程（无头，2 s 位移保持率 / 速度最低点 / 原地弹道 / EXTEND 腿力矩峰）：
+    #   crouch 0.25(原)+land 0.20   : 0.8 m/s 82% / +0.20 ；2.5 m/s **49% / +0.20** / -42.9°
+    #   crouch 0.15 + land 0.15     : 同上（该速度档几乎无变化）
+    #   crouch 0.08 + land 0.15     : 0.8 m/s 90% ；2.5 m/s 83% / +1.38 / -20.6°
+    # 但 crouch 0.08 会把"原地满幅跳"的 EXTEND 膝力矩顶到 60 N·m 饱和
+    # （蹲得快 → 蹬伸前预载大 → 弹道从 120 抬到 133 mm，力矩一起吃满）。
+    # 把**蹲深 0.05→0.03、伸腿行程 0.16→0.14**（h_high 仍是 0.48，弹道不变）
+    # 之后力矩回到 58.1 N·m，同时速度保持反而再涨 1 个点：
+    #   **crouch 0.08 / 蹲深 0.03 / 行程 0.14 / land 0.15**（当前值）
+    #     0.8 m/s：91%（v_min +0.36）  2.5 m/s：**84%（v_min +1.43，不再倒滑）**
+    #     原地弹道 133.0 mm（原 119.9）、EXTEND 力矩峰 58.1 N·m（未饱和）
+    # land 取 0.15 而非 0.10：速度保持只差 1~2%，但 LAND 腿力矩峰从 60 降到 38 N·m。
+    crouch_depth=0.03,
+    extend_stroke=0.14,
+    crouch_duration=0.08,
+    land_duration=0.15,
     # 行程 / 空中高度 / 站高区间都按本机（串联双轮腿）重标过，理由与上限推导见
     # `jump_trajectory.JumpTrajectoryParams` 的注释。这里只保留"手动触发"覆盖：
-    # CROUCH 拉满 50 mm、EXTEND 用满 0.32→0.48 区间、空中目标 8 cm。
-    crouch_depth=0.05,
-    extend_stroke=0.16,
+    # CROUCH/EXTEND 见上方 2026-09-15 注释（蹲深 0.03、行程 0.14、h_high 仍为 0.48）。
     # air_height_max 是 trajectory 里的目标弹道高度（cmd_jump=1.0 时），不是实测高度；
     # 本机实测弹道增益约 0.4（v_target 是腿高变化率，质心只跟约 2/3）。
     # 0.15 → 实测质心弹道升高 60.9 mm、EXTEND 腿力矩峰 36 N·m、落地不摔。
@@ -119,7 +147,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
       --mode viewer / controlled：只看模型，还是带控制器实时仿真；
       --controller zero / vmc / lqr_vmc / combined：用哪个控制器；
       --scenario stand / jump / drive / fall_recover：机器人执行哪种动作场景；
-      --flat-ground：关掉默认的单轮梯形坡，使用平地；
+      --terrain ramp / step / none：场景地形。ramp = 默认单轮梯形坡；
+            step = 一条长条台阶（默认 5 cm 高 × 1 m 宽 × 20 m 长，前缘在 y=1 m，
+            用 --step-height / --step-width / --step-length / --step-y-start /
+            --step-x-center 调）；none = 平地。加 --flat-ground 等价于 none；
       --enable-gamepad / --no-enable-gamepad：是否启用手柄。
     其余不填也都有默认值，直接运行即可。
     """
@@ -169,6 +200,28 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="Disable the default single-wheel trapezoid ramp in controlled mode.",
     )
     parser.add_argument(
+        "--terrain",
+        choices=("ramp", "step", "none"),
+        default=None,
+        help=(
+            "Controlled-mode terrain: ramp = default single-wheel trapezoid, "
+            "step = long flat step along +Y (see --step-*), none = flat ground. "
+            "Default: ramp, or none when --flat-ground is given."
+        ),
+    )
+    parser.add_argument("--step-height", type=float, default=0.05,
+                        help="Step height in metres (default 0.05 = 5 cm).")
+    parser.add_argument("--step-width", type=float, default=1.00,
+                        help="Step width along x/lateral in metres (default 1.0).")
+    parser.add_argument("--step-length", type=float, default=20.0,
+                        help="Step length along y/forward in metres (default 20.0).")
+    parser.add_argument("--step-y-start", type=float, default=1.00,
+                        help="y position of the step's leading edge in metres "
+                             "(default 1.0, so the robot starts on flat ground).")
+    parser.add_argument("--step-x-center", type=float, default=0.17,
+                        help="x centre of the step in metres (default 0.17 = the "
+                             "measured wheel-track centre -0.011~0.353).")
+    parser.add_argument(
         "--terrain-side",
         choices=("left", "right"),
         default="left",
@@ -200,6 +253,7 @@ def build_controlled_model(
     terrain: str | None = "single_wheel_trapezoid",
     terrain_side: str = "left",
     terrain_height: float = 0.02,
+    jump_step: Any = None,
 ) -> tuple[Any, Any]:
     """生成带控制器的 MuJoCo 模型，并把它放到初始站立姿态。
 
@@ -217,6 +271,7 @@ def build_controlled_model(
         terrain=terrain,
         terrain_side=terrain_side,
         terrain_height=terrain_height,
+        jump_step=jump_step,
     )
     model = mujoco.MjModel.from_xml_path(str(prepared_xml))
     data = mujoco.MjData(model)
@@ -938,14 +993,27 @@ def main() -> None:
         return
 
     # controlled 模式：真正加入控制器。默认地形是“单轮梯形坡”，
-    # 加 --flat-ground 则换成平地。
-    terrain = None if args.flat_ground else "single_wheel_trapezoid"
+    # 加 --flat-ground 则换成平地，--terrain step 换成"5 cm 台阶"（见 --step-*）。
+    if args.terrain == "none" or args.flat_ground:
+        terrain = None
+    elif args.terrain == "step":
+        terrain = "jump_step"
+    else:
+        terrain = "single_wheel_trapezoid"
+    jump_step = JumpStepTerrain(
+        height=args.step_height,
+        width=args.step_width,
+        length=args.step_length,
+        x_center=args.step_x_center,
+        y_start=args.step_y_start,
+    )
     model, data = build_controlled_model(
         args.xml,
         cache_dir=args.cache_dir,
         terrain=terrain,
         terrain_side=args.terrain_side,
         terrain_height=args.terrain_height,
+        jump_step=jump_step,
     )
     apply_controlled_scenario_initial_state(model, data, args.scenario)
     controller = create_controlled_controller(args.controller, args.scenario)
