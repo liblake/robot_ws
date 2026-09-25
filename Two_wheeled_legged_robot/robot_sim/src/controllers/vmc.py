@@ -78,6 +78,10 @@ class VmcParams:
     # 0 = 旧行为（膝力矩 0，腿靠惯性保持）。
     flight_knee_kp: float = 80.0
     flight_knee_kd: float = 3.0
+    # 空中姿态驱动方式。True（默认）= 左右髋给反号关节力矩（世界系叠加，有效）。
+    # False = 复现镜像修正之前的旧行为（两侧同号，世界系力矩互相抵消，只摆腿）。
+    # 只用于论文里的 "修正前 / 后" 对照实验，正常运行保持 True。
+    flight_attitude_diff_enable: bool = True
     # 蜷腿跳（tuck）：腾空时收腿抬高轮子（轮子离地 = 质心弹道 + 收腿量），
     # 落地前重新展开。flight_tuck_height 为收腿目标腿高（h_base）。
     # 滞空 <0.25 s 的小跳跃自动退回膝锁存（时间不够完成收放）。
@@ -371,6 +375,10 @@ class VmcController:
                 # 右髋(+X 轴)取 +τ，左髋(−X 轴)取 −τ：世界系同向叠加
                 # （符号经实测确定，取反成正反馈 52.8°）
                 sign = 1.0 if geometry.side == "right" else -1.0
+                if not bool(self.params.flight_attitude_diff_enable):
+                    # 论文对照用：复现镜像修正之前的写法（两侧同号关节力矩 →
+                    # 世界系力矩互相抵消，只摆腿、不调机身姿态）。
+                    sign = 1.0
                 control[act_idx] = float(np.clip(sign * attitude_torque, lo, hi))
             return control
 

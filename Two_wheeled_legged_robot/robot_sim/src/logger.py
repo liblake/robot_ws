@@ -39,11 +39,16 @@ def _rpy_from_quaternion(q: np.ndarray) -> tuple[float, float]:
 
     使用 ZYX 内旋（航空）顺序。pitch 已在 SimState 中独立计算，此处不重复。
 
+    警告：本函数返回的 roll 是**绕本体 X 轴**的旋转。本机前进轴是 +Y、轮轴是 X，
+    所以绕 X 的旋转其实就是俯仰角，不是侧倾角。真正与 LQR 约定一致的侧倾角是
+    "绕本体 Y 轴"的旋转，存在 SimState.roll（见 src/state.py::_roll_from_quaternion）。
+    遥测里的 roll 列请直接用 state.roll，不要用本函数的返回值。
+
     Args:
         q: 四元数 [w, x, y, z]。
 
     Returns:
-        (roll, yaw) 元组。
+        (绕本体 X 轴的旋转角, yaw) 元组。
     """
     w, x, y, z = q
     # roll (x 轴旋转)
@@ -76,15 +81,33 @@ class TelemetryLogger:
             "pitch_rate",
             "wheel_pos_l", "wheel_pos_r",
             "wheel_vel_l", "wheel_vel_r",
+            "wheel_z_l", "wheel_z_r",
             "contact_count",
             "target_info",
             "control_output",
         ])
         
-    def log_step(self, time: float, state: SimState, target_info: str, control: np.ndarray) -> None:
-        """记录每帧的关键数据，包含完整 6-DOF pose。"""
+    def log_step(
+        self,
+        time: float,
+        state: SimState,
+        target_info: str,
+        control: np.ndarray,
+        wheel_z: dict[str, float] | None = None,
+    ) -> None:
+        """记录每帧的关键数据，包含完整 6-DOF pose。
+
+        wheel_z 是轮心在世界系下的 z（m），由调用方用
+        ``src.geometry.wheel_center_z`` 从 MuJoCo 模型读出后传入；不传时写空。
+        不要用 base_z 减腿高指令反推：腿高控制器有毫米级稳态误差，而越障净空
+        本身就是毫米级，反推会把控制误差直接算进结论里。
+        """
         q = state.base_quaternion
-        roll, yaw = _rpy_from_quaternion(q)
+        # 注意：roll 取 state.roll（绕本体 Y 轴的真实侧倾角），不能用
+        # _rpy_from_quaternion 的返回值——那是绕本体 X 轴的旋转，对本机来说等于俯仰，
+        # 会让遥测里 roll 与 pitch 两列变成同一个量（历史 bug，2026-09-16 修）。
+        _roll_about_x, yaw = _rpy_from_quaternion(q)
+        roll = float(state.roll)
         av = state.base_angular_velocity
         row = [
             f"{time:.4f}",
@@ -96,6 +119,8 @@ class TelemetryLogger:
             f"{state.pitch_rate:.4f}",
             f"{state.wheel_positions.get('left', 0.0):.4f}", f"{state.wheel_positions.get('right', 0.0):.4f}",
             f"{state.wheel_velocities.get('left', 0.0):.4f}", f"{state.wheel_velocities.get('right', 0.0):.4f}",
+            "" if wheel_z is None else f"{float(wheel_z['left']):.5f}",
+            "" if wheel_z is None else f"{float(wheel_z['right']):.5f}",
             str(state.contact_count),
             target_info,
             np.array2string(control, precision=3, separator=',', suppress_small=True)

@@ -22,6 +22,16 @@ gamepad = [
     "pyobjc-framework-GameController>=10.0",
 ]
 
+# 论文插图与数据汇总（paper/ 目录下的脚本）。
+# 不装也能跑仿真与控制器，只有生成图 4~6 时需要。
+# 注意：`uv sync` 会按 lockfile 裁剪环境，把 matplotlib 写在这里可避免被误删；
+# 若用 uv，请再执行一次 `uv lock` 以更新 uv.lock。
+figures = [
+    "matplotlib>=3.9",
+    # 图 1/图 2 的矢量示意图（paper/figures/fig12_schematics.py）
+    "reportlab>=4.0",
+]
+
 [project.urls]
 Repository = "https://github.com/Edmounds/wheel_legged_robot_sim"
 

@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 from collections.abc import Sequence
 from copy import deepcopy
+from dataclasses import replace
 import datetime
 import os
 import sys
@@ -36,10 +37,13 @@ from src.controllers.phase import JumpPhase, JumpPhaseMachine, JumpPhaseParams
 from src.controllers.jump_trajectory import JumpTrajectory, JumpTrajectoryParams
 from src.controllers.vmc import LEG_CLOSED_LOOP, VmcController
 from src.gamepad import GamepadCommandMapper, GamepadDevice, XboxState, open_gamepad
+from src.geometry import wheel_center_z
 from src.model_semantics import MODEL_SEMANTICS
 from src.mjcf_builder import (
     CMD_SLIDER_NAMES,
     JumpStepTerrain,
+    SingleWheelTrapezoidTerrain,
+    WavyRoadTerrain,
     prepare_controlled_mujoco_xml,
 )
 from src.mujoco_mesh_preprocess import prepare_mujoco_xml
@@ -140,6 +144,13 @@ def ensure_dependencies() -> None:
     os.execvp("uv", uv_command)
 
 
+# 波浪路高度场分辨率：纵向 5 mm/格、横向 36.7 mm/格（与 WavyRoadTerrain 默认
+# 4.00 m × 1.20 m = 801 × 33 格一致）。改尺寸时按同样的格子大小重算 nrow/ncol——
+# 否则 40 cm 的波长被采成几格一个周期，机器人等于在走锯齿。
+_WAVY_CELL_Y = 0.005
+_WAVY_CELL_X = 0.0366666667
+
+
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     """解析命令行参数。
 
@@ -147,7 +158,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
       --mode viewer / controlled：只看模型，还是带控制器实时仿真；
       --controller zero / vmc / lqr_vmc / combined：用哪个控制器；
       --scenario stand / jump / drive / fall_recover：机器人执行哪种动作场景；
-      --terrain ramp / step / none：场景地形。ramp = 默认单轮梯形坡；
+      --terrain ramp / wavy / ramp_wavy / step / none：场景地形。
+            ramp = 只有单轮梯形坡（单腿变高度，用 --terrain-side / --terrain-height 调）；
+            wavy = 只有波浪路（地形适应，用 --wavy-* 调，默认 1.2 m 宽 × 4.0 m 长）；
+            ramp_wavy = 同一条场景里先坡后波浪路（旧 --terrain ramp 的行为）；
             step = 一条长条台阶（默认 5 cm 高 × 1 m 宽 × 20 m 长，前缘在 y=1 m，
             用 --step-height / --step-width / --step-length / --step-y-start /
             --step-x-center 调）；none = 平地。加 --flat-ground 等价于 none；
@@ -201,11 +215,14 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--terrain",
-        choices=("ramp", "step", "none"),
+        choices=("ramp", "wavy", "ramp_wavy", "step", "none"),
         default=None,
         help=(
-            "Controlled-mode terrain: ramp = default single-wheel trapezoid, "
-            "step = long flat step along +Y (see --step-*), none = flat ground. "
+            "Controlled-mode terrain: ramp = single-wheel trapezoid only "
+            "(one leg changes height, see --terrain-side / --terrain-height), "
+            "wavy = washboard road only (terrain adaptation, see --wavy-*), "
+            "ramp_wavy = both in one scene, step = long flat step along +Y "
+            "(see --step-*), none = flat ground. "
             "Default: ramp, or none when --flat-ground is given."
         ),
     )
@@ -232,18 +249,114 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         type=float,
         default=0.02,
         help=(
-            "Single-wheel trapezoid ramp height in metres (default 0.02, same as "
-            "test_slope_v2). This robot tumbles on the upstream 0.065 m ramp at every "
-            "speed; raise only after confirming the higher obstacle works."
+            "Single-wheel trapezoid ramp height in metres (default 0.02). The "
+            "0.02 / 0.04 / 0.065 m rungs are all verified at 0.30 m/s (paper table 3); "
+            "anything higher is unverified."
         ),
     )
+    parser.add_argument("--ramp-length", type=float, default=5.00,
+                        help="Total footprint of the single-wheel trapezoid along y "
+                             "(up-ramp + platform + down-ramp) in metres (default 5.0).")
+    parser.add_argument("--ramp-slope-length", type=float, default=0.50,
+                        help="Length of each inclined segment (up and down) in metres "
+                             "(default 0.50, the paper geometry). The flat platform takes "
+                             "the rest: --ramp-length - 2 * --ramp-slope-length.")
+    parser.add_argument("--ramp-y-start", type=float, default=0.22,
+                        help="y position of the trapezoid's leading edge in metres "
+                             "(default 0.22, the paper geometry).")
+    parser.add_argument("--rate-ff-scale", type=float, default=None,
+                        help="Scale of the STAND-phase joint-rate feedforward "
+                             "(vmc.stand_rate_ff_scale): 1.0 = default (on), 0.0 = off. "
+                             "Use 0.0 to reproduce the 'feedforward off' side of the "
+                             "paper's single-leg height comparison. Default: unset "
+                             "(keeps the tuned value 1.0).")
+    parser.add_argument("--wavy-width", type=float, default=1.20,
+                        help="Washboard road width along x/lateral in metres (default 1.20, "
+                             "wide enough that both wheel tracks ride the full-amplitude core).")
+    parser.add_argument("--wavy-length", type=float, default=4.00,
+                        help="Washboard road length along y/forward in metres (default 4.0 "
+                             "= 10 crests at the default 0.40 m wavelength).")
+    parser.add_argument("--wavy-y-start", type=float, default=1.00,
+                        help="y position of the washboard road's leading edge in metres "
+                             "(default 1.00, so the robot starts on flat ground).")
+    parser.add_argument("--wavy-amplitude", type=float, default=0.03,
+                        help="Washboard half peak-to-peak in metres (default 0.03 = 60 mm "
+                             "peak-to-peak before per-crest random scaling).")
+    parser.add_argument("--wavy-wavelength", type=float, default=0.40,
+                        help="Washboard crest spacing along y in metres (default 0.40; "
+                             "shorter than ~0.35 keeps a 0.07 m wheel off the crests at 1 m/s).")
+    parser.add_argument("--wavy-nrow", type=int, default=0,
+                        help="Heightfield rows along y (0 = derive from --wavy-length at "
+                             "5 mm/cell, matching the default 801-row road).")
+    parser.add_argument("--wavy-ncol", type=int, default=0,
+                        help="Heightfield columns along x (0 = derive from --wavy-width at "
+                             "36.7 mm/cell, matching the default 33-column road).")
     parser.add_argument(
         "--enable-gamepad",
         action=argparse.BooleanOptionalAction,
         default=True,
         help="Enable HID/Bluetooth gamepad input (default: enabled).",
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.ramp_slope_length <= 0.0 or args.ramp_length <= 2.0 * args.ramp_slope_length:
+        parser.error(
+            f"--ramp-length ({args.ramp_length} m) must exceed "
+            f"2 x --ramp-slope-length ({args.ramp_slope_length} m, so the flat platform "
+            "between the two slopes stays positive); lower --ramp-slope-length or raise "
+            "--ramp-length."
+        )
+    return args
+
+
+def _wavy_road_from_args(args: argparse.Namespace) -> WavyRoadTerrain:
+    """按命令行尺寸构造波浪路配置。
+
+    nrow / ncol 留 0 时按默认路面的格子大小反推，保证放大到 3 m × 10 m 后
+    每个波长仍有约 80 个采样点。不传任何 --wavy-* 时结果与 WavyRoadTerrain()
+    的默认值一致（4.0 m × 1.2 m，801 × 33）。
+    """
+    nrow = args.wavy_nrow or round(args.wavy_length / _WAVY_CELL_Y) + 1
+    ncol = args.wavy_ncol or round(args.wavy_width / _WAVY_CELL_X) + 1
+    return WavyRoadTerrain(
+        y_start=args.wavy_y_start,
+        length=args.wavy_length,
+        width=args.wavy_width,
+        amplitude=args.wavy_amplitude,
+        wavelength=args.wavy_wavelength,
+        nrow=max(2, int(nrow)),
+        ncol=max(2, int(ncol)),
+    )
+
+
+def _ramp_from_args(args: argparse.Namespace) -> SingleWheelTrapezoidTerrain:
+    """按命令行尺寸构造单轮梯形坡配置。
+
+    --ramp-length 是沿 y 的总长度（上坡 + 台面 + 下坡），上下坡斜段各占
+    --ramp-slope-length，剩下的全部是台面（当前默认 5.0 m 总长 / 0.50 m 斜段
+    → 4.0 m 台面）；想完全复现论文的 0.65 m 小坡用
+    `--ramp-length 0.65 --ramp-slope-length 0.20`（台面 0.25 m）。
+    """
+    slope = float(args.ramp_slope_length)
+    total = float(args.ramp_length)
+    if slope <= 0.0:
+        raise ValueError("--ramp-slope-length must be positive")
+    if total <= 2.0 * slope:
+        raise ValueError(
+            f"--ramp-length={total} m must exceed 2 x --ramp-slope-length={slope} m; "
+            "lower --ramp-slope-length or raise --ramp-length."
+        )
+    return SingleWheelTrapezoidTerrain(
+        side=args.terrain_side,
+        height=args.terrain_height,
+        ramp_length=slope,
+        platform_length=total - 2.0 * slope,
+        y_start=args.ramp_y_start,
+    )
+
+
+def _ramp_footprint_end(ramp: SingleWheelTrapezoidTerrain) -> float:
+    """梯形坡沿 y 的末端坐标（下坡段结束处）。"""
+    return float(ramp.y_start) + 2.0 * float(ramp.ramp_length) + float(ramp.platform_length)
 
 
 def build_controlled_model(
@@ -254,6 +367,8 @@ def build_controlled_model(
     terrain_side: str = "left",
     terrain_height: float = 0.02,
     jump_step: Any = None,
+    wavy_road: Any = None,
+    ramp: Any = None,
 ) -> tuple[Any, Any]:
     """生成带控制器的 MuJoCo 模型，并把它放到初始站立姿态。
 
@@ -272,6 +387,8 @@ def build_controlled_model(
         terrain_side=terrain_side,
         terrain_height=terrain_height,
         jump_step=jump_step,
+        wavy_road=wavy_road,
+        ramp=ramp,
     )
     model = mujoco.MjModel.from_xml_path(str(prepared_xml))
     data = mujoco.MjData(model)
@@ -303,7 +420,12 @@ def _initialize_cmd_sliders(model: Any, data: Any) -> None:
             data.ctrl[act_id] = float(np.clip(value, low, high))
 
 
-def create_controlled_controller(controller_name: str, scenario: str) -> Controller:
+def create_controlled_controller(
+    controller_name: str,
+    scenario: str,
+    *,
+    stand_rate_ff_scale: float | None = None,
+) -> Controller:
     """根据名字创建控制器，并按场景准备好跳跃相位机。
 
     - zero：什么也不做，输出零控制量（方便对照）；
@@ -311,12 +433,18 @@ def create_controlled_controller(controller_name: str, scenario: str) -> Control
     - lqr_vmc / combined：LQR 上层 + VMC 腿控的组合控制器。
 
     若场景是 jump，则启动时就立即触发一次完整跳跃。
+
+    stand_rate_ff_scale 给定时覆盖 STAND 相位的目标关节角速度前馈缩放
+    （VmcParams.stand_rate_ff_scale）：1.0 = 默认（前馈开），0.0 = 前馈关，
+    用来复现论文 4.3 节"单腿变高度"的前馈对照实验。
     """
     if controller_name == "zero":
         return zero_controller
 
     params = deepcopy(STAND_PARAMS)
     params.vmc.max_height_rate = 100.0
+    if stand_rate_ff_scale is not None:
+        params.vmc.stand_rate_ff_scale = float(stand_rate_ff_scale)
 
     phase_machine = JumpPhaseMachine(MANUAL_JUMP_PHASE_PARAMS)
     if scenario == "jump":
@@ -579,7 +707,13 @@ def step_controlled_model(
     clipped_control = _clip_control(model, control)
     t_log0 = time.perf_counter()
     if telemetry_logger is not None:
-        telemetry_logger.log_step(data.time, state, target_info, clipped_control)
+        # 轮心世界高度直接读 MuJoCo 的 xpos（mj_step 已更新），比用机身高度
+        # 反推可靠：越障净空是毫米级的，任何反推误差都会改变结论。
+        wheel_z = {
+            side: wheel_center_z(model, data, geometry.wheel_body)
+            for side, geometry in LEG_CLOSED_LOOP.items()
+        }
+        telemetry_logger.log_step(data.time, state, target_info, clipped_control, wheel_z)
     t_log1 = time.perf_counter()
 
     if not np.all(np.isfinite(control)) or not np.all(np.isfinite(clipped_control)):
@@ -883,6 +1017,9 @@ def run_controlled_viewer_loop(
                 nominal_height = getattr(vmc, "nominal_height", None)
                 if nominal_height is not None:
                     target_info += f",h={nominal_height:.3f}"
+                rate_ff = getattr(vmc, "stand_rate_ff_scale", None)
+                if rate_ff is not None:
+                    target_info += f",ff={float(rate_ff):.2f}"
                 phase_machine = getattr(getattr(controller, "vmc_controller", controller), "phase_machine", None)
                 if phase_machine is not None:
                     target_info += f",phase={phase_machine.phase.value}"
@@ -993,13 +1130,19 @@ def main() -> None:
         return
 
     # controlled 模式：真正加入控制器。默认地形是“单轮梯形坡”，
-    # 加 --flat-ground 则换成平地，--terrain step 换成"5 cm 台阶"（见 --step-*）。
+    # 加 --flat-ground 则换成平地，--terrain step 换成"5 cm 台阶"（见 --step-*），
+    # --terrain wavy 换成"只有波浪路"（见 --wavy-*）。
+    # 注意：--terrain ramp 现在只叠加梯形坡；原来的"坡 + 波浪路"改名叫 ramp_wavy。
     if args.terrain == "none" or args.flat_ground:
         terrain = None
     elif args.terrain == "step":
         terrain = "jump_step"
+    elif args.terrain == "wavy":
+        terrain = "wavy"
+    elif args.terrain == "ramp_wavy":
+        terrain = "ramp_wavy"
     else:
-        terrain = "single_wheel_trapezoid"
+        terrain = "ramp"
     jump_step = JumpStepTerrain(
         height=args.step_height,
         width=args.step_width,
@@ -1007,6 +1150,34 @@ def main() -> None:
         x_center=args.step_x_center,
         y_start=args.step_y_start,
     )
+    ramp = _ramp_from_args(args)
+    wavy_road = _wavy_road_from_args(args)
+    if terrain in ("ramp", "ramp_wavy"):
+        system_logger.info(
+            "Single-wheel trapezoid: side=%s height=%.3f m total=%.2f m "
+            "(slope %.2f m + platform %.2f m + slope %.2f m) y=[%.2f, %.2f]",
+            ramp.side, ramp.height, 2.0 * ramp.ramp_length + ramp.platform_length,
+            ramp.ramp_length, ramp.platform_length, ramp.ramp_length,
+            ramp.y_start, _ramp_footprint_end(ramp),
+        )
+    # ramp_wavy：坡加长之后波浪路可能被压在台面里，这里把它顺延到坡后，
+    # 中间留 0.5 m 平地，避免两个地形在几何上叠在一起。
+    if terrain == "ramp_wavy":
+        ramp_end = _ramp_footprint_end(ramp)
+        if wavy_road.y_start < ramp_end + 0.5:
+            shifted = max(ramp_end + 0.5, wavy_road.y_start)
+            system_logger.info(
+                "Wavy road shifted from y=%.2f to y=%.2f to clear the trapezoid (ends y=%.2f)",
+                wavy_road.y_start, shifted, ramp_end,
+            )
+            wavy_road = replace(wavy_road, y_start=shifted)
+    if terrain in ("wavy", "ramp_wavy"):
+        system_logger.info(
+            "Wavy road: width=%.2f m length=%.2f m y_start=%.2f amplitude=%.3f m "
+            "wavelength=%.3f m grid=%dx%d",
+            wavy_road.width, wavy_road.length, wavy_road.y_start,
+            wavy_road.amplitude, wavy_road.wavelength, wavy_road.nrow, wavy_road.ncol,
+        )
     model, data = build_controlled_model(
         args.xml,
         cache_dir=args.cache_dir,
@@ -1014,9 +1185,21 @@ def main() -> None:
         terrain_side=args.terrain_side,
         terrain_height=args.terrain_height,
         jump_step=jump_step,
+        wavy_road=wavy_road,
+        ramp=ramp,
     )
     apply_controlled_scenario_initial_state(model, data, args.scenario)
-    controller = create_controlled_controller(args.controller, args.scenario)
+    controller = create_controlled_controller(
+        args.controller, args.scenario, stand_rate_ff_scale=args.rate_ff_scale
+    )
+    ff_scale = getattr(getattr(controller, "params", None), "vmc", None)
+    ff_scale = getattr(ff_scale, "stand_rate_ff_scale", None)
+    if ff_scale is not None:
+        system_logger.info(
+            "Joint-rate feedforward scale (vmc.stand_rate_ff_scale): %.2f%s",
+            float(ff_scale),
+            "" if args.rate_ff_scale is not None else " (default, --rate-ff-scale unset)",
+        )
 
     if isinstance(controller, CombinedController):
         height_act = actuator_id(model, "cmd_height")
@@ -1064,6 +1247,7 @@ def main() -> None:
                             target_info = f"v={controller.params.target_velocity:.2f}"
                             if hasattr(controller.params, 'vmc') and hasattr(controller.params.vmc, 'nominal_height'):
                                 target_info += f",h={controller.params.vmc.nominal_height:.3f}"
+                                target_info += f",ff={float(controller.params.vmc.stand_rate_ff_scale):.2f}"
                             phase_machine = controller.vmc_controller.phase_machine
                             if phase_machine is not None:
                                 target_info += f",phase={phase_machine.phase.value}"

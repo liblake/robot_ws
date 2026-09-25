@@ -43,19 +43,36 @@ class SingleWheelTrapezoidTerrain:
 
 @dataclass(frozen=True)
 class WavyRoadTerrain:
-    """Washboard road along y (forward): sinusoid with per-crest random height, constant across x."""
+    """Washboard road along y (forward): sinusoid with per-crest random height, constant across x.
 
-    y_start: float = 1.05
-    length: float = 1.20          # along y (forward direction)
-    width: float = 0.44           # along x (lateral)，覆盖本机轮距 0.01~0.39
-    x_center: float = 0.20        # 路面沿 x 的中心（本机轮距中心）
+    尺寸按本机几何定（2026-09-21 重标定，见 paper/figures/fig_wavy_speed.py）：
+
+    * `width` / `x_center`：本机两轮实测轮心 x = -0.011（左, link_007）与 +0.353（右,
+      link_004），轮半径 0.07 m、轮宽 0.08 m，所以两条轮迹覆盖 x ∈ [-0.051, 0.393]。
+      路面两侧各有 `0.10 * width` 的横向淡出带（避免侧边垂直切面），宽度必须让两条
+      轮迹都落在"全幅"核心里：核心 = x_center ± 0.4 * width。旧值 width=0.44 /
+      x_center=0.20 时核心只有 [0.02, 0.38]，**左轮整个骑在淡出带上、几乎走平地**，
+      左右轮不再同相，测出来的侧倾是几何 bug 而不是地形响应。
+    * `base_depth`：波谷离地面的高度。默认 1 mm ≈ 波谷贴地，进出路面基本连续；
+      取大值会在路面首尾留一个垂直台阶（旧值 0.02 会在入口打一个 2 cm 冲击）。
+      MuJoCo 要求 hfield 的 base_z 严格为正，所以这里不能取 0。
+    * `length` / `wavelength`：0.40 m 波长 / 4.0 m 长度 = 10 个完整波（首尾各 0.72 m
+      淡入淡出）。波长 0.35→0.40 m 是按轮半径 0.07 m 选的：轮在波峰处跟随所需向心
+      加速度 v²/R_c（R_c ≈ λ²/4π²a）在 1.0 m/s 时约 7 m/s² < g，轮子还贴地；
+      λ=0.35 m 时约 9.6 m/s² ≈ g，波峰处已经开始离地。
+    """
+
+    y_start: float = 1.00
+    length: float = 4.00          # along y (forward direction)
+    width: float = 1.20           # along x (lateral)，核心区覆盖本机两条轮迹
+    x_center: float = 0.17        # 路面沿 x 的中心（本机轮距中心）
     amplitude: float = 0.03       # half peak-to-peak; max peak-to-peak = 60 mm before random scaling
-    wavelength: float = 0.35      # along y
-    base_depth: float = 0.02
-    height_min_scale: float = 0.6  # each crest height ~ uniform[min_scale, 1] * 2*amplitude (>= old 36 mm)
+    wavelength: float = 0.40      # along y
+    base_depth: float = 0.001      # 波谷贴地（MuJoCo hfield 要求 base_z > 0）
+    height_min_scale: float = 0.6  # each crest height ~ uniform[min_scale, 1] * 2*amplitude (>= 36 mm)
     seed: int = 0                 # RNG seed for per-crest height randomisation
-    nrow: int = 241               # along y: ~5 mm/cell, ~70 cells per wavelength
-    ncol: int = 13                # along x: ~50 mm/cell, sufficient (profile constant in x)
+    nrow: int = 801               # along y: 5 mm/cell, 80 cells per wavelength
+    ncol: int = 33                # along x: ~37 mm/cell, sufficient (profile constant in x)
 
 
 @dataclass(frozen=True)
@@ -131,6 +148,8 @@ def prepare_controlled_mujoco_xml(
     terrain_side: str = "left",
     terrain_height: float = 0.02,
     jump_step: JumpStepTerrain | None = None,
+    wavy_road: WavyRoadTerrain | None = None,
+    ramp: SingleWheelTrapezoidTerrain | None = None,
 ) -> Path:
     """Create a controlled MJCF model from the URDF simulation source.
 
@@ -161,7 +180,8 @@ def prepare_controlled_mujoco_xml(
     _ensure_world_environment(root)
     _apply_link_materials(root)
     _ensure_test_terrain(
-        root, terrain, terrain_side, output_root, terrain_height, jump_step,
+        root, terrain, terrain_side, output_root, terrain_height, jump_step, wavy_road,
+        ramp,
     )
     _ensure_root_freejoint(root)
     _ensure_command_slider_joints(root)
@@ -236,7 +256,7 @@ def _ensure_world_environment(root: ET.Element) -> None:
     if visual is None:
         visual = ET.SubElement(root, "visual")
     if visual.find("headlight") is None:
-        ET.SubElement(visual, "headlight", {"ambient": ".1 .1 .1", "diffuse": ".6 .6 .6", "specular": ".3 .3 .3"})
+        ET.SubElement(visual, "headlight", {"ambient": ".1 .1 .1", "diffuse": ".9 .9 .9", "specular": ".3 .3 .3"})
     if visual.find("rgba") is None:
         ET.SubElement(visual, "rgba", {"haze": ".15 .25 .35 1"})
     if visual.find("global") is None:
@@ -316,6 +336,11 @@ def _apply_link_materials(root: ET.Element) -> None:
                 break
 
 
+# 地形名称注册表（配合 _ensure_test_terrain 使用）。
+_TERRAIN_RAMP = frozenset({"single_wheel_trapezoid", "ramp", "ramp_wavy"})
+_TERRAIN_WAVY = frozenset({"single_wheel_trapezoid", "wavy", "ramp_wavy"})
+
+
 def _ensure_test_terrain(
     root: ET.Element,
     terrain: str | None,
@@ -323,16 +348,33 @@ def _ensure_test_terrain(
     output_root: Path,
     terrain_height: float = 0.02,
     jump_step: JumpStepTerrain | None = None,
+    wavy_road: WavyRoadTerrain | None = None,
+    ramp: SingleWheelTrapezoidTerrain | None = None,
 ) -> None:
-    if terrain is None:
+    # 地形名称注册表：决定"要不要叠加单轮梯形坡 / 波浪路"。
+    #   single_wheel_trapezoid = 梯形坡 + 波浪路（历史默认，行为不变）
+    #   ramp      = 只有单轮梯形坡
+    #   wavy      = 只有波浪路（论文要单独跑波浪路时用这个）
+    #   ramp_wavy = 梯形坡 + 波浪路（与 single_wheel_trapezoid 等价）
+    #   jump_step = 长条台阶
+    #   None / "none" / "flat" = 平地
+    if terrain in (None, "none", "flat"):
         return
     if terrain == "jump_step":
         _add_jump_step(root, jump_step or JumpStepTerrain())
         return
-    if terrain != "single_wheel_trapezoid":
-        raise ValueError(f"unsupported terrain: {terrain}")
-    _add_single_wheel_trapezoid(root, SingleWheelTrapezoidTerrain(side=terrain_side, height=terrain_height))
-    _add_wavy_road(root, WavyRoadTerrain(), output_root)
+    if terrain not in _TERRAIN_RAMP | _TERRAIN_WAVY:
+        raise ValueError(
+            f"unsupported terrain: {terrain!r}; expected one of "
+            "'ramp', 'wavy', 'ramp_wavy', 'single_wheel_trapezoid', 'jump_step', 'flat', or None"
+        )
+    if terrain in _TERRAIN_RAMP:
+        _add_single_wheel_trapezoid(
+            root,
+            ramp or SingleWheelTrapezoidTerrain(side=terrain_side, height=terrain_height),
+        )
+    if terrain in _TERRAIN_WAVY:
+        _add_wavy_road(root, wavy_road or WavyRoadTerrain(), output_root)
 
 
 def _add_jump_step(root: ET.Element, config: JumpStepTerrain) -> None:
@@ -440,8 +482,13 @@ def _add_wavy_road(root: ET.Element, config: WavyRoadTerrain, output_root: Path)
     if worldbody.find("geom[@name='wavy_road']") is not None:
         return
 
-    if min(config.length, config.width, config.amplitude, config.wavelength, config.base_depth) <= 0.0:
+    if min(config.length, config.width, config.amplitude, config.wavelength) <= 0.0:
         raise ValueError("wavy road terrain dimensions must be positive")
+    if config.base_depth <= 0.0:
+        raise ValueError(
+            "wavy road base_depth must be > 0: MuJoCo rejects an hfield with base_z = 0 "
+            "(use 0.001 for troughs essentially on the floor)"
+        )
     if config.nrow < 2 or config.ncol < 2:
         raise ValueError("wavy road heightfield resolution must be at least 2x2")
 
@@ -489,7 +536,42 @@ def _add_wavy_road(root: ET.Element, config: WavyRoadTerrain, output_root: Path)
     )
 
 
+def wavy_road_profile(config: WavyRoadTerrain, column: int | None = None) -> tuple[np.ndarray, np.ndarray]:
+    """波浪路的纵剖面：返回 (y 世界坐标, 路面高度 z)，都按高度场的采样点给。
+
+    路面沿 x 是常数（横向只有两端的淡出带），所以任取一列都行；
+    `column=None` 取中间列。出图、核对几何（入口台阶/波峰高度）都用它。
+    """
+    heights = _wavy_road_heights(config)
+    col = config.ncol // 2 if column is None else int(column)
+    # 行 i 对应世界坐标 y = y_start + i * length/(nrow-1) = 高度场中心 + y_sym[i]
+    y = np.linspace(-0.5 * config.length, 0.5 * config.length, config.nrow)
+    y = y + (config.y_start + 0.5 * config.length)
+    z = config.base_depth + heights[:, col] * (2.0 * config.amplitude)
+    return y, z
+
+
 def _wavy_road_heightmap(config: WavyRoadTerrain) -> np.ndarray:
+    """写给 MuJoCo 的高度场图片（0..255）。
+
+    **MuJoCo 会把高度场图片上下翻转**（图片第 0 行 → 高度场最后一行；列方向不翻），
+    所以这里对按 y 排布的剖面做一次 `flipud`，否则仿真里跑出来的是 y 方向镜像的
+    路面（这个坑 2026-09-21 出图核对时才发现：用射线量出来的路面高度与
+    `wavy_road_profile()` 对不上，RMS 差 30 mm）。
+    """
+    return np.flipud(_wavy_road_heightmap_from_profile(config))
+
+
+def _wavy_road_heights(config: WavyRoadTerrain) -> np.ndarray:
+    """仿真里真实的路面高度（0..1）：行 i 对应世界坐标 y = y_start + i * length/(nrow-1)。
+
+    因为 MuJoCo 会翻转图片行，`_wavy_road_heightmap()` 写的图片要再翻一次才等于这里的值。
+    """
+    return _wavy_road_heightmap_from_profile(config).astype(float) / 255.0
+
+
+def _wavy_road_heightmap_from_profile(config: WavyRoadTerrain) -> np.ndarray:
+    """按 y 排布的高度场图片（0..255）：行 i 对应 y_sym[i]（**这是图片内部的顺序**）。"""
     y = np.linspace(-0.5 * config.length, 0.5 * config.length, config.nrow)
     x = np.linspace(-0.5 * config.width, 0.5 * config.width, config.ncol)
 
