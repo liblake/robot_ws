@@ -1,0 +1,39 @@
+{
+  "duration": 6.0,
+  "max_abs_pitch_deg": 2.658,
+  "max_abs_roll_deg": 0.0,
+  "roll_p2p_deg": 0.0,
+  "min_base_z": 0.43906,
+  "fell": false,
+  "airborne_fraction": 0.0003333333333333333,
+  "leg_torque_peak": 25.633,
+  "wheel_torque_peak": 1.23,
+  "x_drift_m": 0.0,
+  "y_drift_m": -8e-05,
+  "windows": {
+    "steady": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 1.781,
+      "v_mean": 0.0004529788084766094,
+      "v_min": -0.0023,
+      "speed_rms_error": 0.0008616049296389203,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.429
+    }
+  },
+  "name": "pad_static_10mm",
+  "group": "terrain",
+  "desc": "静态单轮垫高 10 mm：左轮骑垫、右轮在平地，检验找平",
+  "terrain": "ramp",
+  "terrain_kwargs": {
+    "terrain_side": "left",
+    "terrain_height": "0.01"
+  },
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 1.92,
+  "realtime_factor": 3.13,
+  "truncated": false
+}

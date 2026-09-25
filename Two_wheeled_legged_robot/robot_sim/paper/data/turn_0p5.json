@@ -1,0 +1,45 @@
+{
+  "duration": 12.0,
+  "max_abs_pitch_deg": 4.06,
+  "max_abs_roll_deg": 0.145,
+  "roll_p2p_deg": 0.267,
+  "min_base_z": 0.43888,
+  "fell": false,
+  "airborne_fraction": 0.0008331944675887352,
+  "leg_torque_peak": 25.633,
+  "wheel_torque_peak": 4.563,
+  "x_drift_m": -0.04161,
+  "y_drift_m": -0.01109,
+  "windows": {
+    "turn_pos": {
+      "roll_p2p_deg": 0.15999999999999998,
+      "max_abs_roll_deg": 0.145,
+      "max_abs_pitch_deg": 2.303,
+      "v_mean": 0.009390073284477015,
+      "v_min": -0.0236,
+      "speed_rms_error": 0.015862619945193467,
+      "airborne_fraction": 0.0006662225183211193,
+      "leg_torque_peak": 22.321
+    },
+    "turn_neg": {
+      "roll_p2p_deg": 0.13599999999999998,
+      "max_abs_roll_deg": 0.118,
+      "max_abs_pitch_deg": 1.911,
+      "v_mean": -0.004023917388407728,
+      "v_min": -0.0381,
+      "speed_rms_error": 0.013459045634581135,
+      "airborne_fraction": 0.0006662225183211193,
+      "leg_torque_peak": 21.885
+    }
+  },
+  "name": "turn_0p5",
+  "group": "ground",
+  "desc": "平地原地转向：指令 0.5 rad/s 正转，再反转",
+  "terrain": "flat",
+  "terrain_kwargs": {},
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 3.64,
+  "realtime_factor": 3.3
+}

@@ -1,0 +1,46 @@
+{
+  "duration": 11.0,
+  "max_abs_pitch_deg": 7.855,
+  "max_abs_roll_deg": 0.0,
+  "roll_p2p_deg": 0.0,
+  "min_base_z": 0.43767,
+  "fell": false,
+  "airborne_fraction": 0.00018178512997636792,
+  "leg_torque_peak": 25.565,
+  "wheel_torque_peak": 1.263,
+  "x_drift_m": 0.0,
+  "y_drift_m": 7.13088,
+  "windows": {
+    "cruise": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 2.871,
+      "v_mean": 0.8243231589470178,
+      "v_min": 0.8001,
+      "speed_rms_error": 0.05185900218827981,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.438
+    },
+    "brake": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 4.125,
+      "v_mean": 0.37216693290734826,
+      "v_min": -0.0578,
+      "speed_rms_error": 0.07768652972657787,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.859
+    }
+  },
+  "name": "speed_0p8",
+  "group": "ground",
+  "desc": "平地加速到 0.8 m/s 匀速后松杆（速度跟踪与刹车）",
+  "terrain": "flat",
+  "terrain_kwargs": {},
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 3.6,
+  "realtime_factor": 3.06,
+  "truncated": false
+}

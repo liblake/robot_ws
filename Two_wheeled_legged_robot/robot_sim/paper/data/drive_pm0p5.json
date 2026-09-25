@@ -1,0 +1,45 @@
+{
+  "duration": 15.0,
+  "max_abs_pitch_deg": 6.179,
+  "max_abs_roll_deg": 0.0,
+  "roll_p2p_deg": 0.0,
+  "min_base_z": 0.43767,
+  "fell": false,
+  "airborne_fraction": 0.0001333155579256099,
+  "leg_torque_peak": 25.633,
+  "wheel_torque_peak": 1.23,
+  "x_drift_m": 0.0,
+  "y_drift_m": -0.00922,
+  "windows": {
+    "forward": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 4.879,
+      "v_mean": 0.5328933181039407,
+      "v_min": 0.5016,
+      "speed_rms_error": 0.04994881217613656,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.561
+    },
+    "backward": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 2.491,
+      "v_mean": -0.5325117647058824,
+      "v_min": -0.6067,
+      "speed_rms_error": 0.04925164261625973,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.431
+    }
+  },
+  "name": "drive_pm0p5",
+  "group": "ground",
+  "desc": "前进 0.5 m/s → 停 → 后退 0.5 m/s → 停（往返）",
+  "terrain": "flat",
+  "terrain_kwargs": {},
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 4.4,
+  "realtime_factor": 3.41
+}

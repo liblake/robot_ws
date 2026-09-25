@@ -1,0 +1,71 @@
+{
+  "duration": 9.0,
+  "max_abs_pitch_deg": 14.278,
+  "max_abs_roll_deg": 0.005,
+  "roll_p2p_deg": 0.01,
+  "min_base_z": 0.40607,
+  "fell": false,
+  "airborne_fraction": 0.029111111111111112,
+  "leg_torque_peak": 60.0,
+  "wheel_torque_peak": 7.153,
+  "x_drift_m": -9e-05,
+  "y_drift_m": 6.2642,
+  "windows": {
+    "cruise": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 7.587,
+      "v_mean": 0.3662665188470066,
+      "v_min": 0.1001,
+      "speed_rms_error": 0.14370953806333434,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.627
+    },
+    "flight": {
+      "roll_p2p_deg": 0.008,
+      "max_abs_roll_deg": 0.004,
+      "max_abs_pitch_deg": 1.372,
+      "v_mean": 0.9545817275747508,
+      "v_min": 0.8609,
+      "speed_rms_error": 0.16418971230837504,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 15.899
+    },
+    "after_step": {
+      "roll_p2p_deg": 0.009000000000000001,
+      "max_abs_roll_deg": 0.005,
+      "max_abs_pitch_deg": 1.79,
+      "v_mean": 0.800092203898051,
+      "v_min": 0.7929,
+      "speed_rms_error": 0.0012736929979682895,
+      "airborne_fraction": 0.0004997501249375312,
+      "leg_torque_peak": 16.302
+    }
+  },
+  "jump0_took_off": true,
+  "jump0_trigger_t": 2.2079999999999784,
+  "jump0_takeoff_t": 2.412,
+  "jump0_ballistic_mm": 129.78,
+  "jump0_apex_com_z": 0.52434,
+  "jump0_flight_pitch_peak_deg": 14.278,
+  "jump0_landing_pitch_peak_deg": 9.097,
+  "jump0_yaw_drift_deg": 0.011,
+  "jump0_extend_leg_torque_peak": 57.984,
+  "jump0_wheel_clearance_mm": 210.63000000000005,
+  "jump0_v_before": 0.7016836000000001,
+  "jump0_v_min_after_takeoff": 0.7839,
+  "jump0_travel_retention_2s": 1.3050661295204846,
+  "name": "jump_step20",
+  "group": "jump",
+  "desc": "0.20 m 台阶：0.8 m/s 行驶中起跳（距前缘 0.42 m 触发），跳上后继续行驶",
+  "terrain": "jump_step",
+  "terrain_kwargs": {
+    "jump_step": "JumpStepTerrain(height=0.2, width=1.0, length=20.0, x_center=0.17, y_start=1.0)"
+  },
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 2.91,
+  "realtime_factor": 3.1,
+  "truncated": false
+}

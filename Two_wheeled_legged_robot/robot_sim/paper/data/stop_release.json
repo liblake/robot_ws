@@ -1,0 +1,45 @@
+{
+  "duration": 12.0,
+  "max_abs_pitch_deg": 7.017,
+  "max_abs_roll_deg": 0.0,
+  "roll_p2p_deg": 0.0,
+  "min_base_z": 0.43222,
+  "fell": false,
+  "airborne_fraction": 0.00016663889351774705,
+  "leg_torque_peak": 25.633,
+  "wheel_torque_peak": 1.23,
+  "x_drift_m": 0.0,
+  "y_drift_m": 2.32763,
+  "windows": {
+    "cruise": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 1.571,
+      "v_mean": 0.5075524710830704,
+      "v_min": 0.5021,
+      "speed_rms_error": 0.010155009952202781,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.388
+    },
+    "brake": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 7.017,
+      "v_mean": 0.036461492338441044,
+      "v_min": -0.0406,
+      "speed_rms_error": 0.1195764003318483,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 13.009
+    }
+  },
+  "name": "stop_release",
+  "group": "ground",
+  "desc": "0.5 m/s 匀速后松杆刹车（刹车时间与距离）",
+  "terrain": "flat",
+  "terrain_kwargs": {},
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 3.85,
+  "realtime_factor": 3.12
+}

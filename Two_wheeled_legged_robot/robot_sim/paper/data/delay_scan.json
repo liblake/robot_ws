@@ -1,0 +1,446 @@
+{
+  "2|stand": {
+    "delay_ms": 2.0,
+    "scenario": "stand",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.15,
+    "worst_metric": "pitch",
+    "metrics": {
+      "pitch": 0.021778941186233077,
+      "roll": 2.2848644067069584e-11,
+      "y_drift": 0.001261746132547887
+    }
+  },
+  "2|drive": {
+    "delay_ms": 2.0,
+    "scenario": "drive",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.62,
+    "worst_metric": "pitch",
+    "metrics": {
+      "track_rms": 0.01912738288153406,
+      "pitch": 0.1549217699956418,
+      "roll": 2.7319500509765586e-11
+    }
+  },
+  "2|turn": {
+    "delay_ms": 2.0,
+    "scenario": "turn",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.93,
+    "worst_metric": "yaw_err",
+    "metrics": {
+      "yaw_err": 0.09259430197293494,
+      "roll": 0.0020549467376075763,
+      "pitch": 0.04801174603811523
+    }
+  },
+  "2|ramp": {
+    "delay_ms": 2.0,
+    "scenario": "ramp",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.57,
+    "worst_metric": "pitch",
+    "metrics": {
+      "roll_p2p": 0.19864380610693028,
+      "pitch": 0.19920692897949976
+    }
+  },
+  "4|stand": {
+    "delay_ms": 4.0,
+    "scenario": "stand",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.2,
+    "worst_metric": "pitch",
+    "metrics": {
+      "pitch": 0.029558438120529617,
+      "roll": 4.8275752673261174e-11,
+      "y_drift": 0.010435375072308874
+    }
+  },
+  "4|drive": {
+    "delay_ms": 4.0,
+    "scenario": "drive",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.68,
+    "worst_metric": "pitch",
+    "metrics": {
+      "track_rms": 0.02649545687736798,
+      "pitch": 0.16936736774895086,
+      "roll": 5.043788158886226e-11
+    }
+  },
+  "4|turn": {
+    "delay_ms": 4.0,
+    "scenario": "turn",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.77,
+    "worst_metric": "yaw_err",
+    "metrics": {
+      "yaw_err": 0.07749245380060993,
+      "roll": 0.005258399338039272,
+      "pitch": 0.057294955073527956
+    }
+  },
+  "4|ramp": {
+    "delay_ms": 4.0,
+    "scenario": "ramp",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.64,
+    "worst_metric": "pitch",
+    "metrics": {
+      "roll_p2p": 0.42490234337750654,
+      "pitch": 0.22434284438666774
+    }
+  },
+  "6|stand": {
+    "delay_ms": 6.0,
+    "scenario": "stand",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.36,
+    "worst_metric": "pitch",
+    "metrics": {
+      "pitch": 0.0545251665600388,
+      "roll": 1.0028725072928459e-10,
+      "y_drift": 0.02477015447769776
+    }
+  },
+  "6|drive": {
+    "delay_ms": 6.0,
+    "scenario": "drive",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.81,
+    "worst_metric": "pitch",
+    "metrics": {
+      "track_rms": 0.038395112559467,
+      "pitch": 0.20343212445429906,
+      "roll": 1.4705624086309928e-10
+    }
+  },
+  "6|turn": {
+    "delay_ms": 6.0,
+    "scenario": "turn",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.8,
+    "worst_metric": "yaw_err",
+    "metrics": {
+      "yaw_err": 0.07968601218585364,
+      "roll": 0.011915550647283911,
+      "pitch": 0.11913347451859096
+    }
+  },
+  "6|ramp": {
+    "delay_ms": 6.0,
+    "scenario": "ramp",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.8,
+    "worst_metric": "pitch",
+    "metrics": {
+      "roll_p2p": 0.4764164200646165,
+      "pitch": 0.2789794105295139
+    }
+  },
+  "8|stand": {
+    "delay_ms": 8.0,
+    "scenario": "stand",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.68,
+    "worst_metric": "pitch",
+    "metrics": {
+      "pitch": 0.10234812052687238,
+      "roll": 1.9974621544606648e-10,
+      "y_drift": 0.03875912773105224
+    }
+  },
+  "8|drive": {
+    "delay_ms": 8.0,
+    "scenario": "drive",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.99,
+    "worst_metric": "pitch",
+    "metrics": {
+      "track_rms": 0.05850218677477123,
+      "pitch": 0.24816202282420152,
+      "roll": 1.3622800267768028e-10
+    }
+  },
+  "8|turn": {
+    "delay_ms": 8.0,
+    "scenario": "turn",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.95,
+    "worst_metric": "yaw_err",
+    "metrics": {
+      "yaw_err": 0.09546373637545358,
+      "roll": 0.02165661895314681,
+      "pitch": 0.18020359806950922
+    }
+  },
+  "8|ramp": {
+    "delay_ms": 8.0,
+    "scenario": "ramp",
+    "verdict": "OK",
+    "detail": "",
+    "fell_at_s": null,
+    "worst_ratio": 0.87,
+    "worst_metric": "pitch",
+    "metrics": {
+      "roll_p2p": 0.8919891601853168,
+      "pitch": 0.3041431402816094
+    }
+  },
+  "10|stand": {
+    "delay_ms": 10.0,
+    "scenario": "stand",
+    "verdict": "WARN",
+    "detail": "pitch=0.173 > 0.15",
+    "fell_at_s": null,
+    "worst_ratio": 1.15,
+    "worst_metric": "pitch",
+    "metrics": {
+      "pitch": 0.17251039397124407,
+      "roll": 3.0603846232231513e-10,
+      "y_drift": 0.05076212057439264
+    }
+  },
+  "10|drive": {
+    "delay_ms": 10.0,
+    "scenario": "drive",
+    "verdict": "WARN",
+    "detail": "track_rms=0.124 > 0.08; pitch=0.324 > 0.25",
+    "fell_at_s": null,
+    "worst_ratio": 1.55,
+    "worst_metric": "track_rms",
+    "metrics": {
+      "track_rms": 0.12377898309982255,
+      "pitch": 0.3241876290418618,
+      "roll": 3.2716394511159104e-10
+    }
+  },
+  "10|turn": {
+    "delay_ms": 10.0,
+    "scenario": "turn",
+    "verdict": "WARN",
+    "detail": "pitch=0.306 > 0.25",
+    "fell_at_s": null,
+    "worst_ratio": 1.22,
+    "worst_metric": "pitch",
+    "metrics": {
+      "yaw_err": 0.0695174209431581,
+      "roll": 0.03669506951398292,
+      "pitch": 0.30589849134148406
+    }
+  },
+  "10|ramp": {
+    "delay_ms": 10.0,
+    "scenario": "ramp",
+    "verdict": "WARN",
+    "detail": "pitch=0.471 > 0.35",
+    "fell_at_s": null,
+    "worst_ratio": 1.35,
+    "worst_metric": "pitch",
+    "metrics": {
+      "roll_p2p": 1.5414638555024884,
+      "pitch": 0.47117732426210757
+    }
+  },
+  "12|stand": {
+    "delay_ms": 12.0,
+    "scenario": "stand",
+    "verdict": "WARN",
+    "detail": "pitch=0.293 > 0.15; y_drift=0.108 > 0.1",
+    "fell_at_s": null,
+    "worst_ratio": 1.96,
+    "worst_metric": "pitch",
+    "metrics": {
+      "pitch": 0.29337782123692896,
+      "roll": 4.344986635384049e-06,
+      "y_drift": 0.10814328804776585
+    }
+  },
+  "12|drive": {
+    "delay_ms": 12.0,
+    "scenario": "drive",
+    "verdict": "WARN",
+    "detail": "track_rms=0.154 > 0.08; pitch=0.381 > 0.25",
+    "fell_at_s": null,
+    "worst_ratio": 1.93,
+    "worst_metric": "track_rms",
+    "metrics": {
+      "track_rms": 0.15429431600931343,
+      "pitch": 0.38073026686384537,
+      "roll": 1.1119071294567191e-06
+    }
+  },
+  "12|turn": {
+    "delay_ms": 12.0,
+    "scenario": "turn",
+    "verdict": "WARN",
+    "detail": "roll=0.084 > 0.06; pitch=0.567 > 0.25",
+    "fell_at_s": null,
+    "worst_ratio": 2.27,
+    "worst_metric": "pitch",
+    "metrics": {
+      "yaw_err": 0.03800923733282596,
+      "roll": 0.08395997336899408,
+      "pitch": 0.5668842403169746
+    }
+  },
+  "12|ramp": {
+    "delay_ms": 12.0,
+    "scenario": "ramp",
+    "verdict": "WARN",
+    "detail": "pitch=0.477 > 0.35",
+    "fell_at_s": null,
+    "worst_ratio": 1.36,
+    "worst_metric": "pitch",
+    "metrics": {
+      "roll_p2p": 2.537627298679735,
+      "pitch": 0.4772496984510318
+    }
+  },
+  "16|stand": {
+    "delay_ms": 16.0,
+    "scenario": "stand",
+    "verdict": "WARN",
+    "detail": "pitch=0.503 > 0.15; y_drift=0.800 > 0.1",
+    "fell_at_s": null,
+    "worst_ratio": 8.0,
+    "worst_metric": "y_drift",
+    "metrics": {
+      "pitch": 0.503421315980772,
+      "roll": 0.04232890459494962,
+      "y_drift": 0.8004813316310153
+    }
+  },
+  "16|drive": {
+    "delay_ms": 16.0,
+    "scenario": "drive",
+    "verdict": "WARN",
+    "detail": "track_rms=0.345 > 0.08; pitch=0.602 > 0.25",
+    "fell_at_s": null,
+    "worst_ratio": 4.31,
+    "worst_metric": "track_rms",
+    "metrics": {
+      "track_rms": 0.34515442699218674,
+      "pitch": 0.6017479665117713,
+      "roll": 0.04402476503843305
+    }
+  },
+  "16|turn": {
+    "delay_ms": 16.0,
+    "scenario": "turn",
+    "verdict": "WARN",
+    "detail": "pitch=0.615 > 0.25",
+    "fell_at_s": null,
+    "worst_ratio": 2.46,
+    "worst_metric": "pitch",
+    "metrics": {
+      "yaw_err": 0.04155765648200316,
+      "roll": 0.05745797588437966,
+      "pitch": 0.6152939228776294
+    }
+  },
+  "16|ramp": {
+    "delay_ms": 16.0,
+    "scenario": "ramp",
+    "verdict": "WARN",
+    "detail": "pitch=0.548 > 0.35",
+    "fell_at_s": null,
+    "worst_ratio": 1.57,
+    "worst_metric": "pitch",
+    "metrics": {
+      "roll_p2p": NaN,
+      "pitch": 0.5478895313548325
+    }
+  },
+  "20|stand": {
+    "delay_ms": 20.0,
+    "scenario": "stand",
+    "verdict": "FAIL",
+    "detail": "摔倒 @2.52s",
+    "fell_at_s": 2.5179999999999443,
+    "worst_ratio": 38.06,
+    "worst_metric": "y_drift",
+    "metrics": {
+      "fell": 2.5179999999999443,
+      "pitch": 0.9584757417638078,
+      "roll": 0.16441597088942256,
+      "y_drift": 3.8062461978978512
+    }
+  },
+  "20|drive": {
+    "delay_ms": 20.0,
+    "scenario": "drive",
+    "verdict": "FAIL",
+    "detail": "摔倒 @2.52s",
+    "fell_at_s": 2.5179999999999443,
+    "worst_ratio": 3.83,
+    "worst_metric": "pitch",
+    "metrics": {
+      "fell": 2.5179999999999443,
+      "track_rms": NaN,
+      "pitch": 0.9584757417638078,
+      "roll": 0.16441597088942256
+    }
+  },
+  "20|turn": {
+    "delay_ms": 20.0,
+    "scenario": "turn",
+    "verdict": "FAIL",
+    "detail": "摔倒 @2.89s",
+    "fell_at_s": 2.8859999999999038,
+    "worst_ratio": 4.7,
+    "worst_metric": "roll",
+    "metrics": {
+      "fell": 2.8859999999999038,
+      "yaw_err": NaN,
+      "roll": 0.28191191984023944,
+      "pitch": 1.0031773154232324
+    }
+  },
+  "20|ramp": {
+    "delay_ms": 20.0,
+    "scenario": "ramp",
+    "verdict": "FAIL",
+    "detail": "摔倒 @2.52s",
+    "fell_at_s": 2.5179999999999443,
+    "worst_ratio": 2.74,
+    "worst_metric": "pitch",
+    "metrics": {
+      "fell": 2.5179999999999443,
+      "roll_p2p": NaN,
+      "pitch": 0.9584757417638078
+    }
+  }
+}

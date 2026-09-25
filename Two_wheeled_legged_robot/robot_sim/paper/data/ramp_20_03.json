@@ -1,0 +1,49 @@
+{
+  "duration": 9.0,
+  "max_abs_pitch_deg": 4.966,
+  "max_abs_roll_deg": 0.025,
+  "roll_p2p_deg": 0.028,
+  "min_base_z": 0.43874,
+  "fell": false,
+  "airborne_fraction": 0.00022222222222222223,
+  "leg_torque_peak": 25.633,
+  "wheel_torque_peak": 1.23,
+  "x_drift_m": 6e-05,
+  "y_drift_m": 2.16309,
+  "windows": {
+    "obstacle": {
+      "roll_p2p_deg": 0.024999999999999998,
+      "max_abs_roll_deg": 0.022,
+      "max_abs_pitch_deg": 2.383,
+      "v_mean": 0.31625034965034965,
+      "v_min": 0.2655,
+      "speed_rms_error": 0.0400230046236024,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 14.132
+    },
+    "whole": {
+      "roll_p2p_deg": 0.028,
+      "max_abs_roll_deg": 0.025,
+      "max_abs_pitch_deg": 4.966,
+      "v_mean": 0.2769728077692088,
+      "v_min": -0.0025,
+      "speed_rms_error": 0.04160665656265551,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 14.244
+    }
+  },
+  "name": "ramp_20_03",
+  "group": "terrain",
+  "desc": "左轮 20 mm 单轮梯形坡 @ 0.3 m/s（单腿变高度越障）",
+  "terrain": "ramp",
+  "terrain_kwargs": {
+    "terrain_side": "left",
+    "terrain_height": "0.02"
+  },
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 2.65,
+  "realtime_factor": 3.39,
+  "truncated": false
+}

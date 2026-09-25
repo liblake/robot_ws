@@ -1,0 +1,98 @@
+{
+  "single_leg_ff_off": {
+    "desc": "单腿变高度：5 m 单轮梯形坡 @ 0.30 m/s，关节角速度前馈关（vmc.stand_rate_ff_scale=0.0）",
+    "group": "height",
+    "csv": "single_leg_ff_off.csv",
+    "samples": 11000,
+    "fell": false,
+    "max_abs_pitch_deg": 4.966,
+    "roll_p2p_deg": 1.96,
+    "overrides": {
+      "vmc.stand_rate_ff_scale": 0.0
+    }
+  },
+  "single_leg_ff_on": {
+    "desc": "单腿变高度：5 m 单轮梯形坡 @ 0.30 m/s，关节角速度前馈开（vmc.stand_rate_ff_scale=1.0）",
+    "group": "height",
+    "csv": "single_leg_ff_on.csv",
+    "samples": 11000,
+    "fell": false,
+    "max_abs_pitch_deg": 4.966,
+    "roll_p2p_deg": 0.056,
+    "overrides": {
+      "vmc.stand_rate_ff_scale": 1.0
+    }
+  },
+  "single_leg_h20_ff_off": {
+    "desc": "单腿变高度：20 mm 单轮梯形坡 @ 0.30 m/s，关节角速度前馈关（vmc.stand_rate_ff_scale=0.0）",
+    "group": "height",
+    "csv": "single_leg_h20_ff_off.csv",
+    "samples": 11000,
+    "fell": false,
+    "max_abs_pitch_deg": 4.966,
+    "roll_p2p_deg": 0.059000000000000004,
+    "overrides": {
+      "vmc.stand_rate_ff_scale": 0.0
+    }
+  },
+  "single_leg_h20_ff_on": {
+    "desc": "单腿变高度：20 mm 单轮梯形坡 @ 0.30 m/s，关节角速度前馈开（vmc.stand_rate_ff_scale=1.0）",
+    "group": "height",
+    "csv": "single_leg_h20_ff_on.csv",
+    "samples": 11000,
+    "fell": false,
+    "max_abs_pitch_deg": 4.966,
+    "roll_p2p_deg": 0.01,
+    "overrides": {
+      "vmc.stand_rate_ff_scale": 1.0
+    }
+  },
+  "single_leg_h40_ff_off": {
+    "desc": "单腿变高度：40 mm 单轮梯形坡 @ 0.30 m/s，关节角速度前馈关（vmc.stand_rate_ff_scale=0.0）",
+    "group": "height",
+    "csv": "single_leg_h40_ff_off.csv",
+    "samples": 11000,
+    "fell": false,
+    "max_abs_pitch_deg": 4.966,
+    "roll_p2p_deg": 0.252,
+    "overrides": {
+      "vmc.stand_rate_ff_scale": 0.0
+    }
+  },
+  "single_leg_h40_ff_on": {
+    "desc": "单腿变高度：40 mm 单轮梯形坡 @ 0.30 m/s，关节角速度前馈开（vmc.stand_rate_ff_scale=1.0）",
+    "group": "height",
+    "csv": "single_leg_h40_ff_on.csv",
+    "samples": 11000,
+    "fell": false,
+    "max_abs_pitch_deg": 4.966,
+    "roll_p2p_deg": 0.033,
+    "overrides": {
+      "vmc.stand_rate_ff_scale": 1.0
+    }
+  },
+  "single_leg_h65_ff_off": {
+    "desc": "单腿变高度：65 mm 单轮梯形坡 @ 0.30 m/s，关节角速度前馈关（vmc.stand_rate_ff_scale=0.0）",
+    "group": "height",
+    "csv": "single_leg_h65_ff_off.csv",
+    "samples": 11000,
+    "fell": false,
+    "max_abs_pitch_deg": 4.966,
+    "roll_p2p_deg": 1.96,
+    "overrides": {
+      "vmc.stand_rate_ff_scale": 0.0
+    }
+  },
+  "single_leg_h65_ff_on": {
+    "desc": "单腿变高度：65 mm 单轮梯形坡 @ 0.30 m/s，关节角速度前馈开（vmc.stand_rate_ff_scale=1.0）",
+    "group": "height",
+    "csv": "single_leg_h65_ff_on.csv",
+    "samples": 11000,
+    "fell": false,
+    "max_abs_pitch_deg": 4.966,
+    "roll_p2p_deg": 0.056,
+    "overrides": {
+      "vmc.stand_rate_ff_scale": 1.0
+    }
+  }
+}

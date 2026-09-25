@@ -1,0 +1,41 @@
+{
+  "duration": 9.0,
+  "max_abs_pitch_deg": 6.637,
+  "max_abs_roll_deg": 5.244,
+  "roll_p2p_deg": 8.383,
+  "min_base_z": 0.41729,
+  "fell": false,
+  "airborne_fraction": 0.00022222222222222223,
+  "leg_torque_peak": 30.0,
+  "wheel_torque_peak": 2.754,
+  "x_drift_m": 0.00413,
+  "y_drift_m": 2.16314,
+  "windows": {
+    "obstacle": {
+      "roll_p2p_deg": 8.383,
+      "max_abs_roll_deg": 5.244,
+      "max_abs_pitch_deg": 6.637,
+      "v_mean": 0.34313806193806196,
+      "v_min": 0.1843,
+      "speed_rms_error": 0.13507849813845524,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 30.0
+    }
+  },
+  "name": "ff_ramp65_scale0p0",
+  "group": "ff",
+  "desc": "65 mm 单轮坡 @ 0.3 m/s，关节角速度前馈缩放 0.0（对照）",
+  "terrain": "ramp",
+  "terrain_kwargs": {
+    "terrain_side": "left",
+    "terrain_height": "0.065"
+  },
+  "overrides": {
+    "vmc.stand_rate_ff_scale": 0.0
+  },
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 2.86,
+  "realtime_factor": 3.15,
+  "truncated": false
+}

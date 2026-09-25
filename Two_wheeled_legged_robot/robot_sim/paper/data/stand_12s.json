@@ -1,0 +1,36 @@
+{
+  "duration": 12.0,
+  "max_abs_pitch_deg": 2.658,
+  "max_abs_roll_deg": 0.0,
+  "roll_p2p_deg": 0.0,
+  "min_base_z": 0.43906,
+  "fell": false,
+  "airborne_fraction": 0.00016663889351774705,
+  "leg_torque_peak": 25.633,
+  "wheel_torque_peak": 1.23,
+  "x_drift_m": 0.0,
+  "y_drift_m": -0.0,
+  "windows": {
+    "steady": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 1.781,
+      "v_mean": 0.00020672482733551434,
+      "v_min": -0.0023,
+      "speed_rms_error": 0.0005809748760624474,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.429
+    }
+  },
+  "name": "stand_12s",
+  "group": "ground",
+  "desc": "平地静态站立 12 s（俯仰/侧倾/漂移）",
+  "terrain": "flat",
+  "terrain_kwargs": {},
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 3.76,
+  "realtime_factor": 3.19,
+  "truncated": false
+}

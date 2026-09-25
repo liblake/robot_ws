@@ -1,0 +1,45 @@
+{
+  "duration": 11.0,
+  "max_abs_pitch_deg": 16.308,
+  "max_abs_roll_deg": 0.0,
+  "roll_p2p_deg": 0.0,
+  "min_base_z": 0.42339,
+  "fell": false,
+  "airborne_fraction": 0.0010907107798582077,
+  "leg_torque_peak": 25.32,
+  "wheel_torque_peak": 1.931,
+  "x_drift_m": 0.0,
+  "y_drift_m": 25.72108,
+  "windows": {
+    "cruise": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 14.806,
+      "v_mean": 3.0229281572809064,
+      "v_min": 2.7618,
+      "speed_rms_error": 0.0631063438157375,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 13.286
+    },
+    "brake": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 13.043,
+      "v_mean": 1.505225559105431,
+      "v_min": -0.1576,
+      "speed_rms_error": 0.3662457715683463,
+      "airborne_fraction": 0.003194888178913738,
+      "leg_torque_peak": 16.31
+    }
+  },
+  "name": "speed_3p0",
+  "group": "ground",
+  "desc": "平地加速到 3.0 m/s 匀速后松杆（超出实机转速上限，仅说明仿真能力）",
+  "terrain": "flat",
+  "terrain_kwargs": {},
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 3.52,
+  "realtime_factor": 3.13
+}

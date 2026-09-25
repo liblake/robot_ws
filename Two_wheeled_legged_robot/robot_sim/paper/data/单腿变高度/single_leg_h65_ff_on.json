@@ -1,0 +1,40 @@
+{
+  "duration": 22.0,
+  "max_abs_pitch_deg": 4.966,
+  "max_abs_roll_deg": 0.047,
+  "roll_p2p_deg": 0.056,
+  "min_base_z": 0.43906,
+  "fell": false,
+  "airborne_fraction": 9.09090909090909e-05,
+  "leg_torque_peak": 25.633,
+  "wheel_torque_peak": 1.23,
+  "x_drift_m": 0.00208,
+  "y_drift_m": 5.89134,
+  "windows": {
+    "obstacle": {
+      "roll_p2p_deg": 0.048,
+      "max_abs_roll_deg": 0.047,
+      "max_abs_pitch_deg": 3.793,
+      "v_mean": 0.30672087239095114,
+      "v_min": 0.2031,
+      "speed_rms_error": 0.0648631857037761,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 15.122
+    }
+  },
+  "name": "single_leg_h65_ff_on",
+  "group": "height",
+  "desc": "单腿变高度：65 mm 单轮梯形坡 @ 0.30 m/s，关节角速度前馈开（vmc.stand_rate_ff_scale=1.0）",
+  "terrain": "ramp",
+  "terrain_kwargs": {
+    "ramp": "SingleWheelTrapezoidTerrain(side='left', height=0.065, ramp_length=0.5, platform_length=4.0, width=0.4, y_start=0.22, side_x=0.125)"
+  },
+  "overrides": {
+    "vmc.stand_rate_ff_scale": 1.0
+  },
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 7.09,
+  "realtime_factor": 3.1,
+  "truncated": false
+}

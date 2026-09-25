@@ -1,0 +1,35 @@
+{
+  "duration": 14.0,
+  "max_abs_pitch_deg": 4.784,
+  "max_abs_roll_deg": 0.136,
+  "roll_p2p_deg": 0.137,
+  "min_base_z": 0.43775,
+  "fell": false,
+  "airborne_fraction": 0.00014283673760891302,
+  "leg_torque_peak": 25.633,
+  "wheel_torque_peak": 1.541,
+  "x_drift_m": -3.53545,
+  "y_drift_m": 1.44637,
+  "windows": {
+    "cruise": {
+      "roll_p2p_deg": 0.137,
+      "max_abs_roll_deg": 0.136,
+      "max_abs_pitch_deg": 2.061,
+      "v_mean": 0.4093196450887278,
+      "v_min": 0.3823,
+      "speed_rms_error": 0.023426370158334407,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 18.305
+    }
+  },
+  "name": "composite_0p4_0p2",
+  "group": "ground",
+  "desc": "复合运动：0.4 m/s 前进 + 0.2 rad/s 转向（弧线）",
+  "terrain": "flat",
+  "terrain_kwargs": {},
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 4.62,
+  "realtime_factor": 3.03
+}

@@ -1,0 +1,35 @@
+{
+  "duration": 30.0,
+  "max_abs_pitch_deg": 4.621,
+  "max_abs_roll_deg": 0.0,
+  "roll_p2p_deg": 0.0,
+  "min_base_z": 0.43906,
+  "fell": false,
+  "airborne_fraction": 6.666666666666667e-05,
+  "leg_torque_peak": 25.633,
+  "wheel_torque_peak": 1.23,
+  "x_drift_m": 0.0,
+  "y_drift_m": 10.96216,
+  "windows": {
+    "cruise": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 2.303,
+      "v_mean": 0.4028940671610699,
+      "v_min": 0.4,
+      "speed_rms_error": 0.012350166407076316,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.419
+    }
+  },
+  "name": "straight_10m",
+  "group": "ground",
+  "desc": "平地直线 10 m（横向漂移与航向偏差）",
+  "terrain": "flat",
+  "terrain_kwargs": {},
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 9.66,
+  "realtime_factor": 3.1
+}

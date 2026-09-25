@@ -1,0 +1,76 @@
+{
+  "duration": 31.0,
+  "max_abs_pitch_deg": 12.972,
+  "max_abs_roll_deg": 0.0,
+  "roll_p2p_deg": 0.0,
+  "min_base_z": 0.42346,
+  "fell": false,
+  "airborne_fraction": 6.451612903225807e-05,
+  "leg_torque_peak": 25.633,
+  "wheel_torque_peak": 1.533,
+  "x_drift_m": 0.0,
+  "y_drift_m": 42.08579,
+  "windows": {
+    "hold_0p5": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 1.578,
+      "v_mean": 0.5023174037089871,
+      "v_min": 0.501,
+      "speed_rms_error": 0.0024535717363336276,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.388
+    },
+    "hold_1p0": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 1.577,
+      "v_mean": 1.0024496433666188,
+      "v_min": 1.0011,
+      "speed_rms_error": 0.0025984687688980846,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.388
+    },
+    "hold_1p5": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 1.577,
+      "v_mean": 1.5024499286733237,
+      "v_min": 1.5011,
+      "speed_rms_error": 0.00259879814205855,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.388
+    },
+    "hold_2p0": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 1.577,
+      "v_mean": 2.002450213980029,
+      "v_min": 2.0011,
+      "speed_rms_error": 0.002599056121879425,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.388
+    },
+    "hold_2p5": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 1.577,
+      "v_mean": 2.5024506419400856,
+      "v_min": 2.5011,
+      "speed_rms_error": 0.0025995637733468783,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.388
+    }
+  },
+  "name": "speed_staircase",
+  "group": "ground",
+  "desc": "速度阶梯 0.5→2.5 m/s（每档 1.5 s 斜坡 + 4 s 保持），用于速度跟踪图",
+  "terrain": "flat",
+  "terrain_kwargs": {},
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 21.75,
+  "realtime_factor": 1.43,
+  "truncated": false
+}

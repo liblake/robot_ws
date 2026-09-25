@@ -1,0 +1,656 @@
+{
+  "stand_12s": {
+    "desc": "平地静态站立 12 s（俯仰/侧倾/漂移）",
+    "group": "ground",
+    "csv": "stand_12s.csv",
+    "samples": 6001,
+    "fell": false,
+    "max_abs_pitch_deg": 2.658,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "drive_pm0p5": {
+    "desc": "前进 0.5 m/s → 停 → 后退 0.5 m/s → 停（往返）",
+    "group": "ground",
+    "csv": "drive_pm0p5.csv",
+    "samples": 7501,
+    "fell": false,
+    "max_abs_pitch_deg": 6.179,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "speed_0p8": {
+    "desc": "平地加速到 0.8 m/s 匀速后松杆（速度跟踪与刹车）",
+    "group": "ground",
+    "csv": "speed_0p8.csv",
+    "samples": 5501,
+    "fell": false,
+    "max_abs_pitch_deg": 7.855,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "speed_1p5": {
+    "desc": "平地加速到 1.5 m/s 匀速后松杆（速度跟踪与刹车）",
+    "group": "ground",
+    "csv": "speed_1p5.csv",
+    "samples": 5501,
+    "fell": false,
+    "max_abs_pitch_deg": 13.156,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "speed_2p0": {
+    "desc": "平地加速到 2.0 m/s 匀速后松杆（速度跟踪与刹车）",
+    "group": "ground",
+    "csv": "speed_2p0.csv",
+    "samples": 5501,
+    "fell": false,
+    "max_abs_pitch_deg": 15.948,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "speed_2p5": {
+    "desc": "平地加速到 2.5 m/s 匀速后松杆（速度跟踪与刹车）",
+    "group": "ground",
+    "csv": "speed_2p5.csv",
+    "samples": 5501,
+    "fell": false,
+    "max_abs_pitch_deg": 16.249,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "turn_0p5": {
+    "desc": "平地原地转向：指令 0.5 rad/s 正转，再反转",
+    "group": "ground",
+    "csv": "turn_0p5.csv",
+    "samples": 6001,
+    "fell": false,
+    "max_abs_pitch_deg": 4.06,
+    "roll_p2p_deg": 0.267,
+    "overrides": {}
+  },
+  "height_cycle": {
+    "desc": "原地调腿高：0.37 → 0.45 → 0.33 → 0.37 m",
+    "group": "ground",
+    "csv": "height_cycle.csv",
+    "samples": 10000,
+    "fell": false,
+    "max_abs_pitch_deg": 2.658,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "composite_0p4_0p2": {
+    "desc": "复合运动：0.4 m/s 前进 + 0.2 rad/s 转向（弧线）",
+    "group": "ground",
+    "csv": "composite_0p4_0p2.csv",
+    "samples": 7001,
+    "fell": false,
+    "max_abs_pitch_deg": 4.784,
+    "roll_p2p_deg": 0.137,
+    "overrides": {}
+  },
+  "straight_10m": {
+    "desc": "平地直线 10 m（横向漂移与航向偏差）",
+    "group": "ground",
+    "csv": "straight_10m.csv",
+    "samples": 15000,
+    "fell": false,
+    "max_abs_pitch_deg": 4.621,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "ramp_20_03": {
+    "desc": "左轮 20 mm 单轮梯形坡 @ 0.3 m/s（单腿变高度越障）",
+    "group": "terrain",
+    "csv": "ramp_20_03.csv",
+    "samples": 4500,
+    "fell": false,
+    "max_abs_pitch_deg": 4.966,
+    "roll_p2p_deg": 0.028,
+    "overrides": {}
+  },
+  "ramp_40_03": {
+    "desc": "左轮 40 mm 单轮梯形坡 @ 0.3 m/s（单腿变高度越障）",
+    "group": "terrain",
+    "csv": "ramp_40_03.csv",
+    "samples": 4500,
+    "fell": false,
+    "max_abs_pitch_deg": 4.966,
+    "roll_p2p_deg": 0.069,
+    "overrides": {}
+  },
+  "ramp_65_03": {
+    "desc": "左轮 65 mm 单轮梯形坡 @ 0.3 m/s（单腿变高度越障）",
+    "group": "terrain",
+    "csv": "ramp_65_03.csv",
+    "samples": 4500,
+    "fell": false,
+    "max_abs_pitch_deg": 6.216,
+    "roll_p2p_deg": 0.092,
+    "overrides": {}
+  },
+  "ramp_65_045": {
+    "desc": "左轮 65 mm 单轮梯形坡 @ 0.45 m/s（单腿变高度越障）",
+    "group": "terrain",
+    "csv": "ramp_65_045.csv",
+    "samples": 4500,
+    "fell": false,
+    "max_abs_pitch_deg": 6.796,
+    "roll_p2p_deg": 0.087,
+    "overrides": {}
+  },
+  "pad_static_10mm": {
+    "desc": "静态单轮垫高 10 mm：左轮骑垫、右轮在平地，检验找平",
+    "group": "terrain",
+    "csv": "pad_static_10mm.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 2.658,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "wavy_0p3": {
+    "desc": "波浪路（4.0 m，波峰 36~60 mm）@ 0.3 m/s（连续地形跟随）",
+    "group": "terrain",
+    "csv": "wavy_0p3.csv",
+    "samples": 9900,
+    "fell": false,
+    "max_abs_pitch_deg": 10.053,
+    "roll_p2p_deg": 0.09,
+    "overrides": {}
+  },
+  "wavy_0p5": {
+    "desc": "波浪路（4.0 m，波峰 36~60 mm）@ 0.5 m/s（连续地形跟随）",
+    "group": "terrain",
+    "csv": "wavy_0p5.csv",
+    "samples": 6551,
+    "fell": false,
+    "max_abs_pitch_deg": 7.203,
+    "roll_p2p_deg": 0.061,
+    "overrides": {}
+  },
+  "wavy_0p8": {
+    "desc": "波浪路（4.0 m，波峰 36~60 mm）@ 0.8 m/s（连续地形跟随）",
+    "group": "terrain",
+    "csv": "wavy_0p8.csv",
+    "samples": 4650,
+    "fell": false,
+    "max_abs_pitch_deg": 10.546,
+    "roll_p2p_deg": 0.112,
+    "overrides": {}
+  },
+  "wavy_1p0": {
+    "desc": "波浪路（4.0 m，波峰 36~60 mm）@ 1.0 m/s（连续地形跟随）",
+    "group": "terrain",
+    "csv": "wavy_1p0.csv",
+    "samples": 4050,
+    "fell": false,
+    "max_abs_pitch_deg": 12.767,
+    "roll_p2p_deg": 0.16299999999999998,
+    "overrides": {}
+  },
+  "ff_ramp65_scale0p0": {
+    "desc": "65 mm 单轮坡 @ 0.3 m/s，关节角速度前馈缩放 0.0（对照）",
+    "group": "ff",
+    "csv": "ff_ramp65_scale0p0.csv",
+    "samples": 4500,
+    "fell": false,
+    "max_abs_pitch_deg": 6.637,
+    "roll_p2p_deg": 8.383,
+    "overrides": {
+      "vmc.stand_rate_ff_scale": 0.0
+    }
+  },
+  "ff_ramp65_scale0p8": {
+    "desc": "65 mm 单轮坡 @ 0.3 m/s，关节角速度前馈缩放 0.8（对照）",
+    "group": "ff",
+    "csv": "ff_ramp65_scale0p8.csv",
+    "samples": 4500,
+    "fell": false,
+    "max_abs_pitch_deg": 6.782,
+    "roll_p2p_deg": 0.465,
+    "overrides": {
+      "vmc.stand_rate_ff_scale": 0.8
+    }
+  },
+  "ff_ramp65_scale1p0": {
+    "desc": "65 mm 单轮坡 @ 0.3 m/s，关节角速度前馈缩放 1.0（对照）",
+    "group": "ff",
+    "csv": "ff_ramp65_scale1p0.csv",
+    "samples": 4500,
+    "fell": false,
+    "max_abs_pitch_deg": 6.216,
+    "roll_p2p_deg": 0.092,
+    "overrides": {
+      "vmc.stand_rate_ff_scale": 1.0
+    }
+  },
+  "jump_static_0p7": {
+    "desc": "原地垂直起跳，幅度 0.7（弹道/蹬伸力矩/落地）",
+    "group": "jump",
+    "csv": "jump_static_0p7.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 9.374,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_static_1p0": {
+    "desc": "原地垂直起跳，幅度 1.0（弹道/蹬伸力矩/落地）",
+    "group": "jump",
+    "csv": "jump_static_1p0.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 11.418,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_static_noruck": {
+    "desc": "原地跳（幅度 1.0），关闭腾空收腿——用于收腿净空对照",
+    "group": "jump",
+    "csv": "jump_static_noruck.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 6.361,
+    "roll_p2p_deg": 0.0,
+    "overrides": {
+      "vmc.flight_tuck_enable": false
+    }
+  },
+  "jump_static_samesign": {
+    "desc": "原地跳（幅度 1.0），复现镜像修正前的同号髋驱动——用于空中姿态对照",
+    "group": "jump",
+    "csv": "jump_static_samesign.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 35.957,
+    "roll_p2p_deg": 2.818,
+    "overrides": {
+      "vmc.flight_attitude_diff_enable": false
+    }
+  },
+  "jump_static_noruck_samesign": {
+    "desc": "原地跳（幅度 1.0），收腿关闭 + 同号髋驱动——补齐 2×2 对照矩阵",
+    "group": "jump",
+    "csv": "jump_static_noruck_samesign.csv",
+    "samples": 3000,
+    "fell": true,
+    "max_abs_pitch_deg": 180.0,
+    "roll_p2p_deg": 7.324,
+    "overrides": {
+      "vmc.flight_tuck_enable": false,
+      "vmc.flight_attitude_diff_enable": false
+    }
+  },
+  "jump_moving_0p8": {
+    "desc": "行驶中跳跃 @ 0.8 m/s（速度保持 / 是否倒滑）",
+    "group": "jump",
+    "csv": "jump_moving_0p8.csv",
+    "samples": 4000,
+    "fell": false,
+    "max_abs_pitch_deg": 8.417,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_moving_2p5": {
+    "desc": "行驶中跳跃 @ 2.5 m/s（速度保持 / 是否倒滑）",
+    "group": "jump",
+    "csv": "jump_moving_2p5.csv",
+    "samples": 4000,
+    "fell": false,
+    "max_abs_pitch_deg": 21.902,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "step_05_04": {
+    "desc": "行驶跳上 5 cm 台阶 @ 0.4 m/s（距前缘 0.25 m 起跳）",
+    "group": "jump",
+    "csv": "step_05_04.csv",
+    "samples": 4500,
+    "fell": false,
+    "max_abs_pitch_deg": 7.918,
+    "roll_p2p_deg": 0.008,
+    "overrides": {}
+  },
+  "step_10_04": {
+    "desc": "行驶跳上 10 cm 台阶 @ 0.4 m/s（距前缘 0.25 m 起跳）",
+    "group": "jump",
+    "csv": "step_10_04.csv",
+    "samples": 4500,
+    "fell": false,
+    "max_abs_pitch_deg": 6.509,
+    "roll_p2p_deg": 0.008,
+    "overrides": {}
+  },
+  "step_15_04": {
+    "desc": "行驶跳上 15 cm 台阶 @ 0.4 m/s（距前缘 0.25 m 起跳）",
+    "group": "jump",
+    "csv": "step_15_04.csv",
+    "samples": 4500,
+    "fell": false,
+    "max_abs_pitch_deg": 6.509,
+    "roll_p2p_deg": 0.009000000000000001,
+    "overrides": {}
+  },
+  "speed_3p0": {
+    "desc": "平地加速到 3.0 m/s 匀速后松杆（超出实机转速上限，仅说明仿真能力）",
+    "group": "ground",
+    "csv": "speed_3p0.csv",
+    "samples": 5501,
+    "fell": false,
+    "max_abs_pitch_deg": 16.308,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "ramp_65_03_right": {
+    "desc": "右轮 65 mm 单轮梯形坡 @ 0.30 m/s（检验单腿变高度的左右对称性）",
+    "group": "terrain",
+    "csv": "ramp_65_03_right.csv",
+    "samples": 4500,
+    "fell": false,
+    "max_abs_pitch_deg": 6.089,
+    "roll_p2p_deg": 0.099,
+    "overrides": {}
+  },
+  "stop_release": {
+    "desc": "0.5 m/s 匀速后松杆刹车（刹车时间与距离）",
+    "group": "ground",
+    "csv": "stop_release.csv",
+    "samples": 6001,
+    "fell": false,
+    "max_abs_pitch_deg": 7.017,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_static_triple": {
+    "desc": "原地三连跳（间隔 1.5 s），检验逐跳一致性与累积漂移",
+    "group": "jump",
+    "csv": "jump_static_triple.csv",
+    "samples": 3500,
+    "fell": false,
+    "max_abs_pitch_deg": 13.611,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "speed_staircase": {
+    "desc": "速度阶梯 0.5→2.5 m/s（每档 1.5 s 斜坡 + 4 s 保持），用于速度跟踪图",
+    "group": "ground",
+    "csv": "speed_staircase.csv",
+    "samples": 15500,
+    "fell": false,
+    "max_abs_pitch_deg": 12.972,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_moving_2p5_crouch0p25": {
+    "desc": "行驶中跳跃 @ 2.5 m/s，下蹲时长 0.25 s（改动前基线，用于着地相位对照）",
+    "group": "jump",
+    "csv": "jump_moving_2p5_crouch0p25.csv",
+    "samples": 4000,
+    "fell": true,
+    "max_abs_pitch_deg": 64.125,
+    "roll_p2p_deg": 0.028,
+    "overrides": {}
+  },
+  "jump_moving_0p8_crouch0p25": {
+    "desc": "行驶中跳跃 @ 0.8 m/s，下蹲时长 0.25 s（改动前基线，用于着地相位对照）",
+    "group": "jump",
+    "csv": "jump_moving_0p8_crouch0p25.csv",
+    "samples": 4000,
+    "fell": false,
+    "max_abs_pitch_deg": 14.185,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_moving_2p5_baseline_legacy": {
+    "desc": "行驶中跳跃 @ 2.5 m/s，改动前参数组（下蹲 0.25 s / 蹲深 0.05 / 行程 0.16）",
+    "group": "jump",
+    "csv": "jump_moving_2p5_baseline_legacy.csv",
+    "samples": 4000,
+    "fell": true,
+    "max_abs_pitch_deg": 64.852,
+    "roll_p2p_deg": 0.041999999999999996,
+    "overrides": {}
+  },
+  "jump_moving_0p8_baseline_legacy": {
+    "desc": "行驶中跳跃 @ 0.8 m/s，改动前参数组（下蹲 0.25 s / 蹲深 0.05 / 行程 0.16）",
+    "group": "jump",
+    "csv": "jump_moving_0p8_baseline_legacy.csv",
+    "samples": 4000,
+    "fell": false,
+    "max_abs_pitch_deg": 14.318,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_moving_0p5": {
+    "desc": "行驶中跳跃 @ 0.5 m/s（速度保持 / 是否倒滑）",
+    "group": "jump",
+    "csv": "jump_moving_0p5.csv",
+    "samples": 4000,
+    "fell": false,
+    "max_abs_pitch_deg": 7.665,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_moving_1p5": {
+    "desc": "行驶中跳跃 @ 1.5 m/s（速度保持 / 是否倒滑）",
+    "group": "jump",
+    "csv": "jump_moving_1p5.csv",
+    "samples": 4000,
+    "fell": false,
+    "max_abs_pitch_deg": 13.986,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_moving_2p0": {
+    "desc": "行驶中跳跃 @ 2.0 m/s（速度保持 / 是否倒滑）",
+    "group": "jump",
+    "csv": "jump_moving_2p0.csv",
+    "samples": 4000,
+    "fell": false,
+    "max_abs_pitch_deg": 18.114,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_amp_0p40": {
+    "desc": "原地垂直起跳，蹬伸幅度 0.40（弹道—膝力矩标定）",
+    "group": "jump",
+    "csv": "jump_amp_0p40.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 3.348,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_amp_0p55": {
+    "desc": "原地垂直起跳，蹬伸幅度 0.55（弹道—膝力矩标定）",
+    "group": "jump",
+    "csv": "jump_amp_0p55.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 3.366,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_amp_0p70": {
+    "desc": "原地垂直起跳，蹬伸幅度 0.70（弹道—膝力矩标定）",
+    "group": "jump",
+    "csv": "jump_amp_0p70.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 9.374,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_amp_0p85": {
+    "desc": "原地垂直起跳，蹬伸幅度 0.85（弹道—膝力矩标定）",
+    "group": "jump",
+    "csv": "jump_amp_0p85.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 8.981,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_amp_1p00": {
+    "desc": "原地垂直起跳，蹬伸幅度 1.00（弹道—膝力矩标定）",
+    "group": "jump",
+    "csv": "jump_amp_1p00.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 11.418,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_tuck_on": {
+    "desc": "原地跳（幅度 1.0），腾空收腿开——净空与力矩代价对照",
+    "group": "jump",
+    "csv": "jump_tuck_on.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 11.418,
+    "roll_p2p_deg": 0.0,
+    "overrides": {
+      "vmc.flight_tuck_enable": true
+    }
+  },
+  "jump_tuck_off": {
+    "desc": "原地跳（幅度 1.0），腾空收腿关——净空与力矩代价对照",
+    "group": "jump",
+    "csv": "jump_tuck_off.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 6.361,
+    "roll_p2p_deg": 0.0,
+    "overrides": {
+      "vmc.flight_tuck_enable": false
+    }
+  },
+  "jump_attitude_diff": {
+    "desc": "原地跳（幅度 1.0），腾空姿态驱动差分（式 (19)）",
+    "group": "jump",
+    "csv": "jump_attitude_diff.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 11.418,
+    "roll_p2p_deg": 0.0,
+    "overrides": {
+      "vmc.flight_attitude_diff_enable": true
+    }
+  },
+  "jump_attitude_samesign": {
+    "desc": "原地跳（幅度 1.0），腾空姿态驱动同号（镜像修正前）",
+    "group": "jump",
+    "csv": "jump_attitude_samesign.csv",
+    "samples": 3000,
+    "fell": false,
+    "max_abs_pitch_deg": 35.957,
+    "roll_p2p_deg": 2.818,
+    "overrides": {
+      "vmc.flight_attitude_diff_enable": false
+    }
+  },
+  "jump_attitude_samesign_notuck": {
+    "desc": "原地跳（幅度 1.0），收腿关闭 + 同号驱动——2×2 矩阵的第四个角",
+    "group": "jump",
+    "csv": "jump_attitude_samesign_notuck.csv",
+    "samples": 3000,
+    "fell": true,
+    "max_abs_pitch_deg": 180.0,
+    "roll_p2p_deg": 7.324,
+    "overrides": {
+      "vmc.flight_tuck_enable": false,
+      "vmc.flight_attitude_diff_enable": false
+    }
+  },
+  "jump_triple": {
+    "desc": "原地三连跳（间隔 1.5 s，幅度 1.0），检验逐跳一致性与是否有累积量",
+    "group": "jump",
+    "csv": "jump_triple.csv",
+    "samples": 3500,
+    "fell": false,
+    "max_abs_pitch_deg": 13.611,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_run_0p5": {
+    "desc": "行驶中跳跃 @ 0.5 m/s（速度保持 / 是否倒滑）",
+    "group": "jump",
+    "csv": "jump_run_0p5.csv",
+    "samples": 4000,
+    "fell": false,
+    "max_abs_pitch_deg": 7.665,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_run_0p8": {
+    "desc": "行驶中跳跃 @ 0.8 m/s（速度保持 / 是否倒滑）",
+    "group": "jump",
+    "csv": "jump_run_0p8.csv",
+    "samples": 4000,
+    "fell": false,
+    "max_abs_pitch_deg": 8.417,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_run_1p5": {
+    "desc": "行驶中跳跃 @ 1.5 m/s（速度保持 / 是否倒滑）",
+    "group": "jump",
+    "csv": "jump_run_1p5.csv",
+    "samples": 4000,
+    "fell": false,
+    "max_abs_pitch_deg": 13.986,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_run_2p0": {
+    "desc": "行驶中跳跃 @ 2.0 m/s（速度保持 / 是否倒滑）",
+    "group": "jump",
+    "csv": "jump_run_2p0.csv",
+    "samples": 4000,
+    "fell": false,
+    "max_abs_pitch_deg": 18.114,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_run_2p5": {
+    "desc": "行驶中跳跃 @ 2.5 m/s（速度保持 / 是否倒滑）",
+    "group": "jump",
+    "csv": "jump_run_2p5.csv",
+    "samples": 4000,
+    "fell": false,
+    "max_abs_pitch_deg": 21.902,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_run_0p5_crouch0p25": {
+    "desc": "行驶中跳跃 @ 0.5 m/s，仅 CROUCH 时长改为 0.25 s（着地相位对照）",
+    "group": "jump",
+    "csv": "jump_run_0p5_crouch0p25.csv",
+    "samples": 4000,
+    "fell": false,
+    "max_abs_pitch_deg": 9.542,
+    "roll_p2p_deg": 0.0,
+    "overrides": {}
+  },
+  "jump_run_2p5_crouch0p25": {
+    "desc": "行驶中跳跃 @ 2.5 m/s，仅 CROUCH 时长改为 0.25 s（着地相位对照）",
+    "group": "jump",
+    "csv": "jump_run_2p5_crouch0p25.csv",
+    "samples": 4000,
+    "fell": true,
+    "max_abs_pitch_deg": 64.125,
+    "roll_p2p_deg": 0.028,
+    "overrides": {}
+  },
+  "jump_step20": {
+    "desc": "0.20 m 台阶：0.8 m/s 行驶中起跳（距前缘 0.42 m 触发），跳上后继续行驶",
+    "group": "jump",
+    "csv": "jump_step20.csv",
+    "samples": 4500,
+    "fell": false,
+    "max_abs_pitch_deg": 14.278,
+    "roll_p2p_deg": 0.01,
+    "overrides": {}
+  }
+}

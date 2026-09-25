@@ -1,0 +1,48 @@
+{
+  "duration": 13.1,
+  "max_abs_pitch_deg": 7.203,
+  "max_abs_roll_deg": 0.05,
+  "roll_p2p_deg": 0.061,
+  "min_base_z": 0.43647,
+  "fell": false,
+  "airborne_fraction": 0.004274156617310334,
+  "leg_torque_peak": 26.208,
+  "wheel_torque_peak": 2.379,
+  "x_drift_m": 0.00025,
+  "y_drift_m": 5.65488,
+  "windows": {
+    "wavy": {
+      "roll_p2p_deg": 0.061,
+      "max_abs_roll_deg": 0.05,
+      "max_abs_pitch_deg": 6.703,
+      "v_mean": 0.502061128302785,
+      "v_min": 0.3699,
+      "speed_rms_error": 0.06338021575841654,
+      "airborne_fraction": 0.006427041180671268,
+      "leg_torque_peak": 26.208
+    },
+    "whole": {
+      "roll_p2p_deg": 0.061,
+      "max_abs_roll_deg": 0.05,
+      "max_abs_pitch_deg": 7.203,
+      "v_mean": 0.46740457699933907,
+      "v_min": -0.0025,
+      "speed_rms_error": 0.08268899033489342,
+      "airborne_fraction": 0.004461335095836088,
+      "leg_torque_peak": 26.208
+    }
+  },
+  "name": "wavy_0p5",
+  "group": "terrain",
+  "desc": "波浪路（4.0 m，波峰 36~60 mm）@ 0.5 m/s（连续地形跟随）",
+  "terrain": "wavy",
+  "terrain_kwargs": {
+    "wavy_road": "WavyRoadTerrain(y_start=1.0, length=4.0, width=1.2, x_center=0.17, amplitude=0.03, wavelength=0.4, base_depth=0.001, height_min_scale=0.6, seed=0, nrow=801, ncol=33)"
+  },
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 5.06,
+  "realtime_factor": 2.59,
+  "truncated": false
+}

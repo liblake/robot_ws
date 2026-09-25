@@ -1,0 +1,49 @@
+{
+  "duration": 9.0,
+  "max_abs_pitch_deg": 6.796,
+  "max_abs_roll_deg": 0.044,
+  "roll_p2p_deg": 0.087,
+  "min_base_z": 0.43606,
+  "fell": false,
+  "airborne_fraction": 0.00022222222222222223,
+  "leg_torque_peak": 29.711,
+  "wheel_torque_peak": 1.848,
+  "x_drift_m": -0.00123,
+  "y_drift_m": 3.24602,
+  "windows": {
+    "obstacle": {
+      "roll_p2p_deg": 0.03,
+      "max_abs_roll_deg": 0.03,
+      "max_abs_pitch_deg": 3.761,
+      "v_mean": 0.4847748251748252,
+      "v_min": 0.364,
+      "speed_rms_error": 0.14005697570473397,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 29.711
+    },
+    "whole": {
+      "roll_p2p_deg": 0.087,
+      "max_abs_roll_deg": 0.044,
+      "max_abs_pitch_deg": 6.796,
+      "v_mean": 0.4155904313053414,
+      "v_min": -0.0025,
+      "speed_rms_error": 0.09697457195779816,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 29.711
+    }
+  },
+  "name": "ramp_65_045",
+  "group": "terrain",
+  "desc": "左轮 65 mm 单轮梯形坡 @ 0.45 m/s（单腿变高度越障）",
+  "terrain": "ramp",
+  "terrain_kwargs": {
+    "terrain_side": "left",
+    "terrain_height": "0.065"
+  },
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 2.74,
+  "realtime_factor": 3.29,
+  "truncated": false
+}

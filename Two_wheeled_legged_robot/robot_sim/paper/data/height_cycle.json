@@ -1,0 +1,45 @@
+{
+  "duration": 20.0,
+  "max_abs_pitch_deg": 2.658,
+  "max_abs_roll_deg": 0.0,
+  "roll_p2p_deg": 0.0,
+  "min_base_z": 0.40116,
+  "fell": false,
+  "airborne_fraction": 0.0001,
+  "leg_torque_peak": 25.633,
+  "wheel_torque_peak": 1.23,
+  "x_drift_m": 0.0,
+  "y_drift_m": 1e-05,
+  "windows": {
+    "high": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 1.167,
+      "v_mean": -1.338661338661339e-05,
+      "v_min": -0.0001,
+      "speed_rms_error": 3.6587721146053064e-05,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 11.532
+    },
+    "low": {
+      "roll_p2p_deg": 0.0,
+      "max_abs_roll_deg": 0.0,
+      "max_abs_pitch_deg": 1.789,
+      "v_mean": 5.584415584415586e-05,
+      "v_min": 0.0,
+      "speed_rms_error": 7.472894743280936e-05,
+      "airborne_fraction": 0.0,
+      "leg_torque_peak": 12.485
+    }
+  },
+  "name": "height_cycle",
+  "group": "ground",
+  "desc": "原地调腿高：0.37 → 0.45 → 0.33 → 0.37 m",
+  "terrain": "flat",
+  "terrain_kwargs": {},
+  "overrides": {},
+  "sim_timestep": 0.002,
+  "sample_every_steps": 1,
+  "wall_time_s": 6.2,
+  "realtime_factor": 3.23
+}
