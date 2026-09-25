@@ -13,3 +13,13 @@ robot.txt
 # 系统文件
 .DS_Store
 Thumbs.db
+
+# MuJoCo 运行时日志（每次启动都会重写）
+MUJOCO_LOG.TXT
+
+# 第三方仓库（自带 .git，不属于本项目；曾误以 gitlink 形式入库）
+wheeled-leg-robot/
+
+# 仿真运行产物（可重建）
+**/logs/
+**/paper/.cache/
